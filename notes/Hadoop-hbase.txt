@@ -1,0 +1,1455 @@
+*********************************************************
+Hbase
+-----
+HBase:
+	HMaster & RegionServer 
+	Region
+
+(Table, RowKey, Family, Column, Timestamp) -> Value
+SortedMap<RowKey, List<SortedMap<Column, List<Value, Timestamp>>>>
+
+The  first  SortedMap  is  the  table,  containing  a  List  of  column  families.  The  families
+contain another SortedMap, which represents the columns, and their associated values.
+These values are in the final List that holds the value and the timestamp it was set.
+
+Secondary index
+Predicate deleting
+Comparison b/w Big table and HBase
+
+
+Table 1-1. Differences in naming
+HBase 				Bigtable
+Region 				Tablet
+RegionServer 		Tablet server
+Flush 				Minor compaction
+Minor compaction 	Merging compaction
+Major compaction 	Major compaction
+Write-ahead log 	Commit log
+HDFS 				GFS
+Hadoop MapReduce 	MapReduce
+MemStore 			memtable
+HFile 				SSTable
+ZooKeeper 			Chubby
+
+HBase UI:
+		master host at port 60010 (HBase region servers use 60030 by de-
+		fault). If the master is running on a host named master.foo.com on the default port, to
+		see the master’s home page you can point your browser at http://master.foo.com:60010
+		
+		
+HBase: The Hadoop Database
+
+
+/conf/ - HBase conf files
+---------------------------
+HBase will not see these properties unless you do one of the following:
+	Add a pointer to your HADOOP_CONF_DIR to the HBASE_CLASSPATH environment variable in hbase-env.sh.	
+
+
+zoo.cfg Versus hbase-site.xml
+		if  there  is  a  zoo.cfg  on  the  classpath
+		(meaning it can be found by the Java process), it takes precedence over all settings in
+		hbase-site.xml—but only those starting with the hbase.zookeeper.property prefix, plus
+		a few others.
+
+Property 					zoo.cfg + hbase-site.xml 				hbase-site.xml only
+hbase.zookeeper.quorum 		Constructed from server.n lines as		Used as specified.
+							specified in zoo.cfg. Overrides any
+							setting in hbase-site.xml.
+
+hbase.zookeeper.property.* 	All values from zoo.cfg override any	Used as specified.	
+							value specified in hbase-site.xml.
+
+zookeeper.* 				Only taken from hbase-site.xml. 		Only taken from hbase-site.xml.
+
+rsync:	There  are  many  ways  to  synchronize  your  configuration  files  across
+		your cluster. The easiest is to use a tool like rsync.  
+
+hbase-site.xml and hbase-default.xml
+	hbase-default.xml. Configurations that users would rarely change can exist only
+
+	The servers always read the hbase-default.xml file first and subsequently merge it with
+	the hbase-site.xml file content—if present. The properties set in hbase-site.xml always
+	take precedence over the default values loaded from hbase-default.xml.
+
+	Any  modifications  in  your  site  file  require  a  cluster  restart  for  HBase.
+
+	-When you add Hadoop configuration files to HBase, they will always take the lowest priority.
+	 An example of such an HDFS client property is dfs.replication. If, for example, you
+	 want to run with a replication factor of 5, HBase will create files with the default of 3
+	 unless you override them in HBase configuration file.
+	 
+	
+hbase-env.sh
+	You set HBase environment variables in this file. Examples include options to pass to
+	the JVM when an HBase daemon starts. Changes here will require a cluster restart for HBase to notice the change.
+	
+regionserver
+		This file lists all the known region server names. It is a flat text file that has one hostname
+		per line. The list is used by the HBase maintenance script to be able to iterate over all
+		the servers to start the region server process.
+
+log4j.properties
+	Changing Logging Levels on page 466 for information on this topic, and Analyzing the Logs on page 468
+
+?HBase WAL and memStore concept
+?How transaction and lock is handled in HBase
+
+HBase Web-UI |  The HBase Master user interface
+		HBase also starts a web-based user interface (UI) listing vital attributes. By default, it
+		is deployed on the master host at port 60010 (HBase region servers use 60030 by default). 
+		If the master is running on a host named master.foo.com on the default port, to
+		see the master’s home page you can point your browser at 
+		http://master.foo.com:60010
+
+The catalog and user tables list details about the available tables. 
+
+Here is a summary of the points we just discussed:
+		Create HTable instances only once, usually when your application starts.
+		Create a separate HTable instance for every thread you execute (or use HTablePool).
+		Updates are atomic on a per-row basis.		
+	
+A row in HBase is identified by a unique row key and—as is the case with most values in HBase—this is a Java byte[] array.
+
+hbase(main):001:0> create 'test', 'cf1'             
+hbase(main):002:0> put 'test', 'row1', 'cf1', 'val1'
+hbase(main):004:0> scan 'test'                      
+hbase(main):005:0> scan 'test', { VERSIONS => 3 }   	
+
+For both operations, scan and get, you only get the latest (also referred to as the newest) version, 
+because HBase saves versions in time descending order and is set to return only one version by default.
+
+write-buffer
+The HBase API comes with a built-in client-side write buffer that collects put operations
+	By default, the client-side buffer is not enabled. You activate the buffer by setting auto-
+	flush to false, by invoking: 
+		table.setAutoFlush(false)
+	
+	Once you have activated the buffer, you can store data into HBase as shown in Single Puts
+		void flushCommits() throws IOException | The flushCommits() method ships all the modifications to the remote server(s)
+	
+	The API tracks how much data you are buffering by counting the required heap size of every instance
+	you have added. This tracks the entire overhead of your data, also including necessary
+	internal data structures. Once you go over a specific limit, the client will call the flush
+	command for you implicitly.
+	
+	You can control the configured maximum allowed client side write buffer size with these calls:
+		long getWriteBufferSize()
+		void setWriteBufferSize(long writeBufferSize) throws IOException
+	
+	The default size is a moderate 2 MB (or 2,097,152 bytes) and assumes you are inserting
+	reasonably small records into HBase.
+
+		hbase-site.xml configuration file—for example, adding:
+		<property>
+		  <name>hbase.client.write.buffer</name>
+		  <value>20971520</value>
+		</property>
+		This will increase the limit to 20 MB.
+		
+		
+	The buffer is only ever flushed on two occasions:
+		Explicit flush: Use the flushCommits() call to send the data to the servers for permanent storage.
+		Implicit flush: This is triggered when you call put() or setWriteBufferSize(). Both calls compare
+						the currently used buffer size with the configured limit and optionally invoke the
+						flushCommits() method.
+						
+		In  case  the  entire  buffer  is  disabled,  setting  setAutoFlush(true) will force the client 
+		to call the flush method for every invocation of put().
+		Another  call  triggering  the  flush  implicitly  and  unconditionally  is  the  close()
+		method of HTable.					
+		
+	 Result: keyvalues=NONE: Fetching intermediate data(enable buffer), 
+	 	It is caused by the fact that the client write buffer is an in-memory structure that is literally holding back
+		any unflushed records. Nothing was sent to the servers yet, and therefore you cannot access it.
+		
+	
+	Write buffer content, you would find that ArrayList<Put> getWriteBuffer() can be used to get the internal  
+	list of buffered  Put  instances  you  have  added  so  far.
+			Exactly that list that makes HTable not safe for multithreaded use. 
+	
+	Also note that a bigger buffer takes more memory--on both the client and server side since the 
+	server instantiates the passed write buffer to process it
+
+	On the other hand, a larger buffer size reduces the number of RPCs made. For an estimate 
+	of server-side memory-used, evaluate 
+	hbase.client.write.buffer  *  hbase.regionserver.handler.count  * number of region server.
+	
+	If you only store large cells, the local  buffer  is  less  useful,  since  the  transfer  is  then  dominated  by
+	the transfer time. In this case, you are better advised to not increase the client buffer size.
+	
+	Batch Operations:
+		List of Puts
+		void put(List<Put> puts) throws IOException
+		
+		Exception case: one of put has bogus data 
+		Add a Put with a nonexistent family to the list.
+		The call to put() fails with the following (or similar) error message:
+		org.apache.hadoop.hbase.client.RetriesExhaustedWithDetailsException:
+		
+		The  failed  ones  are returned  and  the  client  reports  the  remote  error  using  the  
+		RetriesExhausted WithDetailsException.
+		
+		Those Put instances that have failed on the server side are kept in the local write buffer.
+		They will be retried the next time the buffer is flushed. You can also access them using
+		the getWriteBuffer() method of HTable and take, for example, evasive actions.
+
+	 	you cannot control the order in which the puts are applied on the server side, which implies that the order
+		in which the servers are called is also not under your control.
+		
+	Atomic compare-and-set
+		There is a special variation of the put calls that warrants its own section: check and put. 	
+		boolean checkAndPut(byte[] row, byte[] family, byte[] qualifier, byte[] value, Put put) throws IOException
+		
+		Such guarded operations are often used in systems that handle, for example, account
+		balances, state transitions, or data processing.
+		
+		A special type of check can be performed using the checkAndPut() call:
+		only update if another value is not already present. This is achieved by
+		setting the value parameter to null.	
+	
+		The compare-and-set operations provided by HBase rely on checking
+		and modifying the same row! As with other operations only providing
+		atomicity guarantees on single rows
+		
+	get()
+		A get() operation is bound to one specific row, but can retrieve any number of columns and/or cells contained therein.
+		Get addFamily(byte[] family)
+		Get addColumn(byte[] family, byte[] qualifier)
+		Get setTimeRange(long minStamp, long maxStamp) throws IOException
+		Get setTimeStamp(long timestamp)
+		Get setMaxVersions()
+		Get setMaxVersions(int maxVersions) throws IOException	
+		
+		By default, MaxVersion is set to 1, meaning that the get() call returns the most current match only
+		
+		Access  to  the  raw,  low-level  KeyValue  instances  is  provided  by  the  raw()  method,
+		returning  the  array  of  KeyValue  instances  backing  the  current  Result  instance
+
+		If the Result instance is empty, the output will be: keyvalues=NONE
+		
+		List of Gets
+			List<Get> gets = new ArrayList<Get>();	
+			Result[] results = table.get(gets);
+			For any bogus row, exception is thrown and entire opertion is aborted
+			
+		
+		Serialization in HC		
+			TypeManager: 
+			/**
+				 * <pre>
+				 * Serializes the passed dataType into a byte[]. length parameter is only used for variable length 
+				 * data types (i.e. currently only string). 
+				 * 1.	If for a string data type length is passed then the complete string is converted to a byte[] 
+				 * 		of the size (length). The byte from the string are copied
+				 *     	in the byte[] from the beginning and trailing bytes are left null (empty).
+				 * 2. If for a string data type length is null or negative then the complete string is converted 
+				 * 	  to a null terminated byte[] containing string. In this case the
+				 *    length of byte array is (length of encoded string byte[] +1 null byte)
+				 * </pre>
+			 */
+		
+		Delete
+			Single Deletes			
+					Delete(byte[] row)
+					Delete(byte[] row, long timestamp, RowLock rowLock)
+					
+					deleteFamily(): remove an entire column family
+					deleteColumns():exactly one column and deletes either all versions of that cell when no 
+									timestamp is given, or all matching and older versions when a timestamp is specified
+					deleteColumn(): deletes either the most current or the specified version, that is, the 
+									one with the matching timestamp.
+									
+			List of Deletes
+			
+			Atomic compare-and-delete
+				Should the test fail, nothing is deleted and the
+				call returns a false. If the check is successful, the delete is applied and true is returned.
+			
+			---------- WAL Memstore concept
+			Implementation
+			Bigtable [...] allows clients to reason about the locality properties of the data represented
+			in the underlying storage.
+			The data is stored in store files, called HFiles, which are persistent and ordered immut-
+			able maps from keys to values. Internally, the files are sequences of blocks with a block
+			index stored at the end. The index is loaded when the HFile is opened and kept in
+			Building Blocks    |    23memory. The default block size is 64 KB but can be configured differently if required.
+			The store files provide an API to access specific values as well as to scan ranges of values
+			given a start and end key.
+			Implementation is discussed in great detail in Chapter 8. The text here
+			is an introduction only, while the full details are discussed in the refer-
+			enced chapter(s).
+			Since every HFile has a block index, lookups can be performed with a single disk seek.
+			First, the block possibly containing the given key is determined by doing a binary search
+			in the in-memory block index, followed by a block read from disk to find the actual key.
+			The store files are typically saved in the Hadoop Distributed File System (HDFS), which
+			provides a scalable, persistent, replicated storage layer for HBase. It guarantees that
+			data  is  never  lost  by  writing  the  changes  across  a  configurable  number  of  physical
+			servers.
+			When data is updated it is first written to a commit log, called a write-ahead log (WAL)
+			in HBase, and then stored in the in-memory memstore. Once the data in memory has
+			exceeded a given maximum value, it is flushed as an HFile to disk. After the flush, the
+			commit logs can be discarded up to the last unflushed modification. While the system
+			is flushing the memstore to disk, it can continue to serve readers and writers without
+			having to block them. This is achieved by rolling the memstore in memory where the
+			new/empty one is taking the updates, while the old/full one is converted into a file.
+			Note that the data in the memstores is already sorted by keys matching exactly what
+			HFiles represent on disk, so no sorting or other special processing has to be performed.
+
+			----------Delete concept
+			Because store files are immutable, you cannot simply delete values by removing the
+			key/value pair from them. Instead, a delete marker (also known as a tombstone marker)
+			is written to indicate the fact that the given key has been deleted. During the retrieval
+			process, these delete markers mask out the actual values and hide them from reading
+			clients.
+			Reading data back involves a merge of what is stored in the memstores, that is, the data
+			that has not been written to disk, and the on-disk store files. Note that the WAL is
+			never used during data retrieval, but solely for recovery purposes when a server has
+			crashed before writing the in-memory data to disk.
+			Since flushing memstores to disk causes more and more HFiles to be created, HBase
+			has a housekeeping mechanism that merges the files into larger ones using compac-
+			tion. There are two types of compaction: minor compactions and major compactions.
+			The former reduce the number of storage files by rewriting smaller files into fewer but
+			larger ones, performing an n-way merge. Since all the data is already sorted in each
+			HFile, that merge is fast and bound only by disk I/O performance.
+			The major compactions rewrite all files within a column family for a region into a single
+			new one. They also have another distinct feature compared to the minor compactions:
+			based on the fact that they scan all key/value pairs, they can drop deleted entries in-
+			cluding their deletion marker. Predicate deletes are handled here as well—for example,
+			removing values that have expired according to the configured time-to-live or when
+			there are too many versions.
+			----------
+
+Three major components to HBase: the client library, one master server, and
+			many region servers. The region servers can be added or removed while the system is
+			up and running to accommodate changing workloads. The master is responsible for
+			assigning regions to region servers and uses Apache ZooKeeper, a reliable, highly avail-
+			able, persistent and distributed coordination service
+
+			zookeeper uses zab protocol
+			
+			The  master  server  is  also  responsible  for  handling  load  balancing  of  regions  across
+			region servers, to unload busy servers and move regions to less occupied ones. The
+			master is not part of the actual data storage or retrieval path. It negotiates load balancing
+			and maintains the state of the cluster, but never provides any data services to either the
+			region servers or the clients, and is therefore lightly loaded in practice. In addition, it
+			takes care of schema changes and other metadata operations, such as creation of tables
+			and column families.
+			
+			“Region Lookups” on page 345	
+			
+			
+	BatchOperations
+			void batch(List<Row> actions, Object[] results) 
+			  throws IOException, InterruptedException
+			Object[] batch(List<Row> actions) 
+			  throws IOException, InterruptedException
+
+			Be aware that you should not mix a Delete and Put operation for the
+			same row in one batch call. The operations will be applied in a different
+			order that guarantees the best performance, but also causes unpredictable results.
+
+			When you use the batch() functionality, the included Put instances will
+			not be buffered using the client-side write buffer. The batch() calls are
+			synchronous and send the operations directly to the servers; no delay
+			or  other  intermediate  processing  is  used.  This  is  obviously  different
+			compared to the put() calls, so choose which one you want to use care-
+			fully.	
+			The client-side write buffer is not used.
+
+			Difference is that
+
+			void batch(List<Row> actions, Object[] results) 
+			  throws IOException, InterruptedException
+			gives you access to the partial results, while
+			[Gives access to the results of all succeeded operations, and the remote exceptions
+			 for those that failed.]
+
+			Object[] batch(List<Row> actions) 
+			  throws IOException, InterruptedException
+
+			  [Only returns the client-side exception; no access to partial results is possible.]
+
+			does not! The latter throws the exception and nothing is returned to you since the
+			control flow of the code is interrupted before the new result array is returned.
+			The former function fills your given array and then throws the exception.
+			
+	Row Locks
+		The region servers provide a row lock feature ensuring that only a client holding the matching lock can modify a row.			
+		
+		You  should  avoid  using  row  locks  whenever  possible.  Just  as  with
+		RDBMSes,  you  can  end  up  in  a  situation  where  two  clients  create  a
+		deadlock by waiting on a locked row, with the lock held by the other
+		client.
+		
+		To reiterate: do not use row locks if you do not have to. And if you do, use them sparingly!
+		
+		Put(byte[] row)
+		which is not providing a RowLock instance parameter, the servers will create a lock on
+		your behalf, just for the duration of the call. In fact, from the client API you cannot
+		even retrieve this short-lived, server-side lock instance.
+		
+		RowLock lockRow(byte[] row) throws IOException
+		void unlockRow(RowLock rl) throws IOException
+		
+		While a lock on a row is held by someone "whether by the server briefly or a client
+		explicitly" all other clients trying to acquire another lock on that very same row will
+		stall, until either the current lock has been released, or the lease on the lock has expired.
+		key  to  the  hbase-site.xml  file  and  setting  the  value  to  a  different,  millisecond-based timeout:
+		The  default  timeout  on  locks  is  one  minute, 
+		<property>
+		  <name>hbase.regionserver.lease.period</name>
+		  <value>120000</value>
+		</property>
+		
+		Do Gets require Locks
+			This is legacy and actually not used at server side
+			Servers instead apply a multiversion concurrency control-style* mechanism ensuring 
+			that row-level read operations, such as get() calls, never return half-written data
+			for example, what is written by another thread or client
+			
+			Think of this like a small-scale transactional system: only after a mutation has been
+			applied to the entire row can clients read the changes. While a mutation is in progress,
+			all reading clients will be seeing the previous state of all columns
+
+		UnknownRowLockException
+			When you try to use an explicit row lock that you have acquired earlier but failed to
+			use within the lease recovery time range, you will receive an error from the servers, in
+			the  form  of  an  UnknownRowLockException.
+			
+		Scans
+			it is time to take a look at  scans,  a  technique  akin  to  cursors†  in  database  
+			systems,  which  make  use  of  the underlying sequential, sorted storage layout 
+			HBase is providing.
+			
+			ResultScanner getScanner(Scan scan) throws IOException
+			ResultScanner getScanner(byte[] family) throws IOException
+			ResultScanner getScanner(byte[] family, byte[] qualifier) throws IOException	
+			
+			Scan()
+			Scan(byte[] startRow, Filter filter)
+			Scan(byte[] startRow)
+			Scan(byte[] startRow, byte[] stopRow)
+			
+			The start row is always inclusive, while the end row is exclusive. This is
+			often expressed as [startRow, stopRow) in the interval notation.
+			
+			The scan will match the first row key that is equal to or larger than the given start row. 
+			If no start row was specified, it will start at the beginning of the table.
+			
+			It will also end its work when the current row key is equal to or greater than the optional
+			stop row. If no stop row was specified, the scan will run to the end of the table.
+
+			Once you have configured the Scan instance, you can call the HTable method, named
+			getScanner(), to retrieve the ResultScanner instance
+			
+		The ResultScanner Class
+			Scans do not ship all the matching rows in one RPC to the client, but instead do this
+			on a row basis. This obviously makes sense as rows could be very large and sending
+			thousands, and most likely more, of them in one call would use up too many resources,
+			and take a long time.
+			
+			The ResultScanner converts the scan into a get-like operation, wrapping the Result
+			instance for each row into an iterator functionality.
+			
+			Result next() throws IOException
+			Result[] next(int nbRows) throws IOException
+			void close()
+			
+			The next() calls return a single instance of Result representing the next available row.
+			Alternatively, you can fetch a larger number of rows using the next(int nbRows) call
+			
+			Make sure you release a scanner instance as quickly as possible. An open scanner holds
+			quite a few resources on the server side, which could accumulate to a large amount of 
+			heap space being occupied.
+			
+			each call to next() will be a separate RPC for each row
+			
+			it would make sense to fetch more than one row per RPC if possible. This is called scanner caching
+			and is disabled by default.
+			
+			You can enable it at two different levels: on the table level, to be effective for all scan
+			instances, or at the scan level, only affecting the current scan.
+			hbase-site.xml configuration file:
+			<property>
+			  <name>hbase.client.scanner.caching</name>
+			  <value>10</value>
+			</property>
+			They work the same way as the table-wide settings, giving you control over how many
+			rows are retrieved with every RPC.
+			
+			When the time taken to transfer the rows to the client, or to process the data on the client, exceeds 
+			the configured scanner lease threshold, you will  end  up  receiving  a  lease  expired  error,  in  
+			the  form  of  a ScannerTimeoutException being thrown.
+			
+			Consider the leasePeriod during scan as due to time taken to fetch or thread sleep, if wake up time > lease period 
+			then there would be runtime exception, ScannerTimeoutException, UnknownScannerException.
+				UnknownScannerException: 	It means that the next() call is using a
+				-----------------------		scanner ID that has since expired and been removed in due course. In other words, the
+											ID your client has memorized is now unknown to the region servers—which is the name
+											of the exception.
+			
+			You might be tempted to add the following into your code:
+					Configuration conf = HBaseConfiguration.create()
+					conf.setLong(HConstants.HBASE_REGIONSERVER_LEASE_PERIOD_KEY, 120000)
+			assuming this increases the lease threshold (in this example, to two minutes). But that is not going to 
+			work as the value is configured on the remote  region  servers,  not  your  client  application.
+			Your  value  is  not being sent to the servers, and therefore will have no effect.
+			If you want to change the lease period setting you need to add the appropriate configuration key to the 
+			hbase-site.xml file on the region servers while not forgetting to restart them for the changes to take effect!
+			
+			ScannerCaching
+			Caching doesn't help in bulky data transfers (rows) as they do not fit in memory.
+			Use Batching for that.
+			As opposed to caching, which operates on a row level, batching works on the column level instead.
+			For example, setting the scan to use setBatch(5) would return five columns per Result instance.
+
+					When a row contains more columns than the value you used for the
+					batch,  you  will  get  the  entire  row  piece  by  piece,  with  each  next
+					Result returned by the scanner.
+		
+					The last Result may include fewer columns, when the total number of
+					columns in that row is not divisible by whatever batch it is set to. For
+					example, if your row has 17 columns and you set the batch to 5, you get
+					four  Result  instances,  with  5,  5,  5,  and  the  remaining  two  columns
+					within.			
+			
+					The combination of scanner caching and batch size can be used to control the number
+					of  RPCs  required  to  scan  the  row  key  range  selected
+			
+					Refer caching/batch example on page 161 - HBase definitive guide
+					
+					**RPCs calculations**
+					---------------------
+					To compute the number of RPCs required for a scan, you need to first
+					multiply the number of rows with the number of columns per row (at
+					least some approximation). Then you divide that number by the smaller
+					value of either the batch size or the columns per row. Finally, divide that
+					number by the scanner caching value. In mathematical terms this could
+					be expressed like so:
+					RPCs = (Rows * Cols per Row) / Min(Cols per Row, Batch Size) / Scanner Caching
+					
+					In addition, RPCs are also required to open and close the scanner. You
+					would need to add these two calls to get the overall total of remote calls
+					when dealing with scanner
+					
+					For some ex, The small batch value causes the servers to group three columns into one Result, 
+								 while the scanner caching of six causes one RPC to transfer six rows
+								 
+								 
+					
+			This parameter is specifying the maximum size a region within the table can grow to
+			Maximum file size is actually a misnomer, as it really is about the
+			maximum size of each store, that is, all the files belonging to each
+			column family. If one single column family exceeds this maximum
+			size, the region is split. Since in practice, this involves multiple files,
+			the better name would be maxStoreSize.
+			
+			Read-only
+			By default, all tables are writable, but it may make sense to specify the read-only
+			option for specific tables. If the flag is set to true, you can only read from the table
+			
+			HBase uses one of two different approaches  to  save  write-ahead-log  entries  to  disk.
+			You  either  use  deferred  log flushing or not. This is a boolean option and is, by default, set to false
+			
+			HTableDescriptor
+			HColumnDescriptor
+			Column::   family:qualifier
+			
+			Compression
+			HBase has pluggable compression algorithm support (you can find more on this
+			topic in  “Compression” on page  424) that allows you to choose the best com-pression—or none—
+			for the data stored in a particular column family.
+			
+			Bloom filter
+			An advanced feature available in HBase is Bloom filters,§ allowing you to improve
+			lookup   times   given   you   have   a   specific   access   pattern   
+			(see   “Bloom   Fil-ters” on page 377 for details). Since they add overhead in terms of storage and
+			memory, they are turned off by default.
+					none
+					row
+					rowcal
+			
+			Disabling the table first tells every region server to flush any uncommitted changes to
+			disk, close all the regions, and update the .META. table to reflect that no region of this
+			table is not deployed to any servers
+
+
+		Catalog tables: .META[holds references to all user table regions] and -ROOT[holds ref to all .META regions]
+		UserTables: 
+		zk_dump: 
+		
+		B+ trees:
+		B+ trees have some specific features that allow for efficient insertion, lookup, and de-
+		letion of records that are identified by keys. They represent dynamic, multilevel indexes
+		with lower and upper bounds as far as the number of keys in each segment (also called
+		page) is concerned
+		That is also the reason why you will find
+		an OPTIMIZE TABLE command in most layouts based on B+ trees—it basically rewrites
+		the table in-order so that range queries become ranges on disk again
+		
+		
+		Log-Structured Merge-Trees
+		Log-structured  merge-trees,  also  known  as  LSM-trees,  follow  a  different  approach.
+		Incoming data is stored in a logfile first, completely sequentially. Once the log has the
+		modification saved, it then updates an in-memory store that holds the most recent
+		updates for fast lookup.
+		
+		The store files are arranged similar to B-trees, but are optimized for sequential disk
+		access where all nodes are completely filled and stored as either single-page or multi-
+		page blocks.
+
+		Updating the store files is done in a rolling merge fashion, that is, the system
+		packs existing on-disk multipage blocks together with the flushed in-memory data until
+		the block reaches its full capacity, at which point a new one is started.
+		
+		Merging writes out a new block with the combined result. Eventually,
+		the trees are merged into the larger blocks
+		
+		Lookups are done in a merging fashion in which the in-memory store is searched first,
+		and then the on-disk store files are searched next.
+		
+		Predicate deletion:		
+		An additional feature of the background processing for housekeeping is the ability to
+		support predicate deletions. These are triggered by setting a time-to-live (TTL) value
+		that  retires  entries,  for  example,  after  20  days.  The  merge  processes  will  check  the
+		predicate and, if true, drop the record from the rewritten blocks.
+
+		There are two different database para-digms: one is seek and the other is transfer.
+		seek: used by B+ trees
+		transfer: used by LSM trees
+		
+		B+ trees work well until there are too many modifications, because
+		they force you to perform costly optimizations to retain that advantage for a limited
+		amount of time. The more and faster you add data at random locations, the faster the
+		pages become fragmented again. Eventually, you may take in data at a higher rate than
+		the optimization process takes to rewrite the existing files. The updates and deletes are
+		done at disk seek rates, rather than disk transfer rates.
+		
+		LSM-trees work at disk transfer rates and scale much better to handle large amounts
+		of data. They also guarantee a very consistent insert rate, as they transform random
+		writes into sequential writes using the logfile plus in-memory store. 
+		
+		****
+		The general communication flow is that a new client contacts the ZooKeeper ensemble
+		(a separate cluster of ZooKeeper nodes) first when trying to access a particular row. It
+		does so by retrieving the server name (i.e., hostname) that hosts the -ROOT- region from
+		ZooKeeper. With this information it can query that region server to get the server name
+		that hosts the .META. table region containing the row key in question. Both of these
+		details are cached and only looked up once. Lastly, it can query the reported .META.
+		server and retrieve the server name that has the region containing the row key the client
+		is looking for.
+		
+		The  HMaster  is  responsible  for  assigning  the  regions  to  each  HRegion
+		Server  when  you  start  HBase.  This  also  includes  the  special  -ROOT-
+		and .META. tables.
+
+		HBase provides two special catalog tables, called -ROOT- and .META..*
+		The -ROOT- table is used to refer to all regions in the .META. table. The design considers
+		only one root region, that is, the root region is never split to guarantee a three-level, B+
+		tree-like lookup scheme: the first level is a node stored in ZooKeeper that contains the
+		location of the root table’s region—in other words, the name of the region server host-
+		ing that specific region. The second level is the lookup of a matching meta region from
+		the -ROOT- table, and the third is the retrieval of the user table region from the .META.
+		table.
+		
+		
+		HRegionServer->HRegion->Store(instance for each HColumnFamily. Store are  lightweight  
+		wrappers  around  the  actual  storage  file called  HFile.) A  Store  also  has  a  MemStore, 
+		and  the  HRegionServer  a  shared  HLog  instance.
+		
+		****
+		The first step is to write the data to the write-ahead log (the WAL), represented by the HLog class.
+		The WAL is a standard Hadoop SequenceFile and it stores HLogKey instances
+		Once the data is written to the WAL, it is placed in the MemStore. At the same time, it
+		is checked to see if the MemStore is full and, if so, a flush to disk is requested
+		The request is served by a separate thread in the HRegionServer
+		
+		preflushing: RegionServer checks data in memstore with value configured against 
+					hbase.hregion.preclose.flush.size(set to 5 MB by default).
+					
+					Stopping the region servers forces all memstores to be written to disk,
+					no matter how full they are compared to the configured maximum size, set with the
+					hbase.hregion.memstore.flush.size property (the default is 64 MB)
+		during the preflush, the server and its regions are still available		
+		
+		HDFS defaults storage @ /hbase ..
+				The first set of files are the write-ahead log files handled by the HLog instances, created
+				in  a  directory  called  .logs  underneath  the  HBase  root  directory.  The  .logs  directory
+				contains a subdirectory for each HRegionServer.
+				****All regions from that region server share the same HLog files.
+
+				When a logfile is are no longer needed because all of the contained edits have been
+				persisted into store files, it is decommissioned into the .oldlogs directory under the root
+				HBase directory.
+
+				The old logfiles are deleted by the master after 10 minutes (by default), set with the
+				hbase.master.logcleaner.ttl
+				
+		  The hbase.id and hbase.version files contain the unique ID of the cluster, and the file
+		  format version:
+
+		  Every table in HBase has its own directory. Each table directory contains a top-level 
+		  file named .tableinfo, which stores the serialized HTableDescriptor
+		  
+		 HFile Format
+		  The  actual  storage  files  are  implemented  by  the  HFile  class,  which  was  specifically
+		  created to serve one purpose: store HBase’s data efficiently. They are based on 
+		  Hadoop’s TFile class,? and mimic the SSTable format used in Google’s Bigtable architecture.
+		  
+		 {NAME => 'testtable', FAMILIES => [{NAME => 'colfam1', 
+		  BLOOMFILTER => 'NONE', REPLICATION_SCOPE => '0', VERSIONS => '3', 
+		  COMPRESSION \=> 'NONE', TTL => '2147483647', BLOCKSIZE => '65536', 
+		  IN_MEMORY => 'false', BLOCKCACHE => 'true'}]} 
+			
+		  Larger block size is preferred if files are primarily for sequentialaccess.
+		  Smaller blocks are good for random access	
+		
+		  When you are using a compression algorithm you will not have much control over block size	
+		 
+		  ****			 
+		  HBase default block size: 64KB
+		  HDFS default block size: 64MB
+
+		  One thing you may notice is that the default block size for files in HDFS is 64 MB,
+		  which is 1,024 times the HFile default block size. As such, the HBase storage file blocks
+		  do not match the Hadoop blocks. In fact, there is no correlation between these two
+		  block types. HBase stores its files transparently into a filesystem. The fact that HDFS
+		  uses blocks is a coincidence. And HDFS also does not know what HBase stores; it only
+		  sees binary files. 
+		
+		  WAL figure: Page 364
+		  
+		  The process is as follows: first the client initiates an action that modifies data. This can
+		  be, for example, a call to put(), delete(), and increment(). Each of these modifications
+		  is wrapped into a KeyValue object instance and sent over the wire using RPC calls. The
+		  calls are (ideally) batched to the HRegionServer that serves the matching regions.
+		  Once the KeyValue instances arrive, they are routed to the HRegion instances that are
+		  responsible for the given rows. The data is written to the WAL, and then put into the
+		  MemStore of the actual Store that holds the record. This is, in essence, the write path of
+		  HBase.
+		  
+		  The master is responsible for monitoring the servers using ZooKeeper, and if it detects
+		  a server failure, it immediately starts the process of recovering its logfiles, before reas-
+		  signing the regions to new servers.
+		  
+		  That is where the architecture of HBase comes into play. There are no index files that
+		  allow such direct access of a particular row or column. The smallest unit is a block in
+		  an  HFile,  and  to  find  the  requested  data  the  RegionServer  code  and  its  underlying
+		  Store instances must load a block that could potentially have that data stored and scan
+		  through it. And that is exactly what a Scan does anyway.
+		  
+		HBase provides two special catalog tables, called -ROOT- and .META..*
+		The -ROOT- table is used to refer to all regions in the .META. table. The design considers
+		only one root region, that is, the root region is never split to guarantee a three-level, B+
+		tree-like lookup scheme: the first level is a node stored in ZooKeeper that contains the
+		location of the root table’s region—in other words, the name of the region server host-
+		ing that specific region. The second level is the lookup of a matching meta region from
+		the -ROOT- table, and the third is the retrieval of the user table region from the .META.
+		table.			  
+		  
+		 Lookup-1
+		 	a read of the zooKeeper node to find the root table region.
+		 Lookup-2
+		 	From -ROOT-, meta table region 
+		 Lookup-3
+		 	From .META., user table region is known
+		
+		
+		Zookeeper:
+		HBase creates a list of znodes under its root node. The default is /hbase and is configured
+		with the zookeeper.znode.parent property. Here is the list of the contained znodes and
+		their purposes.
+		
+
+
+-RokKey & schema design
+	-column key: The columns are the typical HBase combination of a column family name and a 
+	 column qualifier, forming the column key.
+	-The cells are sorted in descending order of the timestamp so that the latest cell is always first
+	-The KeyValues are sorted by row key first, and then by column key 
+	-The timestamp or version of a cell is farther to the right, it is another important selection criterion
+	-The store files retain the timestamp range for all stored cells,
+	 so if you are asking for a cell that was changed in the past two hours, but a particular
+	 store file only has data that is four or more hours old it can be skipped completely.
+	-How you should store your data. The two choices are tall-narrow and flat-wide. 
+		-TallNarrow: Less columns and many rows
+		-FlatWide: More columns and less rows
+			-keyValue: rowKey->columnFamilyName->columnQualifier->timestamp->Value
+			-email key example with userId & messageId
+				-FlatWide example
+				 <userId> : <colfam> : <messageId> : <timestamp> : <email-message>
+				 12345 : data : 5fc38314-e290-ae5da5fc375d : 1307097848 : "Hi Lars, ..."
+				-TallNarrow example
+				 <userId>-<messageId> 			  :	<colfam> : <qualifier> : <timestamp> : <email-message>
+				 12345-5fc38314-e290-ae5da5fc375d : data 	 : 			   : 1307097848  : "Hi Lars, ..."
+				
+				This results in a table that is easily splittable, with the additional benefit of having 
+				a more fine-grained query granularity.	 
+	
+	-partial key scans - Key design
+		-You can specify a start and end key that is set to the exact key
+			-The start key of a scan is inclusive, while the stop key is exclusive
+		-Consider  the  following  row  key structure:
+		 <userId>-<date>-<messageId>-<attachmentId>
+		-Make sure that you pad the value of each field in the composite row key so that the 
+		 lexicographical (binary, and ascending) sorting works as expected.
+		-Command Description
+				<userId> Scan over all messages for a given user ID.
+				<userId>-<date> Scan over all messages on a given date for the given user ID.
+				<userId>-<date>-<messageId> Scan over all parts of a message for a given user ID and date.
+				<userId>-<date>-<messageId>-<attachmentId>   Scan over all attachments of a message for a given 
+				                                             user ID and date. 
+		-One major drawback to composite key is atomicity. Since the data is now spanning many rows for a
+		 single inbox, it is not possible to modify it in one operation.
+		-Using  the  composite  row  key  with  the  user  ID  and  date  gives  you  a  natural  order,
+		 displaying the newest messages first, sorting them in descending order by date.
+		 
+	-Time series data key
+		-Its salient feature is that its row key represents the event time. This imposes a problem 
+		 with the way HBase is arranging its rows
+		-The sequential, monotonously increasing nature of time series data causes all incoming
+		 data to be written to the same region.
+			-To overcome this problem by ensuring that data is spread over all region servers
+			 instead. This can be done, for example, by prefixing the row key with a nonsequential prefix
+			-Salting
+				-You can use a salting prefix to the key that guarantees a spread of all rows across
+				 all region servers.
+				-byte prefix = (byte) (Long.hashCode(timestamp) % <number of region servers>);
+				 byte[] rowkey = Bytes.add(Bytes.toBytes(prefix), Bytes.toBytes(timestamp);
+			-
+	-Randomization
+		-When your data is not scanned in ranges but accessed randomly, you can use this strategy.	
+		-Random keys avoid region hot-spots
+		
+	-SecondaryIndexes
+		-offer sorting by different fields so that the user can switch at will
+		-		 
+	-hbase.hregion.majorcompaction configuration property
+	-If your data size grows too large, use the RegionSplitter utility to perform a network I/O safe rolling split of all regions.
+	
+	-??ReadPath
+
+??Merging Regions
+	-As u can split regions u can also merge the regions
+	-After u removed lot of dataand now u want to reduce the number of regions
+	-$ ./bin/hbase org.apache.hadoop.hbase.util.Merge
+	 Usage: bin/hbase merge <table-name> <region-1> <region-2>
+
+??regionHotspotting:
+	-You can determine if you are dealing with a write pattern that is causing a specific region to run hot
+	-You may need to salt the keys, or use random keys to distribute the load across all servers evenly
+	-Region split
+		-The only way to alleviate the situation is to manually split a hot region into one or more 
+		 new regions, at exact boundaries
+		-As you split a region you can specify a split key, that is, the row key where you
+		 can split the given region into two. 
+??Presplitting Regions
+	-Managing the splits is useful to tightly control when load is going to increase on your cluster. 
+	-Growing this single region to a very large size is not recommended; therefore, it is better
+	 to start with a larger number of regions right from the start.
+	 	-This is done by presplitting the regions of an existing table, 
+	 	-By creating a table with the required number of regions
+	 		-shell’s create command: hbase(main):001:0> create 'testtable', 'colfam1', { SPLITS => ['row-100', 'row-200', 'row-300', 'row-400'] }
+	-HBase also ships with a utility called RegionSplitter(uses MD5StringSplit class), which you can use to create a presplit table. 
+		-usage: RegionSplitter -c <region count> <TABLE>
+		...-D, -f, -h, -o, -r
+		-You can define your own algorithm by implementing the SplitAlgorithm interface provided, and handing it 
+		 into the utility using the -D split.algorithm=<your-algorithm-class>	
+		- e.g. $ ./bin/hbase org.apache.hadoop.hbase.util.RegionSplitter -c 10  testtable -f colfam1
+		-e.g 
+??scan using column value:
+scan 'yourTable', {LIMIT => 10, FILTER => SingleColumnValueFilter.new(Bytes.toBytes('family'), 
+Bytes.toBytes('field'), CompareFilter::CompareOp.valueOf('EQUAL'), Bytes.toBytes('AAA')), COLUMNS => 'family:field' }
+	
+	
+	
+??Table hotspotting
+	-Sometimes an existing table with many regions is not distributed well in other words,
+	 most of its regions are located on the same region server.# This means that, although
+	 you insert data with random keys, you still load one region server much more often
+	 than  the  others.  You  can  use  the  ***move()  function
+	 from the HBase Shell, or use the HBaseAdmin class to explicitly move
+	 the server’s table regions to other servers. Alternatively, you can use the ***unassign()
+	 method or shell command to simply remove a region of the affected table from the
+	 current server. The master will immediately deploy it on another available server.
+	
+	
+Questions:
+----------
+bloomFilters??
+
+??The Region Life Cycle:  See “The Region Life Cycle” on page 348 for details.
+HBaseMaster:  ports: HBaseMaster @60000 | <ip>:60000
+RegionServer: http://<region-server-address>:60030
+
+
+
+??HBase node decomissioning:
+-Node decommision
+	-To avoid any problems b/w HBase load balancer and Master Node,by disabling the balancer first.
+		-hbase(main):001:0> balance_switch false => disable loadbalancer
+		-hbase(main):001:0> balance_switch true => enable loadbalancer
+	
+	-HBase directory on the particular server run
+	$ ./bin/hbase-daemon.sh stop regionserver
+	-First close all regions and then shut itself down
+	-Its ephemeral(lasting for short time) node in the zookeeper will expire
+
+-GraceFul decommision
+	- want to decommission a loaded region server, run the following:
+	$ ./bin/graceful_stop.sh HOSTNAME
+		hostname is the host that you want to decommision
+	
+	-The graceful_stop.sh script will move the regions off the decommissioned region server
+	 one at a time to minimize region churn. It will verify the region deployed in the new
+	 location before it moves the next region, and so on, until the decommissioned server
+	 is carrying no more regions.
+
+	- The master will notice the region server gone but all regions will have already been 
+	 redeployed, and because the region server went down cleanly, there will be no WALs to split.
+
+-Rolling restarts
+	A primitive rolling restart might be effected by running something like the following:
+	$ for i in `cat conf/regionservers|sort`; do ./bin/graceful_stop.sh --restart --reload --debug $i; done &> /tmp/log.txt &
+
+-Master update:
+
+		****Must do the rolling start of the servers
+
+		-Unpack the release 
+		-Run hbck to ensure the cluster is consistent:
+			$ ./bin/hbase hbck
+			Effect repairs if inconsistent.	 
+
+		-Restart the master:
+			$ ./bin/hbase-daemon.sh stop master; ./bin/hbase-daemon.sh start master
+
+		-Disable the region balancer:
+			$ echo "balance_switch false" | ./bin/hbase shell
+
+		-Run the graceful_stop.sh script per region server. For example:
+			$ for i in `cat conf/regionservers|sort`; do ./bin/graceful_stop.sh --restart --reload --debug $i; done &> /tmp/log.txt &	
+
+			If you are running Thrift or REST servers on the region server, pass the --thrift
+			or --rest option, 
+
+		-Restart Master again
+			$ ./bin/hbase-daemon.sh stop master; ./bin/hbase-daemon.sh start master
+
+		- Run hbck to ensure the cluster is consistent.
+		
+-Addition of new servers - Local 
+	-Local Master [60000 for RPC and 60010 for the web-based UI]
+	
+			HBase offers is built-in scalability. As the load on your cluster 
+			increases, you need to be able to add new servers to compensate for the new requirements
+
+			-Addition of local Master server:
+			 $ ./bin/local-master-backup.sh start 1
+
+			The number at the end of the command signifies an offset that is added to the default 
+			ports of 60000 for RPC and 60010 for the web-based UI. In this example, a new master
+			process would be started that reads the same configuration files as usual, but would
+			listen on ports 60001 and 60011, respectively
+
+			-Starting more than one is also possible:
+			 $./bin/local-master-backup.sh start 1 3 5
+
+			-Logs for offset
+			 logs/hbase-${USER}-1-master-${HOSTNAME}.log
+
+			-stop backup master:
+			 $ ./bin/local-master-backup.sh stop 1
+	
+	-Local region server [60200 for RPC, and 60300 for the web UIs] 
+		-$ ./bin/local-regionservers.sh start 1
+
+	
+	**You do not have to start with an offset of 1. Since these are added to the base port numbers, 
+	  you are free to specify any offset you prefer.
+	  
+-Addition of new servers - Cluster [Fully distributed cluster]	  
+	
+	-Master
+	The master process uses ZooKeeper to negotiate which is the currently active master:
+	there is a dedicated ZooKeeper znode that all master processes race to create, and the
+	first one to create it wins.
+	The /hbase/master znode is ephemeral i.e short lived
+	
+	When the master process that created the znode fails, ZooKeeper
+	will notice the end of the session with that server and remove the znode accordingly,
+	triggering the election process
+
+	Starting a server on multiple machines requires that it is configured just like the rest of the  HBase  cluster
+	
+	$ ./bin/hbase-daemon.sh start master
+	
+	$ ./bin/hbase-daemon.sh start master --backup
+	
+	Find the active master server:  
+	http://hostname:60010 URL on all possible master servers to find the active one
+	
+	The start-hbase.sh script starts the primary master, the region servers, and eventually the backup masters. 
+	Alternatively,  you  can  invoke  the  hbase-backup.sh  script  to  initiate  the  start  of  the backup masters.
+	
+		
+	-Adding RegionServer
+		-The  first  thing  you  should  do  is  to  edit  the  regionservers file in the conf directory
+		-Once you have updated the file, you need to copy it across all machines in the cluster.
+		 You also need to ensure that the newly added machine has HBase installed, and that
+		 the configuration is current.
+		-One option is to run the start-hbase.sh script on the master machine. It will skip all machines that have
+		 a process already running. Since the new machine fails this check, it will appropriately
+		 start the region server daemon.
+		-Another option is the launcher script directly on the new server
+			-$ ./bin/hbase-daemon.sh start regionserver
+		-The region server process will start and register itself by creating a znode with its hostname
+		 in ZooKeeper. It subsequently joins the collective and is assigned regions.
+		
+
+-HBase scripts:
+	-./bin/hbase-daemon.sh stop master; ./bin/hbase-daemon.sh start master
+	-./bin/hbase hbck
+	-./bin/start-hbase.sh 
+	
+	Local server addition
+	-./bin/local-master-backup.sh start 1   => also stop
+	-$ ./bin/local-regionservers.sh start 1	=> also stop
+
+
+-Shifting of data including region
+	-Import and Export Tools:  Import and Export MapReduce jobs
+		-$ hadoop jar $HBASE_HOME/hbase-0.91.0-SNAPSHOT.jar
+			-export: 
+				$ hadoop jar $HBASE_HOME/hbase-0.91.0-SNAPSHOT.jar export testtable /user/larsgeorge/backup-testtable
+																		  <tableName><HDFS location directory>
+			-distcp: hadoop distcp command to move the directory from one cluster to another, and perform the import there. 													  
+			-import: 
+				hadoop jar $HBASE_HOME/hbase-0.91.0-SNAPSHOT.jar import testtable /user/larsgeorge/backup-testtable	 
+			
+			****Finally, this Export/Import combination is per-table only. If you have more than one table, 
+			you need to run them separately.
+
+		-copyTable
+			hbase org.apache.hadoop.hbase.mapreduce.CopyTable --new.name='ravigu:sdp' 'aparsh:sdp'
+	
+	
+-Replication
+	-Edit hbase-site.xml in conf dir
+	-property: set hbase.replication to true
+	-Do not forget to copy the changed configuration file to all machines in your cluster, and to 
+	 restart the servers.
+	-OR create a new one with the replication scope set to 1
+		hbase(main):005:0> create 'testtable2', { NAME => 'colfam1', REPLICATION_SCOPE => 1}
+	-OR alter an existing table, you need to disable it before you can do
+		
+		hbase(main):001:0> create 'testtable1', 'colfam1'
+		hbase(main):002:0> disable 'testtable1'
+		hbase(main):003:0> alter 'testtable1', NAME => 'colfam1', \ 
+		  REPLICATION_SCOPE => '1'
+		hbase(main):004:0> enable 'testtable1' 
+	
+	-A slave—here also called a peer
+	 hbase(main):006:0> add_peer '1', 'slave-zk1:2181:/hbase'
+	 hbase(main):007:0> start_replication
+	 
+			 [a slave—here also called a peer]	 
+			 The first command adds the ZooKeeper quorum details for the peer cluster so that
+			 modifications can be shipped to it subsequently. The second command starts the actual
+			 shipping of modification records to the peer cluster. For this to work as expected, you
+			 need to make sure that you have already created an identical copy of the table on the
+			 peer cluster
+
+	hbase(main):008:0> stop_replication
+	hbase(main):009:0> remove_peer '1'
+	
+		Removing a peer and stopping the translation is equally done, using the reverse commands:
+		
+		
+	-HBase does include a balancer. Note however that it balances based on
+		number of regions, not their size or traffic. So it is still possible that
+		a regionserver ends up with more larger/busier regions than other
+		regionservers. If you notice this behaviour, you can always manually
+		reassign a region using the HBase Shell.
+
+		http://hbase.apache.org/book/node.management.html#lb	
+	
+-Default ports used by the HBase daemons
+Node type 		Port 		Description
+Master 			60000 		The RPC port the master listens on for client requests. Can be configured with the hbase.master.port configuration property.
+Master 			60010 		The web-based UI port the master process listens on. Can be configured with the hbase.master.info.port configuration property.
+Region server 	60020 		The RPC port the region server listens on for client requests. Can be configured with the hbase.regionserver.port configuration property.
+Region server 	60030 		The web-based UI port the region server listens on. Can be configured with the hbase.regionserver.info.port configuration property.	
+
+
+-Analyzing the HBase Logs on page 468:
+	-editing the log4j.properties file in the conf directory
+		-log4j.logger.org.apache.hadoop.hbase=INFO
+	-various default HBase, ZooKeeper, and Hadoop logfiles
+		Server type 				Logfile
+		HBase Master 				$HBASE_HOME/logs/hbase-<user>-master-<hostname>.log
+		HBase RegionServer 			$HBASE_HOME/logs/hbase-<user>-regionserver-<hostname>.log
+		ZooKeeper 					Console log output only
+		NameNode 					$HADOOP_HOME/logs/hadoop-<user>-namenode-<hostname>.log
+		DataNode 					$HADOOP_HOME/logs/hadoop-<user>-datanode-<hostname>.log
+		JobTracker 					$HADOOP_HOME/logs/hadoop-<user>-jobtracker-<hostname>.log
+		TaskTracker 				$HADOOP_HOME/logs/hadoop-<user>-jobtracker-<hostname>.log
+	
+-TroubleShooting
+	-File handles: The ulimit -n for the DataNode processes and the HBase processes should be set high. eg 32000
+	
+	
+		
+
+??Handle shifting server loads. Balance load to newly added node
+-http://hbase.apache.org/book.html#node.management
+??Garbage Collection Tuning on page 419.
+??secondary Indexes
+	-A Secondary index is an index that is not a primary index and may have duplicates. eg. Employee name can be example of it
+	-Client based approach: 
+	 Typically combines a data table and one (or more) lookup/mapping tables. Whenever
+	 the code writes into the data table it also updates the lookup tables. Reading data
+	 requires either a direct lookup in the main table, or, if the key is from a secondary
+	 index, a lookup of the main row key, and then retrieval of the data in a second
+	 operation.
+		-shortcomings is longer, though: since you have
+		 no cross-row atomicity, for example, in the form of transactions, you cannot guarantee 
+		 consistency of the main and dependent tables 
+	-Indexed-Transactional HBase (ITHBase) project
+	-Indexed HBase(IHBase)
+	-
+??Search Integration
+	-Using indexes gives you the ability to iterate over a data table in more than the implicit row key order.
+	-A very common use case is to combine the arbitrary nature of keys with a search-based lookup, 
+	 often backed by full search engine integration.
+	-These range from implementations using HBase as the data store, and using Map-
+	 Reduce jobs to build the search index, to those that use HBase as the backing store
+	 for Lucene.  
+	
+	****http://techkites.blogspot.in/2015/02/near-line-search-indexing-using-hbase.html
+	
+	-Near Line Search Indexing using Hbase, Lily Indexer and Cloudera Search (SOLR)
+		-Large Scale Near Line Search Indexing using HBase and SOLR.
+		-you have large volumes (and on-going) of content updates that needs to be pushed in to live 
+		 search indexes and the content should be instantly (near real-time) searchable
+		-In this implementation, we will use Lily HBase Indexer to transform incoming HBase 
+		 mutations to SOLR documents and update live SOLR indexes.
+		-The Lily HBase Indexer Service is a fault tolerant system for processing a continuous stream 
+		 of HBase cell updates into live search indexes. 
+		-As updates are written to HBase region servers, it is written to the Hlog (WAL) and 
+		 HBase replication continuously polls the HLog files to get the latest changes and 
+		 they are "replicated" asynchronously to the HBase Indexer processes.
+		-The indexer analyzes then incoming HBase cell updates, and it creates Solr documents and pushes them 
+		 to SolrCloud servers. 
+		-The configuration information about indexers is stored in ZooKeeper. So, new indexer hosts can always 
+		 be added to a cluster and it enables horizontal scalability
+		-Cloudera (CDH), the Lily Hbase indexer is already included in the CDH parcels.
+		-The XML configuration file provides the option to specify the Hbase table which needs to be 
+		 replicated and a mapper. Here we use morphline framework again to transform the columns in 
+		 the hbase table to SOLR fields and we pass the morphline file which has the pipeline of 
+		 commands to do the transformation
+ 		-<indexer table=“search_meta” mapper="com.ngdata.hbaseindexer.morphline.MorphlineResultToSolrMapper" 
+ 					mapping-type="row" unique-key-field="id" row-field="keyword">
+				<param name="morphlineFile" value="morphlines.conf"/>
+		 </indexer>
+
+			-The Param name=”morphlineFile” specifies the location of the Morphlines configuration file. 
+			 The location could be an absolute path of your Morphlines file
+		-HBase Indexer works by acting as a Replication Sink, we need to make sure that Replication is enabled in HBase
+			-REPLICATION_SCOPE => 1
+			
+		
+	
+	
+??Bloom Filters | TODO need to do more research on bloomFilter
+	-Bloom filter
+			An advanced feature available in HBase is Bloom filters,§ allowing you to improve
+			lookup   times   given   you   have   a   specific   access   pattern   
+			(see   “Bloom   Fil-ters” on page 377 for details). Since they add overhead in terms of storage and
+			memory, they are turned off by default.
+					none
+					row
+					rowcal
+					
+	-Column Families declare Bloom filters at the column family level				
+	-E.g. rpresult2 
+		BLOOMFILTER: ROWCOL
+	(NONE | ROW | ROWCOL)
+	- If ROW, the hash of the row will be added to the bloom on each insert. If ROWCOL, the hash of 
+	 the row + column family + column family qualifier will be added to the bloom on each key insert.
+	 
+	
+??Versioning	
+	-Implicit Versioning
+		-If clock on your servers is not synchronized. Using the implicit timestamps, you may end up 
+		 with completely different time settings.
+			-This can be avoided by setting an agreed, or shared, timestamp when storing these
+		 	 values. The put operation allows you to set a client-side timestamp that is used instead 
+		-Once you have all the servers synchronized, there are a few more interesting side effects
+			-By default number of versions are 3
+			-Store the same column six times.
+			-The version is set to a specific value, using the loop variable.
+			-Delete the newest two versions.
+			After put calls...
+			KV: row1/colfam1:qual1/6/Put/vlen=5, Value: val-6
+			KV: row1/colfam1:qual1/5/Put/vlen=5, Value: val-5
+			KV: row1/colfam1:qual1/4/Put/vlen=5, Value: val-4
+			After delete call...
+			KV: row1/colfam1:qual1/4/Put/vlen=5, Value: val-4
+			KV: row1/colfam1:qual1/3/Put/vlen=5, Value: val-3
+			KV: row1/colfam1:qual1/2/Put/vlen=5, Value: val-2
+
+			An interesting observation is that you have resurrected versions 2 and 3! This is caused
+			by the fact that the servers delay the housekeeping to occur at well-defined times.
+			
+			-Store a value into the column of the newly created table, and run a scan to verify.
+			-Delete all values from the column. This sets the delete marker with a timestamp of
+			 now.
+			-Store the value again into the column, but use a time in the past. The subsequent
+			 scan fails to return the masked value.
+			-Flush and conduct a major compaction of the table to remove the delete marker.
+			 Store the value with the time in the past again. The subsequent scan now shows it
+			 as expected.		
+			
+		-Another issue with servers not being aligned by time is exposed by region splits.
+		
+	-Custom Versioning
+		-You  must  do  this  for  every  put  operation,  or  the  server  will  insert  an  epoch-based
+		 timestamp instead. There is a flag in the table or column descriptors that indicates your
+		 use of custom timestamp values; in other words, your own versioning. If you fail to set
+		 the value, it is silently replaced with the server timestamp.
+		-
+		
+??HUSH
+	-HBase url shortner 
+	
+??CoProcessors is analogous to PL/SQL procs  | TODO understand better
+
+	-There is also the option to run client-supplied code in the address space of the server.
+	 The server-side framework to support this is called coprocessors.
+	-Coprocessors are not designed to be used by end users of HBase, but by HBase developers who need 
+	 to add specialized functionality to HBase. One example of the use of coprocessors is pluggable 
+	 compaction and scan policies.
+	- 
+
+??HFile
+	-The data is stored in store files, called HFiles, which are persistent and ordered immutable maps 
+	 from keys to values. Internally, the files are sequences of blocks with a block
+	 index stored at the end. The index is loaded when the HFile is opened and kept in memory
+	-With index, lookups can be performed with a single disk se 
+	
+??HBase load balancing ?
+	1)	The Hadoop (HDFS) balancer moves blocks around from one node to another to try to make it so each 
+		datanode has the same amount of data (within a configurable threshold). This messes up HBases's 
+		data locality, meaning that a particular region may be serving a file that is no longer on 
+		it's local host.
+		
+	2)	HBase's balance_switch balances the cluster so that each regionserver hosts the same number of 
+		regions (or close to). This is separate from Hadoop's (HDFS) balancer.
+		
+		To disable balancer: 
+		hbase(main):001:0> balance_switch false
+		
+		To enable balancer:
+		hbase(main):001:0> balance_switch true		
+		
+		****Contradicting**** 
+		The balancer_switch only affects regionserver balance. HBase will automatically balance your 
+		regions in the cluster by default, but you can manually run the balancer at any time from the 
+		hbase shell.
+		
+		
+		HBase does include a balancer. Note however that it balances based on
+		number of regions, not their size or traffic. So it is still possible that
+		a regionserver ends up with more larger/busier regions than other
+		regionservers. If you notice this behaviour, you can always manually
+		reassign a region using the HBase Shell.
+		
+		http://hbase.apache.org/book/node.management.html#lb
+		
+	3)	If you are running only HBase, I recommend not running Hadoop's (HDFS) balancer as it will cause 
+		certain regions to lose their data locality. This causes any request to that region to have to 
+		go over the network to one of the datanodes that is serving it's HFile.
+		
+		HBase's data locality is recovered though. Whenever compaction occurs, all the blocks are copied 
+		locally to the regionserver serving that region and merged. 
+		
+		All you really need to do to add new nodes to the 
+		cluster is add them. Hbase will take care of rebalancing the regions, and once these regions 
+		compact data locality will be restored.
+
+??What is thrift in HBase: 
+Thrift or REST servers on the region server
+
+??Why HBase when we can save on HDFS?
+	
+	HDFS is a distributed file system and has the following properties:
+	1. It is optimized for streaming access of large files. You would typically store files that are 
+	   in the 100s of MB upwards on HDFS and access them through MapReduce to process them in batch mode. 
+	2. HDFS files are write once files. You can append to files in some of the recent versions but that 
+	   is not a feature that is very commonly used. Consider HDFS files as write-once and read-many 
+	   files. There is no concept of random writes.
+	3. HDFS doesn't do random reads very well.
+	
+	
+	HBase on the other hand is a database that stores it's data in a distributed filesystem. 
+	The filesystem of choice typically is HDFS owing to the tight integration between HBase and HDFS.
+	1. Low latency access to small amounts of data from within a large data set. You can access single rows quickly from a billion row table.
+	2. Flexible data model to work with and data is indexed by the row key.
+	3. Fast scans across tables.
+	4. Scale in terms of writes as well as total volume of data.
+	
+	-HBase is not a column-oriented database in the typical RDBMS sense, but utilizes an on-disk column storage format.
+	-Columnar databases excel at providing real-time analytical access to data, HBase excels at providing key-based 
+	 access to a specific cell of data, or a sequential range of cells.
+	-Pg 34 diff b/w RDBMS and Column oriented
+	
+
+	Hadoop is most suited for offline batch-processing kinda stuff while HBase is used when you have real-time needs.
+
+??HBase transaction management | Apache HBase Internals: Locking and Multiversion Concurrency Control 
+	URL: https://blog.cloudera.com/blog/2013/01/apache-hbase-internals-locking-and-multiversion-concurrency-control/ 
+	-Write syncronization
+	
+			-HBase only provides ACID semantics on a per-row basis. 
+			-Consider two concurrent writes to HBase that represent {company, role} combinations I’ve held:
+				rowKey		info:company	info:role
+				Greg		Barista			manager
+				Greg		CoffeeDay		waiter		
+
+			 HBase will perform the following steps for each write:
+
+			(1) Write to Write-Ahead-Log (WAL)
+			(2) Update MemStore: write each data cell [the (row, column) pair] to the memstore
+
+			Now, assume we have no concurrency control over the writes and consider the following order of events:
+			
+			updateWal	write info:company mamstore		write info:role memstore	Time
+			1
+			2
+						Barista
+						CofeeDay
+														waiter
+														manager
+
+			So HBase now has Greg Barista waiter (instead of manager)
+
+			We clearly need some concurrency control.  The simplest solution is to provide exclusive locks 
+			per row in order to provide isolation for writes that update the same row.  
+
+			(0) Obtain Row Lock
+			(1) Write to Write-Ahead-Log (WAL)
+			(2) Update MemStore: write each cell to the memstore
+			(3) Release Row Lock
+	
+	-Read-Write Synchronization	
+	
+		-So far, we’ve added row locks to writes in order to guarantee ACID semantics.  
+		 Do we need to add any concurrency control for reads?
+		-One possible order of operations for two writes and a read
+			
+				ObtainRowLock		updateWal	write info:company memstore		write info:role memstore	Release Lock	Time
+				Obtained
+									1															
+												Barista
+																				waiter
+																											release
+				Obtained			
+									2
+												CofeeDay				-------a read happens----		
+																				manager						release
+
+				Suppose a read happens before writing manager. It still reads to Greg	CofeeDay	waiter
+		
+		-So Inconsistent result in absence of read-write synchronization
+		-Again Locking for read but this will introduce contention fo rlocks in both read and write
+		-HBase uses a form of Multiversion Concurrency Control (MVCC) to avoid requiring the reads to obtain row locks
+		-Multiversion Concurrency Control works in HBase as follows:
+			-For writes:
+				(w1) After acquiring the RowLock, each write operation is immediately assigned a write number
+				(w2) Each data cell in the write stores its write number.
+				(w3) A write operation completes by declaring it is finished with the write number.
+
+			-For reads:
+				(r1)  Each read operation is first assigned a read timestamp, called a read point.
+				(r2)  The read point is assigned to be the highest integer such that all writes with write number <= x have 
+					  been completed.
+				(r3)  A read r for a certain (row, column) combination returns the data cell with the matching (row, column) 
+				      whose write number is the largest value that is less than or equal to the read point of r.
+		
+??Split policy
+	-Usually HBase handles the splitting of regions automatically: once the regions reach
+	 the configured maximum size, they are split into two halves, which then can start taking
+	 on more data and grow from there.
+
+	-There is one known problematic scenario, though, that can cause what is called split/
+	 compaction storms: when you grow your regions roughly at the same rate, eventually
+	 they all need to be split at about the same time, causing a large spike in disk I/O because
+	 of the required compactions to rewrite the split regions. 
+
+	-Rather than relying on HBase to handle the splitting, you can turn it off and manually
+	 invoke the split and major_compact commands.
+	 hbase.hregion.max.filesize for the entire cluster	
+	
+	-The advantage of running the commands to split and compact your regions manually
+	 is that you can time-control them.
+		-or script their call using cron
+	
+	-RegionSplitter (added in version 0.90.2)
+		-It has a rolling split feature you can use to carefully split the existing regions while waiting long
+		 enough for the involved compactions to complete.
+	
+	-With automated splits it might happen that by the time you want to check into a specific
+	 region, it has already been replaced with two daughter regions.
+
+	-hbase org.apache.hadoop.hbase.util.RegionSplitter test_table HexStringSplit -c 10 -f f1
+	-hbase org.apache.hadoop.hbase.util.RegionSplitter test_table UniformStringSplit -c 10 -f f1
+		-c 10, specifies the requested number of regions as 10, and -f specifies the column families 
+	-create 'test_table', 'f1', SPLITS=> ['a', 'b', 'c']
+	
+	-The pluggable RegionSplitPolicy API. There are a couple predefined region split policies: 
+		ConstantSizeRegionSplitPolicy,  uses property hbase.hregion.max.filesize
+		IncreasingToUpperBoundRegionSplitPolicy, 
+		and KeyPrefixRegionSplitPolicy.
+			
+		1)ConstantSizeRegionSplitPolicy: It splits the regions when the total data size for one of the stores 
+		 (corresponding to a column-family) in the region gets bigger than configured 
+		 “hbase.hregion.max.filesize”, which has a default value of 10GB.	
+		2)IncreasingToUpperBoundRegionSplitPolicy:does more aggressive splitting based on the number of regions 
+		  hosted in the same region server. The split policy uses the max store file size based on 
+		  Min (R^2 * “hbase.hregion.memstore.flush.size”, “hbase.hregion.max.filesize”), where R is the 
+		  number of regions of the same table hosted on the same regionserver.
+		3)KeyPrefixRegionSplitPolicy:ensures that the regions are not split in the middle of a group of rows 
+		  having the same prefix. If you have set prefixes for your keys, then you can use this split policy to 
+		  ensure that rows having the same rowkey prefix always end up in the same region
+			
+	-“hbase.regionserver.region.split.policy”, or by configuring the table descriptor. For you brave souls, 
+	 you can also implement your own custom split policy, and plug that in at table creation time, or 
+	 by modifying an existing table:
+
+		HTableDescriptor tableDesc = new HTableDescriptor("example-table");
+		tableDesc.setValue(HTableDescriptor.SPLIT_POLICY, AwesomeSplitPolicy.class.getName());
+		//add columns etc
+		admin.createTable(tableDesc);	
+	
+	-
+	-http://hortonworks.com/blog/apache-hbase-region-splitting-and-merging/
+
+??Region Hotspotting
+	-
+??Hot deployment / addition of servers in HBase
+??HBase lock management
+??master  failover  scenarios 
+??regions  being moved from one server to another
+??HBase node addition? | done above
+??Effective row key design | done above
+
+
+??Why parquet / seq 
+??Faster dataFrame Vs RDD
+??HBase logs?
+
+diff b/w parquet & protobuff
+
+11 

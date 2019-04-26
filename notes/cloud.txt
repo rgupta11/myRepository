@@ -1,0 +1,1346 @@
+
+---------aws boot script
+#!/bin/bash
+yum install httpd php php-mysql -y
+cd /var/www/html
+wget https://wordpress.org/latest.tar.gz
+tar -xzf latest.tar.gz
+cp -r wordpress/* /var/www/html/
+rm -rf wordpress
+rm -rf latest.tar.gz
+chmod -R 755 wp-content
+chown -R apache:apache wp-content
+service httpd start
+chkconfig httpd on
+
+141.206.243.10/31
+---------------------
+
+-aws developer cert
+-cloudGuru
+-aws well architected framework - Nov 2016
+-Kubernetes 101
+-https://kubernetes.io/docs/concepts/workloads/controllers/replicationcontroller/
+
+
+TODO:
+DSL-style builder pattern
+spring boot
+security
+security in rest
+RFC-7231
+JSR-339
+
+
+-----------------------------------------------------------------------------------------------------
+JSRs RFCs
+
+RFC 3986:Tim Berners-Lee, et. al. in RFC 3986: Uniform Resource Identifier (URI): Generic Syntax:
+
+
+-----------------------------------------------------------------------------------------------------
+
+URI URL URN
+
+https://danielmiessler.com/study/url-uri/#gs.LA_zcW0
+
+	URI
+   /   \
+URN		URL
+	
+One can classify URIs as locators (URLs), or as names (URNs), or as both. A Uniform Resource Name (URN) 
+functions like a person’s name, while a Uniform Resource Locator (URL) resembles that person’s street address. 
+In other words: the URN defines an item’s identity, while the URL provides a method for finding it.
+
+-a URL is a type of URI. So if someone tells you that a URL is not a URI, he’s wrong. But that doesn’t 
+ mean all URIs are URLs. All butterflies fly, but not everything that flies is a butterfly.
+-The part that makes a URI a URL is the inclusion of the “access mechanism”, or “network location”, e.g. http:// or ftp://.
+-SUMMARY
+	-URIs are identifiers, and that can mean name, location, or both.
+	-All URNs and URLs are URIs, but the opposite is not true.
+	-The part that makes something a URL is the combination of the name and an access method, such as https://, or mailto:.
+	-All these bits are URIs, so saying that is always technically accurate, but if you are discussing something that’s both a full URL and a URI (which all URLs are), it’s best to call it a “URL” because it’s more specific.
+
+	
+	
+-----------------------------------------------------------------------------------------------------
+Restful-services:
+REpresentational State Transfer (REST)
+
+REST isn’t protocol-specific, but when people talk about REST, they usually mean REST over HTTP.
+Learning about REST was as much of a rediscovery and reappreciation of the HTTP protocol
+
+-Dont use GET for sensitive information, instead use post
+-TLS is newer version of SSL
+-
+
+
+Let’s examine each of the architectural principles of REST in detail
+-Addressability:Addressability is the idea that every object and resource in your system is reachable through a unique
+	identifier.
+	The format of a URI is standardized as follows:
+	scheme://host:port/path?queryString#fragment
+
+-The Uniform, Constrained Interface
+-Representation-Oriented
+	All in all, because REST and HTTP have a layered approach to addressability, method choice, and data
+	format, you have a much more decoupled protocol that allows your service to interact with a wide variety
+	of clients in a consistent way
+-Communicate Statelessly
+-HATEOAS:Hypermedia As The Engine Of Application State
+	(HATEOAS). Hypermedia is a document-centric approach with added support for embedding links to
+	other services and information within that document format
+
+	
+-We’re using GET for reading, PUT for updating, POST for creating, and DELETE for removing. 
+	-with PUT, the client simply sends a representation of the new object it is creating to the exact URI location that represents the object_key
+	PUT /orders/233 HTTP/1.1  -- this 233 is problematic... as application chooses to create its own IDW
+	usually PUT for updates
+	
+
+---------------------------------------------------------------------------------------------------------------------------------
+unpack a jar
+
+unzip -q myapp.jar
+$ java org.springframework.boot.loader.JarLauncher
+---------------------------------------------------------------------------------------------------------
+maven
+
+commands
+
+mvn install -Dmaven.test.skip=true -pl \!key-store
+mvn eclipse:clean
+mvn eclipse:eclipse
+mvn dependency:tree
+mvn spring-boot:run
+--------------------------------------------------Kubernetes------------------------------------------------------------------------------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Docker
+-A registry is a collection of repositories, and a repository is a collection of images
+
+Container vs VM
+	-----------------
+	A container runs natively on Linux and shares the kernel of the host machine with other containers. 
+	It runs a discrete process, taking no more memory than any other executable, making it lightweight.
+
+	By contrast, a virtual machine (VM) runs a full-blown “guest” operating system with virtual access 
+	to host resources through a hypervisor. In general, VMs provide an environment with more resources 
+	than most applications need.
+	
+	-all instances (usually called containers) must share a single kernel
+	
+
+	
+Docker commands
+
+docker login 
+...
+
+
+docker --version
+docker version
+docker info
+docker image ls
+docker ps -a |  grep "pattern"
+docker rm <>
+docker stop <>
+docker rmi
+
+docker volume ls
+docker volume rm volume_name volume_name
+docker volume prune
+
+container remove
+docker rm -v container_name
+
+
+docker volume rm $(docker volume ls -qf dangling=true)
+-f is filter can apply multiple filters
+docker rm $(docker ps -a -f status=exited -q)
+docker rm $(docker ps -a -f status=exited -f status=created -q)
+
+
+## List Docker CLI commands
+docker
+docker container --help
+
+## Display Docker version and info
+docker --version
+docker version
+docker info
+
+## Execute Docker image
+docker run hello-world
+
+## List Docker images
+docker image ls
+
+## List Docker containers (running, all, all in quiet mode)
+docker container ls
+docker container ls --all
+docker container ls -aq
+
+## build command. 
+This creates a Docker image, which we’re going to tag using -t so it has a friendly name.
+
+docker build -t friendlyhello
+
+	# Set proxy server, replace host:port with values for your servers
+	ENV http_proxy host:port
+	ENV https_proxy host:port
+
+***********************************************************************************
+docker build -t friendlyhello .  # Create image using this directory's Dockerfile
+docker run -p 4000:80 friendlyhello  # Run "friendlyname" mapping port 4000 to 80
+docker run -d -p 4000:80 friendlyhello         # Same thing, but in detached mode
+docker container ls                                # List all running containers
+docker container ls -a             # List all containers, even those not running
+docker container stop <hash>           # Gracefully stop the specified container
+docker container kill <hash>         # Force shutdown of the specified container
+docker container rm <hash>        # Remove specified container from this machine
+docker container rm $(docker container ls -a -q)         # Remove all containers
+docker image ls -a                             # List all images on this machine
+docker image rm <image id>            # Remove specified image from this machine
+docker image rm $(docker image ls -a -q)   # Remove all images from this machine
+docker login             # Log in this CLI session using your Docker credentials
+docker tag <image> username/repository:tag  # Tag <image> for upload to registry
+docker push username/repository:tag            # Upload tagged image to registry
+docker run username/repository:tag     
+
+
+
+***********************************************************************************	
+	-chk nginx process
+	 docker ps
+	 
+	http://localhost/
+
+	docker stop webserver 
+	docker start webserver
+	docker ps 
+		docker kill <container id>
+		
+		
+Docker:
+-Used to create containers for applictions
+-Package once deploy anywhere
+-Package war,jar, application server, configuration, driver everything in a single docker image
+	-ubuntu, windows, centos
+-WORA: write once run anywhere (java)
+-PODA: package once deploy everywhere
+	-Diff: in wora no changes are required but PODA has dependency on how you build the image 
+		   i.e base OS, if u use linux flavor then it would run on any linux machine.
+		   
+-Build(image) - ship(registry) - run(container)
+
+-Docker has minimal OS eg for 1 GB of ubuntu, docker mage with minmal of 180 MB of ubunt os is packaged in image
+-VM has full guest OS
+docker speed agility ..
+-Docker is build in layers and each layer is binary i.e immutables
+-client(dumb proxy gives command to dck hst) - docker host(docker daemon) - registry(where all images are stored)
+-Create docker host:
+	-docker-machine create --driver=virtualbox myhost
+	
+	
+2 - 3 VM vs 50 docker image
+		   
+------------------------------
+AppCcentre 1.3
+For this we need some high-level information like:
+•	What is the state of AppCentre1.3 product and documentation?
+•	Can AppCentre1.2 be also used for same deployment?
+•	Is the CST ready for AppCcentre1.3?
+•	Deployment docs for 1.3 which can be used for manual deployment.
+
+
+-AppCentre all product to dockerized images
+-adding a docker in registry - 1.3 single container application, it has to have 1 single image for its application
+-scripts: sql file and run it as a job
+-AppCentre establish tunnel, TD system on premise 
+-tunnel / VDI 
+-Sam / Kevin designed its deployment	
+1.2 CST does not support containerize
+1.3 CST 
+	
+?AppCentre 1.2 CST information
+?
+
+document 
+
+Vilash to send the Keys 
+-1.3
+-1.2
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+AWS
+----
+
+URLs
+
+Cloud computing provides a simple way to access servers, storage, databases and a broad set
+of application services over the Internet.
+
+Regions and Availability zones(AZs)
+
+A Region is a
+physical location in the world where we have multiple AZs. AZs consist of one or more discrete
+data centers, each with redundant power, networking, and connectivity, housed in separate
+facilities.
+
+Key Services
+The following are the key compute and networking services:
+Amazon EC2
+	Elastic compute cloud Provides virtual servers in the AWS cloud.
+Amazon VPC
+	Provides an isolated virtual network for your virtual servers.
+Elastic Load Balancing
+	Distributes network traffic across your set of virtual servers.
+Auto Scaling
+	Automatically scales your set of virtual servers based on changes in demand.
+Amazon Route 53
+	Routes traffic to your domain name to a resource, such as a virtual server or a load balancer.
+AWS Lambda
+	Runs your code on virtual servers from Amazon EC2 in response to events.
+Amazon ECS
+	Provides Docker containers on virtual servers from Amazon EC2.
+
+Docker Vs VM:
+	Docker isn’t the same as traditional virtualization. While there are similarities, at its core Docker is about 
+	delivering applications quickly and with the highest level of flexibility. Furthermore, in an ideal deployment 
+	container-based applications are delivered as a series of stateless microservices vs. the more traditional monolithic 
+	model found with virtual machines.
+
+	1) If you’re starting from scratch on a new application (or rewriting an existing app from the ground up), and you’re committed to writing it around a microservices-based architecture then containers are a no brainer.
+	Companies will leave their existing monolithic apps in place, while they develop the next version using Docker containers and microservices
+	By leveraging Docker, companies can accelerate application development and delivery efforts, while creating code that can be run across almost any infrastructure without modification.
+
+	2) You are committed to developing software based on microservices, but rather than wait until an app is completely rewritten, you want to begin gaining benefits of Docker immediately. In this scenario, customers will “lift and shift” an existing application from a VM into a Docker container.
+	With the monolithic application running in a container, the development teams can start breaking it down piece by piece. They can move some functions out of the monolith, and begin deploying them as loosely coupled services in Docker containers.
+	The new containers can interact with older, legacy applications as necessary, and over time the entire application is deconstructed, and deployed as a series of portable and scalable services inside Docker containers.
+
+	3) There are cases much like the second case, where companies want some benefits that Docker offers, and they move monolithic apps from VMs to containers with no intention of ever rewriting them.
+	Typically these customers are interested in the portability aspect that Docker containers offer out of the box. Imagine if your CIO came to you and said “Those 1,000 VMs we got running in the data center, I want those workloads up in the cloud by the end of next week.” That’s a daunting task even for the most hardcore VM ninja. There just isn’t good portability from the data center to the cloud, especially if you want to change vendors. Imagine you have vSphere in the datacenter and the cloud is Azure — VM converters be what they may.
+	However, with Docker containers, this becomes a pretty pedestrian effort. Docker containers are inherently portable and can run in a VM or in the cloud unmodified, the containers are portable from VM to VM to bare metal without a lot of heavy lifting to facilitate the transition.
+	If any of these scenarios resonate with you, then you’ve probably got a good case trying Docker.
+
+AMI:
+	An Amazon Machine Image (AMI) is a template that contains a software configuration (for example, an operating system,
+	an application server, and applications).	
+	
+Instances:
+	From an AMI, you launch an instance, which is a copy of the AMI running as a virtual server on a host computer in 
+	Amazon's data center. You can launch multiple instances from an AMI
+	When you launch an instance, you select an instance type, which determines the hardware capabilities
+	(such as memory, CPU, and storage) of the host computer for the instance	
+
+IP	
+The US East (N. Virginia) region
+	ec2-public_ip.compute-1.amazonaws.com
+Other regions
+	ec2-public_ip.region_code.compute.amazonaws.com	
+	
+VPCs
+	A virtual private cloud (VPC) is a virtual network dedicated to your AWS account. It is logically isolated
+	from other virtual networks in the AWS cloud, providing security and robust networking functionality for
+	your compute resources. A VPC closely resembles a traditional network that you'd operate in your own
+	data center, with the benefits of using the scalable infrastructure of AWS.
+	
+Subnet
+	A subnet is a segment of a VPC's IP address range that you can launch instances into. Subnets enable
+	you to group instances based on your security and operational needs. To enable instances in a subnet
+	to reach the Internet and AWS services, you must add an Internet gateway to the VPC and a route table
+	with a route to the Internet to the subnet.
+
+Security Groups
+	A security group acts as a virtual firewall for your instance to control inbound and outbound traffic. You
+	can specify one or more security groups when you launch your instance. When you create a security
+	group, you add rules that control the inbound traffic that's allowed, and a separate set of rules that
+	control the outbound traffic. All other traffic is discarded. You can modify the rules for a security group
+	at any time and the new rules are automatically enforced.
+	Access to the instances in the public subnets over protocols like SSH or RDP is controlled by one or more 
+	security groups. Security groups also control whether the instances can talk to each other.	
+	
+Amazon Route 53
+	Amazon Route 53 is a highly availab`le and scalable cloud Domain Name System (DNS) web service. It
+	is designed as an extremely reliable and cost-effective way to route visitors to websites by translating
+	domain names (such as www.example.com) into the numeric IP addresses (such as 192.0.2.1) that
+	computers use to connect to each other. AWS assigns URLs to your AWS resources, such as your EC2
+	instances. However, you might want a URL that is easy for your users to remember. For example, you
+	can map your domain name to your AWS resource. If you don't have a domain name, you can search for
+	available domains and register them using Amazon Route 53. If you have an existing domain name, you
+	can transfer it to Amazon Route 53.
+	
+Auto Scaling Groups
+	Auto Scaling supports groups of virtual servers, an Auto Scaling group that can grow or shrink on
+	demand.
+
+Amazon S3(Amazon Simple Storage Service)
+	Scalable storage in the AWS cloud
+CloudFront
+	A global content delivery network (CDN).
+Amazon EBS(Amazon Elastic Block Store)
+	Network attached storage volumes for your virtual servers.
+Amazon Glacier
+	Low-cost archival storage.
+Vaults and Archives
+	Amazon Glacier provides low-cost, durable storage that is suitable for data archiving and backup. You
+	create a vault, which is a container for archives. An archive is any object that you store in the vault, such
+	as a photo, video, or document
+
+AWS Identity and Access Management
+	Manage user access to AWS resources through policies.
+AWS Directory Service
+	Manage user access to AWS through your existing Microsoft Active Directory, or a directory you
+	create in the AWS cloud.
+AMI
+	Amazon machine instance
+Amazon RDS
+	Provides managed relational databases.
+Amazon Redshift
+	A fast, fully-managed, petabyte-scale data warehouse.
+Amazon DynamoDB
+	Provides managed NoSQL databases.
+Amazon ElastiCache
+	An in-memory caching service.
+
+Amazon AppStream
+	Host your streaming application in the AWS cloud and stream the input and output to your users'devices.
+Amazon CloudSearch
+	Add search to your website.
+Amazon Elastic Transcoder
+	Convert digital media into the formats required by your users' devices.
+Amazon SES(Amazon Simple Email Service)
+	Send email from the cloud.
+Amazon SNS(Amazon Simple Notification Service)
+	Send or receive notifications from the cloud.
+	Amazon Simple Notification Service (Amazon SNS) coordinates and manages the delivery of messages
+	to recipients. A publisher produces messages and sends them to a topic, which defines the message
+	protocol (such as email, SMS, or Amazon SQS) and the recipient list. A consumer subscribes to the topic
+	and receives the messages sent to the topic. When you create a topic, you can control which publishers
+	can send messages to the topic and which subscribers can register for notifications.
+	Amazon SQS(Amazon Simple Queue Service)
+	Enable components in your application to store data in a queue to be retrieved other components.
+	Enable components in your application to store data in a queue to be retrieved other components.
+Amazon SWF(Amazon Simple Workflow Service)
+	Coordinate tasks across the components of your application.	
+	
+Amazon CloudWatch
+	Monitor resources and applications.
+AWS CloudFormation
+	Provision your AWS resources using templates.
+AWS CloudTrail
+	Track the usage history for your AWS resources by logging AWS API calls.
+AWS Config
+	View the current and previous configuration of your AWS resources, and monitor changes to your AWS resources.
+AWS OpsWorks
+	Configure and manage the environment for your application, whether in the AWS cloud or your own data center.
+AWS Service Catalog
+	Distribute servers, databases, websites, and applications to users using AWS resources.
+
+DMZ or demilitarized zone	
+	
+Buckets
+	You store your data in containers called
+	buckets. You can control who has permissions for each bucket. A bucket can contain any number of
+	objects of any type, such as HTML pages, source code files, image files, and encrypted data. The name of
+	each bucket must be globally unique.
+	Each object can be accessed using unique URL:
+	protocol://domain/bucket_name/object_key
+	
+	protocol
+		The protocol is either http or https.
+	domain
+		The domain is s3.amazonaws.com for buckets created in US Standard or
+		s3-region_code.amazonaws.com for buckets created in a region.
+	bucket_name
+		The name of the bucket.
+	object_key
+		The full key name for the object.
+		
+CloudFront URL to access your content:
+	http://distribution_id.cloudfront.net/file.ext
+
+	
+private cloud
+public cloud
+hybrid cloud
+
+Data centres: Giagantic pool of resources		
+------------------------------------------------------------------------------------------------
+Microservices
+
+ 
+------------------------------------------------------------------------------------------------
+Spring boot:
+-automatic configurations
+-starter dependency
+-CLI
+-actuator
+
+
+
+mvn spring-boot:run
+
+
+@SpringBootApplication:
+@RestController
+@EnableZuulProxy
+@EnableCaching
+@ComponentScan
+
+https://spring.io/guides/gs/routing-and-filtering/
+http://microservices.io/patterns/apigateway.html
+
+Netflix (a major adopter of microservices) created and open-sourced its Zuul proxy server. 
+Zuul is an edge service that proxies requests to multiple backing services.
+Zuul has the ability to load-balance its services and failover to an alternative service if the primary host goes down.
+
+Zuul is built to enable dynamic routing, monitoring, resiliency, and security. 
+
+Routing is an integral part of a microservice architecture. For example, /api/users is mapped to the 
+user service and /api/shop is mapped to the shop service. Zuul is a JVM-based router and server side 
+load balancer by Netflix.
+
+
+
+
+application.yaml
+a path, which defines the URL mapping in the Zuul server, and a url, which defines the URL of the remote service to proxy. 
+
+An edge device is a device which provides an entry point into enterprise or service provider core networks. 
+Examples include routers, routing switches, integrated access devices (IADs), multiplexers, and a variety 
+of metropolitan area network (MAN) and wide area network (WAN) access devices. Edge devices also provide 
+
+connections into carrier and service provider networks.
+
+CORS (cross origin resource sharing)
+-A resource makes a cross-origin HTTP request when it requests a resource from a different domain, protocol, or port to its own. 
+-For security reasons, browsers restrict cross-origin HTTP requests initiated from within scripts
+-A CORS request consists of two sides: the client making the request, and the server
+ receiving the request. On the client side, the developer writes JavaScript code to
+ send the request to the server. The server responds to the request by setting special
+ CORS-specific headers to indicate that the cross-origin request is allowed. Without
+ both the client’s and the server’s participation, the CORS request will fail.
+-
+
+
+
+------------------------------------------------------------------------------------------------
+Security
+
+SSL / TLS 
+PDFs
+SSL/TLS Deployment Best Practices
+I recommend Eric Rescorla’s book SSL and TLS: Designing and Building Secure Systems (Addison-Wesley, 2001), pages 47–51.
+Understanding Cryptography, written by Christof Paar and Jan Pelzl and published by Springer in 2010.
+
+
+github.com/ivanr/bulletproof-tls
+blog.ivanristic.com
+------------------------------------------------------------------------------------------------
+
+Cloud concepts
+---------------
+VPC:
+your VPC; you can select its IP address range, create subnets,
+and configure route tables, network gateways, and security settings
+
+
+
+
+subnet:
+------
+A subnet is a range of IP addresses in your VPC. You can launch AWS resources into a subnet that you
+select. Use a public subnet for resources that must be connected to the Internet, and a private subnet
+for resources that won't be connected to the Internet.
+
+A common example is a multi-tier website, with the web servers in a public subnet and the database servers 
+in a private subnet. You can set up security and routing so that the web servers can communicate with the 
+database servers.
+The instances in the public subnet can send outbound traffic directly to the Internet, whereas the instances in the private subnet can't. Instead, the instances in the private subnet can access the Internet by using a network address translation (NAT) gateway that resides in the public subnet. The database servers can connect to the Internet for software updates using the NAT gateway, but the Internet cannot establish connections to the database servers.
+
+CIDR: https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing
+----
+CIDR notation is a compact representation of an IP address and its associated routing prefix. 
+The notation is constructed from an IP address, a slash ('/') character, and a decimal number. 
+The number is the count of leading 1 bits in the routing mask, traditionally called the network mask. 
+The IP address is expressed according to the standards of IPv4 or IPv6.
+
+For example:
+192.168.100.14/24 represents the IPv4 address 192.168.100.14 and its associated routing prefix 192.168.100.0, or equivalently, its subnet mask 255.255.255.0, which has 24 leading 1-bits.
+
+The number of addresses of a subnet may be calculated as 2^address length − prefix length, in which the address size is 128 for IPv6 and 32 for IPv4. 
+For example, in IPv4, the prefix size /29 gives: 2^32 − 29 = 2^3 = 8 addresses.
+
+
+Why do I need Kubernetes and what can it do?
+https://kubernetes.io/docs/concepts/overview/what-is-kubernetes/
+
+At a minimum, Kubernetes can schedule and run application containers on clusters of physical or virtual machines.
+However, Kubernetes also allows developers to ‘cut the cord’ to physical and virtual machines, moving from a 
+host-centric infrastructure to a container-centric infrastructure, which provides the full advantages and benefits 
+inherent to containers. Kubernetes provides the infrastructure to build a truly container-centric development environment.
+
+
+ingress and egress traffic
+--------------------------
+ingress 
+ Network traffic that originates from outside of the network��s routers and proceeds toward a destination inside of the network. 
+ 
+ egress traffic
+Network traffic that begins inside of a network and proceeds through its routers to a destination somewhere 
+outside of the network. For example, an e-mail message that is considered egress traffic will travel from a 
+user��s workstation and pass through the enterprise��s LANrouters before it is delivered to the Internet to 
+travel to its final destination. 
+
+
+------------------------------------------------------------------------------------------------
+TeraData:
+
+Teradata Unified Data Architecture™ (UDA™)
+The Teradata Integrated Data Warehouse (IDW)
+
+Internet of Things (IoT)
+WLA-WorkLoad Analytics
+The Cloud Solutions Lab (CSL)
+??CCU: teradata managed cloud 
+Cloud Formation Template (CFT)
+CST: cloud solution template
+ network address translation (NAT)
+CIDR is the short for Classless Inter-Domain Routing
+
+
+
+
+DEV-1: Asteroids
+
+DEV-2: Orca
+
+DEV-3: Eco-System-Apps
+	-WLA
+	-AppCentre
+	-QueryGrid
+	-Listener
+	-DCM/CIM
+	-TD 15.10	
+	
+What is T-Drive?
+T-Drive is a portal provided by IntelliCloud that deploys Teradata applications into a IntelliCloud environment.  It manages the deployment to staging (development), pre-production, and customer environments.  Application teams use T-Drive to test their deployments in staging and pre-production, and then promote their applications so they are available in a catalog for customers to choose to install into their IntelliCloud environments.
+T-Drive performs deployments by referencing a Cloud Solution Template (CST), a file specifying various aspects of deployment, including the artifacts in the deployment, instructions on building the environment, deployment instructions for the application (usually Ansible scripts), and tests to perform after deployment to development, pre-production, and customer environments.  A separate CST file is needed for each version of the application, as well as each IAAS infrastructure where the application will run (e.g., AWS, Azure, IntelliFlex, etc.).
+Development of the CST file is the main activity involved in onboarding to IntelliCloud.  Ultimately, the CST is owned by and is the responsibility of the application team, but the IntelliCloud team assists in initial development of this file.
+
+
+
+Applications on IntelliCloud can be deployed onto the following environments:
+Amazon Web Services (AWS)
+Intelliflex/Intellibase
+Kubernetes (Docker containers)
+
+---
+Rohit Karajgi [6:12 PM] 
+}kRvw6RW$F9O
+
+[6:13] 
+https://awstmc-dev2.signin.aws.amazon.com/console
+
+Rohit Karajgi [6:34 PM] 
+ZOTv9D}6(E$s https://awstmc-dev3.signin.aws.amazon.com/consoles
+
+------------------------------------------------------------------------------------------------
+Good reads:
+https://github.com/systemd/systemd/issues/1961
+
+
+------------------------------------------------------------------------------------------------
+Q & A
+
+-RestFul services
+-Microservices
+-Security
+-Spring boot
+-Threading 
+-Serialization
+-Object footprint
+-JWT token
+
+Discussion
+Technical
+Java / Python
+
+
+------------------------------------------------------------------------------------------------
+Anish Bhagwat [5:25 PM] 
+https://alb-ecosystem-prodhf-qa-412029628.us-west-2.elb.amazonaws.com/#/
+anish / Opex@123
+
+
+new messages
+Anish Bhagwat [6:08 PM] 
+https://alb-tdrive-prodhf-qa-1425915805.us-west-2.elb.amazonaws.com/#/
+sandhya / Opex@123
+
+Gaurav Ashtikar [6:56 PM] 
+https://github.com/continuumsecurity/bdd-security
+------------------------------------------------------------------------------------------------
+Continuous Delivery is sometimes confused with Continuous Deployment. Continuous Deployment means that every change goes through 
+the pipeline and automatically gets put into production, resulting in many production deployments every day. Continuous Delivery 
+just means that you are able to do frequent deployments but may choose not to do it, usually due to businesses preferring a slower 
+rate of deployment. In order to do Continuous Deployment you must be doing Continuous Delivery.
+
+Continuous Integration usually refers to integrating, building, and testing code within the development environment. Continuous 
+Delivery builds on this, dealing with the final stages required for production deployment
+
+
+GIT  workflows:
+---------------
+Only one master branch with release taging
+
+Continous Integration & Continous deployment
+	-Hotfix branch | hotfix/hotfix-version-number 
+	-Feature branch | feature/my-feature from master
+		-code 
+			-Junit test 
+		-Any push to feature branch will trigger the CI job to create snapshot artifact
+	-Raise PR
+		-PR is allowed only 
+			-code coverage
+			-branch coverage
+			-complexity coverage
+		-Get review comments on PR	
+	-Merge to Master
+		-Trigger CI Job to build artifact and push to QA.
+		-Trigger CD job to deploy artifacts in QA to 
+			-QA staging
+			-Dev staging	
+	
+	-Once QA verifies artifacts from QA staging
+		-CI job to push artifacts to stable
+		-CD job to deploy artifacts to QA stable
+	
+	-Once QA verifies artifacts from QA stable
+		-Code freeze and Tag the master with the release number
+		-CI job to push artifacts to release with the release number
+	
+	
+Continous delivery
+	-CD job to deploy on preprod with release version
+	-CD job to deploy on prod with release version
+
+
+Disadvantage:
+	- All will have write permission to master branch. Its not protected any more
+	
+-------------------------------------------------------------------------------------------
+Master & Develop branch with release taging
+
+Continous Integration & Continous deployment
+	-Hotfix branch | hotfix/hotfix-version-number 
+		-create hotfix branch from Master with tagging
+		-Push to hotfix branch will trigger
+			-code coverage
+			-branch coverage
+			-complexity coverage
+		-PR to merge with Master 
+		-CI job to create hotFix artifact and push to QA
+		-CI job to create hotFix artifact and push to QA
+		-CD Job to deploy on QA staging -> stable -> Release with Hot fix version
+		-Merge it Master + tag it with Hot fix version
+		
+	
+	-Feature branch | feature/my-feature from develop
+		-code 
+			-Junit test 
+		-Any push to feature branch will trigger the CI job to create snapshot artifact
+	-Raise PR to merge with develop
+		-PR is allowed only 
+			-code coverage
+			-branch coverage
+			-complexity coverage
+		-Get review comments on PR	
+	-Merge to Master
+		-Trigger CI Job to build artifact and push to QA.
+		-Trigger CD job to deploy artifacts in QA to 
+			-QA staging
+			-Dev staging	
+	
+	-Once QA verifies artifacts from QA staging
+		-CI job to push artifacts to stable
+		-CD job to deploy artifacts to QA stable
+	
+	-Once QA verifies artifacts from QA stable
+		-Code freeze and Tag the master with the release number
+		-CI job to push artifacts to release with the release number
+	
+	
+Continous delivery
+	-CD job to deploy on preprod with release version
+	-CD job to deploy on prod with release version
+
+
+Disadvantage:
+	- All will have write permission to master branch. Its not protected any more
+	
+-------------------------------------------------------------------------------------------
+
+	
+GIT	
+Commit guide line :
+<jira no>: <short description>
+-Jira no
+-human-readable description of what that issue is all about.
+
+
+Jira comment guideline
+----------------------
+
+Epic
+	-Story / Tasks
+		-Subtasks
+			-Implementation 
+			-Design & Analysis (optional)
+			-Unit test(optional)
+			-Documentation-Wiki(optional)
+			-Performance(optional)
+			-DependencyXXX(optional and can be multiple)	
+
+1)Implementation subtask (Story / Tasks / bug)
+	comments must have:
+	-Problem statement
+	-Analysis
+		-Bug
+			-Solution
+			-Approaches(optional)
+			-Design of the solution(optional)
+			-Git commit id 
+			-Impact on customer(Optional)
+		-Enahancement
+			-Approaches(optional)
+			-Design of the solution
+			-
+		-Hot Fix bug / enhancement	
+			-Release Notes
+				-Solution
+				-Approaches(optional)
+				-Design of the solution(optional)
+				-Git commit id
+				-Impact on customer
+------------------------------------------------------------------------------------------------
+Difference between @RestController and @Controller Annotation in Spring MVC and REST
+
+------------------------------------------------------------------------------------------------
+SSH:
+
+https://www.digitalocean.com/community/tutorials/how-to-use-ssh-to-connect-to-a-remote-server-in-ubuntu
+
+This command assumes that your username on the remote system is the same as your username on your local system
+$ ssh remote_host
+
+If your username is different on the remote system,
+$ ssh remote_username@remote_host
+
+The sshd server should already be running
+sudo service ssh start
+
+also 
+sudo systemctl start ssh
+
+ssh config file location
+sshd configuration file is located at /etc/ssh/sshd_config
+
+Port 22. sshd server will listen on for connections. By default, this is 22
+
+
+key-based authentication:
+Key-based authentication works by creating a pair of keys: a private key and a public key.
+The private key is located on the client machine and is secured and kept secret.
+The public key can be given to anyone or placed on any server you wish to access.
+
+When you attempt to connect using a key-pair, the server will use the public key to create a 
+message for the client computer that can only be read with the private key.
+The client computer then sends the appropriate response back to the server and the server will know that the client is legitimate.
+
+
+How To Create SSH Keys
+SSH keys should be generated on the computer you wish to log in from. This is usually your local computer.
+
+$ ssh-keygen -t rsa
+Your keys will be created at ~/.ssh/id_rsa.pub and ~/.ssh/id_rsa
+$ cd ~/.ssh | ll
+
+Output
+-rw-r--r-- 1 demo demo  807 Sep  9 22:15 authorized_keys
+-rw------- 1 demo demo 1679 Sep  9 23:13 id_rsa
+-rw-r--r-- 1 demo demo  396 Sep  9 23:13 id_rsa.pub
+
+As you can see, the id_rsa file is readable and writable only to the owner. This is how it should be to keep it secret.
+The id_rsa.pub file, however, can be shared and has permissions appropriate for this activity.
+
+How To Transfer Your Public Key to the Server
+$ ssh-copy-id remote_host
+
+For instance, you if you changed the port number in your sshd configuration, you will need to match that port on the client-side by typing:
+$ ssh -p port_number remote_host
+
+If you only wish to execute a single command on a remote system, you can specify it after the host like so:
+$ ssh remote_host command_to_run
+
+If X11 forwarding is enabled on both computers, you can access that functionality by typing:
+$ ssh -X remote_host
+
+$ Laptop --------> Jumphost1 ---------> Jumphost2 ---------> Remote server
+
+ssh -o ProxyCommand='ssh ec2-user@bastionserverIP -W x.x.x.x:%p -i PEM file' ec2-user@x.x.x.x -i Pem.file
+example in dev3 account:
+ssh -o ProxyCommand='ssh ec2-user@52.37.128.69 -W 10.70.132.212:%p -i ~/Documents/keys/T-Drive-deployment.pem' ec2-user@10.70.132.212 -i ~/Documents/keys/T-Drive-deployment.pem
+
+
+3
+
+------------------------------------------------------------------------------------------------
+auth0
+ravigupta.rbl@.. / Password123
+https://spring.io/guides/gs/spring-boot-docker/
+
+https://auth0.com/docs/getting-started/overview
+
+-Auth0 provides authentication and authorization as a service.
+-Auth0 sits between your app and the identity provider that authenticates 
+ your users(Google, FaceBook, )
+
+-Identity industry standard
+	-OAuth1
+	-OAuth2
+	-Open ID Connect
+	-JWT
+	-SAML
+	-WS-Federation
+
+Auth0-1	
+-Tenant:Term is borrowed from "software multitenancy". This refers to an architecture where 
+		a single instance of the software serves multiple tenants.
+	-When u register to OAuth0, you are asked to create a tenant 
+	-This is a logical isolation unit. A single instance of the software serves multiple tenants
+	-Its unique, and should be created for each individual environments(test, dev, prod etc)
+	-Once created it cannot be changed
+	-E.g. example-co-eu or example-co-au (eu-English, au-Australia)
+	-One for Customer and should be used for all its needs
+	
+-Domain
+	-Tenant name(above) is appended with .auth0.com e.g. example-co-au.auth0.com is the domain name
+	-Above domain is free
+	-For Custom domain like example-co-au.com: it comes with additional cost
+	 and requires single tenant implementation of Auth0 and can be deployed in any one of locations
+			-Auth0 managed cloud
+				-As a multi-tenant cloud service running on Auth0's cloud
+				-As a dedicated cloud service running on Auth0's cloud
+			-Private/Customer managed cloud
+			-An premise Auth0 deployment [on-premises virtual Private SaaS (PSaaS) Appliance]
+	-	
+	
+-Client
+	-Once registered and tenant and domain is created
+	-Register your applications/app (web/mobile) with Auth0
+		-Native
+		-Single web application
+		-Regular web application
+		-Non interactive clients
+	-Each application is the client
+	-Each client is assigned a Client ID upon creation(e.g. q8fij2iug0CmgPLfTfG1tZGdTQyGaTUA)
+	 ***It cannot be modified and will be used in Auth0 APIs ***
+	-Client secret: Its client's password and must be kept confidential
+	-E.g. For example-co has two apps: a web app (running on a server) and a mobile app
+		-Create 2 clients: 
+			-Native (Mobile)
+			-Regular Web app
+			
+			
+-Connection
+	-Identity Providers will be configured in Auth0 as a Connection 
+	-The relationship between Auth0 and the identity providers is referred to as a Connection.
+	-Connection can be of 
+		-database(userName, Passwords)
+		-social login(Gogle, FB, Auth0)
+		-Eterprise directories(AD/LDAP)
+		-Passwordless system(OTP, SMS, Email)
+	-Any number of connections can be created
+	-Each connection can be shared among different clients.	
+	-Configured Connections can be enabled for each clients
+	
+-Scope: 
+	An API can enforce fine-grained control over who can access the various endpoints exposed by the API.
+	The permissions are expressed as scopes.
+	
+	Each access token may include a list of the permissions that have been granted to the client. 
+	When a client authenticates with Auth0, it will specify the list of scopes (or permissions) 
+	it is requesting. If those scopes are authorized, then the access token will 
+	contain a list of authorized scopes
+	
+
+-JWT is send typically in the Authorization header using the Bearer schema	
+-This is a stateless authentication mechanism as the user state is never saved in server memory.
+-
+	
+autho login: working as a tenant
+API audience: https://rga-test.auth0.com/api/v2
+
+Dashboard top right you can see your tenant's name and icon
+
+
+
+??	As discussed in Demo that to set JWT Expiration time for 2 hrs in Auth0 clients of TD2 , 
+	I have set it for TEST and Staining TD2 env.
+	
+------------------------------------------------------------------------------------------------
+SQL injection | http://www.royabubakar.com/blog/2014/01/19/sql-injection-in-java-web-application/
+
+
+Use of Prepared Statements (Parameterized Queries)
+
+String sql = "SELECT * FROM users WHERE username=? AND password=?";
+PreparedStatement ps = conn.prepareStatement(sql);
+ps.setString(1, username);
+ps.setString(2, password);
+System.out.println(sql);
+ResultSet rs = ps.executeQuery();
+1
+2
+3
+4
+56
+String sql = "SELECT * FROM users WHERE username=? AND password=?";
+PreparedStatement ps = conn.prepareStatement(sql);
+ps.setString(1, username);
+ps.setString(2, password);
+System.out.println(sql);
+ResultSet rs = ps.executeQuery();
+
+The username and password should be validated. With prepared statement the application will perform the input validation.
+Use of stored procedures
+Escaping all user supplied input
+Also Enforce: Least privilege user: 
+Also perform: White list input validation
+
+
+OWASP tool to detect 
+-SQL injection
+-XSS: cross site scripting: Zed Attack Proxy Project
+							Xenotix XSS Eploit framework
+-CSRF: cross site request forgery
+------------------------------------------------------------------------------------------
+Password strength: ISO/IEC 27002							
+
+-Storing failed attempts in session is easy for an attacker to bypass by using a stateless browser or tool that will not identify itself as a session owner for each failed attempt, leaving the application vulnerable to password enumeration
+
+Vulnerability Category
+cryptography
+-Insecure Cryptography - Weak Algorithm Use
+-Sensitive Data Storage - Plaintext Storage of Sensitive Information
+Insecure Cryptography - Exposed Key
+
+
+Solutions:
+Using simple bit flipping operation to obfuscate data is not a reliable hashing algorithm to protect our users' files. An attacker could easily reverse-engineer our "algorithm" and get access to the actual files that should be protected against unauthorized access.
+
+Credit card data is being stored in plain text, leaving it accessible on any data-breach eventuality (maybe another SQLi case?).
+
+Using a weak custom algorithm with no KEY can be easily broken by an experienced attacker in case of a breach! By setting up a test string as his own password, an attacker could easily reverse-engineer our algorithm not only to run a dictionary attack, but potentially "decrypt" our password hashes.
+
+
+Spring's BCryptPasswordEncoder uses 10-round strong algorithm hashing. BCrypt is unbroken and strong up to this date and using a 10-round hashing process makes it as close to unbreakable as it gets.
+
+After successful login user is being redirected to arbitrary URL that could have been set from an external link parameters, allowing for a potential phishing attack.
+
+Bad equals and hashCode implementation, preventing the principal to be identified within the session repository will lead to infinite sessions creation for the same user.
+This can easily lead to a DOS or service degradation if an attacker aggressively creates sessions that will be stored in memory in our application, occupying all of it!
+
+
+
+-In java use secureRandom() class to gernerate the random numbers
+	SecureRandom secureRandom = new SecureRandom()
+	bytes bytes[] = new byte[20]
+	random.nextBytes(bytes);
+
+-OpenSSL to test (command / )
+-Java foundation classes have good crypto support
+-	
+
+-----------------------------------------------------------------------------------------------------------------------
+Reuse of the entity class as a DTO seems messy. The public API of the class 
+(including annotations on public methods) no longer clearly defines the purpose of the contract 
+it is presenting. The class will end up with methods that are only relevant when the class is 
+being used as a DTO and some methods that will only be relavent when the class is being used 
+as an entity. Concerns will not be cleanly separated and things will be more tightly coupled. 
+To me that is a more important design consideration then trying to save on the number of 
+class files created.
+
+But there are arguments about DTO that maps to an entity is safer, because it's a contract, 
+and the entity can change to whatever form, and the DTO will stay the same. 
+For example, like the entity has a field name, and the DTO also has a field name. 
+Later on, if the requirement changes, the database table changes, the entity can change also, 
+changing name into firstName and lastName. But the DTO will still have a field name, 
+which is firstName + lastName.
+
+-----------------------------------------------------------------------------------------------------------------------
+Microservices principle
+-Each with a single purpose.
+-Build just once and deploy it in any environment.
+-If any properties are changed, it will pick up the changes and reflect 
+ them without an application rebuild or restart.
+-
+
+Disadvantages of Micro services:
+-	Where you used to make a single network call, now you must make tens 
+	of calls or even hundreds of calls. This is inefficient4.
+-	Where you used to manage a small number of things, now you manage hundreds
+	or thousands or more
+-	When tens, hundreds, or thousands of things all can query or modify the state 
+	of your central applications, it becomes almost impossible to trust the consistency 
+	of that store as accessed through any one of these microservices.
+- 	Sometimes Orchestration of microservices becomes necessary, an overhead
+-	It can be noted that the Mule runtime consumes ~1GB RAM per runtime at minimum, 
+	meaning that isolating a fine-grained design to 1 microservice per container 
+	(best practice) can be very resource intensive, although
+	
+	
+
+Microservices Design Patterns:
+
+-----------------------------------------------------------------------------------------------------------------------
+	
+Design Patterns:
+
+
+	
+----------------------------------------------------------
+
+Linux
+
+UNIX / Linux
+
+http://www.tldp.org/LDP/Linux-Filesystem-Hierarchy/html/c23.html
+
+       /bin       Essential command binaries
+       /boot      Static files of the boot loader
+       /dev       Device files
+       /etc       Host-specific system configuration
+       /lib       Essential shared libraries and kernel modules
+       /media     Mount point for removeable media
+       /mnt       Mount point for mounting a filesystem temporarily
+       /opt       Add-on application software packages
+       /sbin      Essential system binaries
+       /srv       Data for services provided by this system
+       /tmp       Temporary files
+       /usr       Secondary hierarchy
+       /var       Variable data
+		
+------------------------------------------------------------------
+Git:
+---------------
+
+-Git basically takes a picture of what all your files look like at that moment and stores a reference to that snapshot. 
+ To be efficient, if files have not changed, Git doesn’t store the file again, just a link to the previous identical 
+ file it has already stored. Git thinks about its data more like a stream of snapshots.
+
+-Remote repositories are versions of your project that are hosted on the Internet or network somewhere.
+ only that it is elsewhere.  
+
+-In “detached HEAD” state, if you make changes and then create a commit, the tag will stay the same, 
+ but your new commit won’t belong to any branch and will be unreachable, except by the exact commit hash. 
+ Thus, if you need to make changes — say you’re fixing a bug on an older version, for instance — you will 
+ generally want to create a branch:
+ 
+-Everything in Git is check-summed before it is stored and is then referred to by that checksum
+ This means it’s impossible to change the contents of any file or directory without Git knowing about it
+ The mechanism that Git uses for this checksumming is called a SHA-1 hash
+ Git stores everything in its database not by file name but by the hash value of its contents.
+
+-Git has three main states that your files can reside in: committed, modified, and staged:
+ Committed means that the data is safely stored in your local database.
+ Modified means that you have changed the file but have not committed it to your database yet
+ Staged means that you have marked a modified file in its current version to go into your next commit snapshot.
+
+ -This leads us to the three main sections of a Git project: the Git directory, the working tree, and the staging area. 
+
+-$ git clone https://github.com/libgit2/libgit2 mylibgit
+ Git has a number of different transfer protocols you can use. The previous example uses the 
+ https:// protocol, but you may also see git:// or user@server:path/to/repo.git, which uses the SSH transfer protocol
+
+-(use "git reset HEAD <file>..." to unstage)
+
+-Glob patterns are like simplified regular expressions that shells use. An asterisk (*) matches zero or more characters; 
+ [abc] matches any character inside the brackets (in this case a, b, or c); a question mark (?) matches a single 
+ character; and brackets enclosing characters separated by a hyphen ([0-9]) matches any character between them 
+ (in this case 0 through 9). You can also use two asterisks to match nested directories; a/**/z would match 
+ a/z, a/b/z, a/b/c/z, and so on
+
+-If you want to see what you’ve staged that will go into your next commit, you can use git diff --staged 
+
+-You may be wondering what the difference is between author and committer. The author is the person who originally wrote the work, whereas the committer is the person who last applied the work
+ 
+https://git-scm.com/book/en/v2/Getting-Started-First-Time-Git-Setup
+git config --global | --system 
+
+--global -> ~/.gitconfig
+--system -> /etc/gitconfig
+--local  -> .git/config <config file in the Git directory>
+
+git config --list
+Shows origin of the property from a file ?? below command did not work ...make it work
+git config --show-origin user.name
+	
+ git tag
+	-Listing the available tags
+	-optional -l / --list
+	-git tag -l "v1.8.5*" to match patterns
+	-tags by date git log --tags --simplify-by-decoration --pretty="format:%ci %d"
+ create tag
+	-lightweight: A lightweight tag is very much like a branch that doesn’t change. You want a temporary tag or for some reason don’t want to keep the other information, lightweight tags can be used.
+		git tag v1.4-lw
+	-annotated tag: are stored as full objects in the Git database. They’re checksummed; contain the tagger name, email, and date; have a tagging message; and can be signed and verified with GNU Privacy Guard (GPG). It’s generally recommended that you create annotated tags so you can have all this information
+		$ git tag -a v1.4 -m "my version 1.4"
+		$ git tag
+			v0.1
+			v1.3
+			v1.4
+	-git show on the tag, you don’t see the extra tag information
+ Tagging Later
+	-git tag -a v1.2 <9fceb02>
+		specify the commit checksum (or part of it)
+ Sharing tags: By default, the git push command doesn’t transfer tags to remote servers. You will have to explicitly push tags to a shared server after you have created them
+	git push origin <tagname>
+	git push origin --tags
+		-This will transfer all of your tags to the remote server that are not already there.
+	git checkout -b version2 v2.0.0
+		-checks out to branch on older tag
+		
+ 
+ git remote 
+	Command. It lists the shortnames of each remote handle you’ve specified	
+	If you’ve cloned your repository, you should at least see origin — that is the default name
+	specify -v, which shows you the URLs that Git has stored
+ git remote add pb https://github.com/paulboone/ticgit	
+	git remote add <shortname> <url>:
+	To add a new remote explicitly.
+ git remote show <remote>
+	-To see more information about a particular remote
+ git remote remove <paul> 
+	-delete the reference to a remote this way, all remote-tracking branches and configuration settings associated with that remote are also deleted.
+ git remote rename pb paul
+	-to change a remote’s shortname	pb to paul
+	
+ git fetch
+	git fetch <remote>
+	-The command goes out to that remote project and pulls down all the data from that remote project that you don’t have yet. After you do this, you should have references to all the branches from that remote, which you can merge in or inspect at any time.
+	-Either you add remote first then fetch or clone as cloning automatically adds remote to origin 
+	-git fetch origin fetches any new work that has been pushed to that server since you cloned (or last fetched from) it
+	-git fetch command only downloads the data to your local repository — it doesn’t automatically merge it with any of your work or modify what you’re currently working on. You have to merge it manually into your work when you’re ready.
+ 
+ git pull 
+	-Better to use than fetch as merging is done automatically
+	-To automatically fetch and then merge that remote branch into your current branch
+ git pull --rebase origin master	
+ conflict may occur, use git merge /mergetool
+ git mergetool
+ save file 
+ git rebase --continue 
+ 
+ 
+ git push <remote> <branch>	
+	-If you and someone else clone at the same time and they push upstream and then you push upstream, your push will rightly be rejected
+	
+ git branch <branch name>
+	-creates branch
+ git checkout -b version2
+	-creates and checks out the branch
+	
+ git config --global alias.last 'log -1 HEAD'
+	-creates aliases for listing last log
+ git last 
+	-will show the last log
+ 
+ git status
+ git status -s (short status)
+ 
+ git clone
+ 
+ git log --pretty=format: "%h - %cn, %cr : %s"
+ git log --pretty=format:"%h - %cn, %cr : %s" --stat
+ 
+ git log --stat
+ git log --pretty=oneline
+ git config --global color.ui auto  --> getting colored output
+ 
+ git diff --staged -> This command compares your staged changes to your last commit:
+ git diff --cached to see what you’ve staged so far (--staged and --cached are synonyms):
+ git difftool  ->Git Diff in an External Tool
+ git diff <filename>
+ git diff <commit1 ID> <commit2 ID>
+ 
+ 
+ git checkout <filename>
+ git checkout <commit Id>
+ git checkout -- CONTRIBUTING.md
+	It’s important to understand that git checkout -- <file> is a dangerous command. Any changes you made to that file are gone — Git just copied another file over it. Don’t ever use this command unless you absolutely know that you don’t want the file.
+ 
+ git rm 
+	remove it from your tracked files (more accurately, remove it from your staging area) and then commit
+	If you modified the file and added it to the staging area already, you must force the removal with the -f option.
+ git rm --cached README 
+	keep the file in your working tree but remove it from your staging area.
+ git reset HEAD <file>	
+	... to unstage the file
+	It’s true that git reset can be a dangerous command, especially if you provide the --hard flag. However, in the scenario described above, the file in your working directory is not touched, so it’s relatively safe.
+ 
+ git mv file_from file_to 
+	If you want to rename a file in Git
+
+ git commit -a -m 'added new benchmarks' -> skips adding of file and done during commit
+ git commit --amend	
+	If you want to redo that commit, make the additional changes you forgot, stage them, and commit again using the --amend option:
+	$ git commit -m 'initial commit'
+	$ git add forgotten_file
+	$ git commit --amend
+	You end up with a single commit — the second commit replaces the results of the first.
+ 
+ 
+git config --global core.editor "'C:/Program Files/Sublime Text 2/sublime_text.exe' -n -w"
+git config --global push.default upstream
+git config --global merge.conflictstyle diff3 
+
+------------------------------------------------------------------------------------------
+Intellij
+
+ctrl + n
+ctrl + shift + n -> directories /
+ctrl + alt + shift + n 
+ctrl + tab -> switcher
+
+double shft -> search every where
+ctrl + shift + A -> action 
+ctrl + E -> recent files
+ctrl + shift + E -> recent edited files
+	
+Toggle b/w project and editor
+alt + 1
+esc	
+
+ctrl+f12 -> all methods of a class
+shft+ctrl+alt+j -> selects all occurences of word
+ctrl+r -> find replace
+ctrl+g -> line no
+ctrl+y -> delete a line
+ctrl+d -> duplicate a line
+ctrl+w -> select word, line, class 
+Ctrl+Shift+F -> find in path used to find word from any file
+Ctrl+Shift+f12 > max editor
+Ctrl+Shift+v -> clipboard history
+shft+alt+up/down arrow move file in code
+
+ctrl + q -> documentation
+
+
+	
+	
+	

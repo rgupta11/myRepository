@@ -1,0 +1,168 @@
+{
+  "CSTFormatVersion": "2017-04-22",
+  "Metadata": {
+    "Id": "6956ea97-3da2-4514-86f9-21e55071edcc",
+    "CstId": "6956ea97-3da2-4514-86f9-21e55071edcc",
+    "Name": "SimpleAWSAnsible",
+    "Label": "Simple AWS Ansible",
+    "Description": null,
+    "Version": "0.0.5",
+    "Delegator": "ICAWS",
+    "Contacts": [],
+    "CreatedOn": null,
+    "CreatedBy": null,
+    "ModifiedOn": null,
+    "ModifiedBy": null
+  },
+  "Properties": {},
+  "InstanceProperties": {},
+  "Manifest": {},
+  "Actions": {
+    "dbStart": {
+      "Delegator": null,
+      "Scope": "ENVIRONMENT",
+      "ActionType": "ansiblePlaybookQP",
+      "Label": "Start Database",
+      "Visible": "true",
+      "Parameters": {
+        "install_id": {
+          "Label": null,
+          "Description": null,
+          "Type": "STRING",
+          "Default": null,
+          "Required": "false",
+          "MinValue": null,
+          "MaxValue": null,
+          "MaxLength": null,
+          "Choices": []
+        },
+        "site_id": {
+          "Label": null,
+          "Description": null,
+          "Type": "STRING",
+          "Default": null,
+          "Required": "false",
+          "MinValue": null,
+          "MaxValue": null,
+          "MaxLength": null,
+          "Choices": []
+        }
+      },
+      "Dependencies": [],
+      "AuthorizedRoles": [],
+      "ActionItem": {
+        "ansibleFile": {
+          "Type": "GENERIC",
+          "selector": {
+            "path": "com/teradata/tmc/icaws/as/ansible-artifacts/1.0.3/ansible-artifacts-1.0.3.zip"
+          },
+          "playbookName": "playbooks/operations/stack_start.yml"
+        }
+      },
+      "Outputs": [],
+      "FromLabel": null,
+      "ToLabel": null
+    },
+    "dbStop": {
+      "Delegator": null,
+      "Scope": "ENVIRONMENT",
+      "ActionType": "ansiblePlaybookQP",
+      "Label": "Stop Database",
+      "Visible": "true",
+      "Parameters": {
+        "install_id": {
+          "Label": null,
+          "Description": null,
+          "Type": "STRING",
+          "Default": null,
+          "Required": "false",
+          "MinValue": null,
+          "MaxValue": null,
+          "MaxLength": null,
+          "Choices": []
+        },
+        "site_id": {
+          "Label": null,
+          "Description": null,
+          "Type": "STRING",
+          "Default": null,
+          "Required": "false",
+          "MinValue": null,
+          "MaxValue": null,
+          "MaxLength": null,
+          "Choices": []
+        }
+      },
+      "Dependencies": [],
+      "AuthorizedRoles": [],
+      "ActionItem": {
+        "ansibleFile": {
+          "Type": "GENERIC",
+          "selector": {
+            "path": "com/teradata/tmc/icaws/as/ansible-artifacts/1.0.3/ansible-artifacts-1.0.3.zip"
+          },
+          "playbookName": "playbooks/operations/stack_stop.yml"
+        }
+      },
+      "Outputs": [],
+      "FromLabel": null,
+      "ToLabel": null
+    },
+    "dbResize": {
+      "Delegator": null,
+      "Scope": "ENVIRONMENT",
+      "ActionType": "ansiblePlaybookQP",
+      "Label": "Resize Database",
+      "Visible": "true",
+      "Parameters": {
+        "site_id": {
+          "Label": null,
+          "Description": null,
+          "Type": "STRING",
+          "Default": null,
+          "Required": "false",
+          "MinValue": null,
+          "MaxValue": null,
+          "MaxLength": null,
+          "Choices": []
+        },
+        "install_id": {
+          "Label": null,
+          "Description": null,
+          "Type": "STRING",
+          "Default": null,
+          "Required": "false",
+          "MinValue": null,
+          "MaxValue": null,
+          "MaxLength": null,
+          "Choices": []
+        },
+        "instance_type": {
+          "Label": null,
+          "Description": null,
+          "Type": "STRING",
+          "Default": null,
+          "Required": "false",
+          "MinValue": null,
+          "MaxValue": null,
+          "MaxLength": null,
+          "Choices": []
+        }
+      },
+      "Dependencies": [],
+      "AuthorizedRoles": [],
+      "ActionItem": {
+        "ansibleFile": {
+          "Type": "GENERIC",
+          "selector": {
+            "path": "com/teradata/tmc/icaws/as/ansible-artifacts/1.0.3/ansible-artifacts-1.0.3.zip"
+          },
+          "playbookName": "playbooks/operations/resize_db_service.yml"
+        }
+      },
+      "Outputs": [],
+      "FromLabel": null,
+      "ToLabel": null
+    }
+  }
+}

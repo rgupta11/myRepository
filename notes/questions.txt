@@ -1,0 +1,1068 @@
+1
+-Unix
+-Java/Python
+-DS/Algo
+
+2
+-REST API
+-Design
+
+3
+-DevOps
+-Cloud
+
+Java object -> JSON: serialization
+JSON -> Java object: de-serialization
+
+****************Microservices*******************************************************
+Design patterns and principles:
+
+More focussed on a bounded domain
+
+-loose coupling and high cohesion
+	-When services are loosely coupled, a change to one service should not require a change to another.
+	-We want related behavior to sit together, and unrelated behavior to sit elsewhere. If we have to change that behavior in lots of different places, we’ll have to release lots of different services (
+-bounded contexts is “a specific responsibility enforced by explicit boundaries.”1 If you
+-In general, microservices should cleanly align to bounded contexts.
+-https://martinfowler.com/articles/richardsonMaturityModel.html
+
+-circuit breaker
+-reactor pattern
+-handle CatastrophicFailover
+	- if you're running a Java application, consider using a mix of different app servers, operating systems, and hardware. A mix is more complex to manage, of course, but greatly reduces the chance of this problem happening.
+-coupling and cohesion
+-DRY: don't repeat yourself
+	-don’t violate DRY within a microservice. But be relaxed about violating DRY across all services.
+-We pull duplicated code into abstractions that we can then call from multiple places
+-Coupling doesn’t leak in: overly coupling a microservice and consumers such that any small change to the microservice itself can cause unnecessary changes to the consumer.
+-Insisted that creating client libraries
+-Do not decouple MS to a level that the load on any MS is too great. Provide extra info so that the load can be minimised
+-But be very wary of passing around data in requests when you don’t know its freshness.
+-Tolerant Reader.
+-expand and contract pattern
+-Coexisting concurrent service versions for a short period of time can make perfect sense,
+
+
+Definition and disadvantages: 
+-Small, and Focused on Doing One Thing Well
+-Single Responsibility Principle
+-Technology Heterogeneity: Trying new programming language, database, or framework, any change will impact a large amount of my system
+-Resilience: If one component of a system fails, but that failure doesn’t cascade, you can isolate the problem and the rest of the system can carry on working.
+-Scaling: With a large, monolithic service, we have to scale everything together. One small part of our overall system is constrained in performance
+-Ease of Deployment: A one-line change to a million-line-long monolithic application requires the whole application to be deployed in order to release the change. That
+-Composability: With microservices, we allow for our functionality to be consumed in different ways for different purposes. This can be especially important when we think about how our consumers use our software.
+
+
+	
+	Design E-Commerce API URL for 
+		
+		Employee-> name, age, phone number and status
+		
+		To perform the CRUD operation like create/update/fetch/delete
+		
+		Get employees with status active
+		
+		Customer/employee/product/orders
+		
+		Exception handling - HTTP status codes
+		
+		Unit test case for a controller
+		
+		design 
+		operationalize
+		-RequestRate
+		-DB update 
+		-monitoring
+		-security 
+		-authentication/authorization
+	
+	CI/CD: 
+	Local 
+	Dev:
+	-
+	
+	Q: Versioning
+		-Semantic versioning
+		-You may decide to have a semantic version for the service, or even for an individual endpoint on a service if you are coexisting them as detailed in the next section.
+	
+	Q: Pagination
+	
+	Q: Filtering
+	
+	Q: Sorting	
+	
+	Q11: Architecture and definition
+	
+	Q12: Difference between Put and Post, Patch
+
+	Q13: Design a microService oriented architecture for a online product store that displays product details
+	
+	Q14: How to provide the API documentation of the RESTFUL APIs
+		
+	Q15: Security in MS
+	   -Token Based Authentication
+	   -Single SignON(SSO)
+	
+	Q16: Distributed Logging: Using correlationId / UserId / orderId
+	   All my distributed application logs should have the userId and the orderId
+	
+	Q17: Service discovery
+	
+	Q18: Service health check
+	
+	Q19: Authentication and Authorization
+	
+	Q20: Patterns 
+		Gateway | http://microservices.io/patterns/apigateway.html
+		-Pattern: API Gateway
+		-Why u need to design an API gateWay
+		-Single enrty point
+		-The number of service instances and their locations (host+port) changes dynamically
+		
+		Reactor pattern?
+		Orchestrator pattern?
+		The Strangler Pattern
+		circuit breaker pattern
+		
+****************Container****************************************************************
+-Create container for (Java) application 
+-How is a Docker container different from a hypervisor?
+	-https://www.slashroot.in/difference-between-hypervisor-virtualization-and-container-virtualization
+	
+	Container vs VM
+	-----------------
+	A container runs natively on Linux and shares the kernel of the host machine with other containers. 
+	It runs a discrete process, taking no more memory than any other executable, making it lightweight.
+
+	By contrast, a virtual machine (VM) runs a full-blown “guest” operating system with virtual access 
+	to host resources through a hypervisor. In general, VMs provide an environment with more resources 
+	than most applications need.
+	
+	-all instances (usually called containers) must share a single kernel
+	
+	
+-What is the difference between Docker image and Docker container?		
+-How to get a Docker container's IP address from the host?
+docker inspect <container ID> and docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' container_name_or_id
+
+Q: No distributed system is safe from network failures
+
+	
+
+Data Structure:
+	Q: Caching: Caches take advantage of the locality of reference principle: recently requested data is likely to be requested again
+		ttl and limit size
+		
+	-Cache Invalidation
+		-If the data is modified in the database, it should be invalidated in the cache
+		-Write-through cache: Under this scheme data is written into the cache and the corresponding database at the same time
+		-Write-around cache
+		-Write-back cache
+		
+		
+	Q: Order have child orders 
+	   Order has a field like parentId
+	For any orderId Create hierarchical structure for parent-child relationship
+	
+	Q: Design a data structure to optimally store full path of all the files/folder present in the Drive. The data structure to support search by file/folder name
+
+	Q: Sum of two linkList (No reversing is allowed)
+		Step 1. Traverse the linked lists and push the elements in two different stacks
+		Step 2. Pop the top elements from both the stacks 
+		Step 3. Add the elements (+ any carry from previous additions) and store the carry in a temp variable
+		Step 4. Create a node with the sum and insert it into beginning of the result list
+
+	Q: LRU cache implementation
+	Q: Blocking Queue
+	
+
+Design	 
+		-Cache -> LRU, HashMap, ConcurrentHashMap
+		-Object Pool manager
+		-Producer consumer
+		-URL shortnening: design a URL shortening service like TinyURL. This service will provide short aliases redirecting to long URLs.
+			-Functional Requirements:
+
+				-Given a URL, our service should generate a shorter and unique alias of it. This is called a short link.
+				-When users access a short link, our service should redirect them to the original link.
+				-Users should optionally be able to pick a custom short link for their URL.
+				-Links will expire after a standard default timespan. Users should also be able to specify the expiration time.
+			
+				A reasonable question would be: what should be the length of the short key? 6, 8 or 10 characters?
+				-Encoding actual URL
+				-Generating keys offline
+			
+			-Non-Functional Requirements:
+
+				The system should be highly available. This is required because, if our service is down, all the URL redirections will start failing.
+				URL redirection should happen in real-time with minimal latency.
+				Shortened links should not be guessable (not predictable).
+			
+			-Extended Requirements:
+
+				Analytics; e.g., how many times a redirection happened?
+				Our service should also be accessible through REST APIs by other services.
+		
+
+		-Typehead search: 	
+		-Load Balancer: 
+			-It helps to spread the traffic across a cluster of servers to improve responsiveness and availability of applications,
+			-LB also keeps track of the status of all the resources while distributing requests
+			-If a server is not available to take new requests or is not responding or has elevated error rate, LB will stop sending traffic to such a server
+		
+			?How does the load balancer choose the backend server?
+				-They will first ensure that the server they can choose is actually responding appropriately to requests
+				-algorithm to select one from the set of healthy servers.
+				
+			?Health Checks 	
+				-If a server fails a health check, it is automatically removed from the pool, and traffic will not be forwarded to it until it responds to the health checks again.
+			
+			?	
+				
+		
+		
+OOPs
+
+	-Composition Vs Aggregation
+		
+		-Simple rules:
+
+		A "owns" B = Composition : B has no meaning or purpose in the system without A
+		A "uses" B = Aggregation : B exists independently (conceptually) from A
+	
+		A Company is an aggregation of People. A Company is a composition of Accounts
+		
+		
+DesignPattern & Design problem
+	Q: Singleton pattern
+		When will u use Singleton pattern
+		https://www.javaworld.com/article/2073352/core-java/simply-singleton.html?page=2
+			-Synchronize the critical code.
+			-Double-checked locking
+				if(singleton == null) {
+					 synchronized(Singleton.class) {
+					   if(singleton == null) {
+						 singleton = new Singleton();
+					   }
+					}
+			-Thread safe alternate : The preceding singleton implementation is thread-safe because static member variables created when declared are guaranteed to be created the first time they are accessed.
+			
+						public class Singleton {
+						   public final static Singleton INSTANCE = new Singleton();
+						   private Singleton() {
+								 // Exists only to defeat instantiation.
+							  }
+						}
+			-
+			
+	Q: Factory pattern and abstract factory
+		
+
+Core Java
+	Q)	What is Optional? How can it be used?
+		-Optional is a new class in Java 8 that encapsulates an optional value i.e. a value that is either there or not. It is a wrapper around an object, and you can think of it as a container of zero or one element.
+		-Optional has a special Optional.empty() value instead of wrapped null. Thus it can be used instead of a nullable value to get rid of NullPointerException in many cases
+	
+	Q)What is a functional interface? What are the rules of defining a functional interface?
+		-A functional interface is an interface with no more, no less but one single abstract method (default methods do not count).	
+
+	Java Memory model
+	Classpath hierarchy
+	performance management
+	Java Security
+		
+ -Generics
+	
+	Q) 	Difference between 
+	
+		public Object doSomething(Object obj) {....}
+
+		public <T> T doSomething(T t) {....}
+		
+		Isolated from context - no difference. On both t and obj you can invoke only the methods of Object.
+		Two advantages:
+
+		-No need of casting (the compiler hides this from you)
+		-compile time safety that works. If the Object version is used, you won't be sure that the 
+	 	 method always returns Foo. If it returns Bar, you'll have a ClassCastException, at runtime.
+		 Get a compilation error when I do wrong
+
+	Q) Create a genericMethod printArray to accept and printArray of Integers & String
+	public static <T> void printArray(T[] arr) {
+			for (T t : arr) {
+				System.out.println(t);
+			}
+			
+		}
+ -Threads
+	Q: Volatile: Why would you need volatile keyword when member varaibles are shared across threads and will have same value.
+			Ans: If your computer contains more than one CPU, each thread may run on a different CPU
+			Java memory model and CPU architecture, main memory->cache->register. Value is flushed to main memory 
+			from cache. It may be possible 1 thread update shared var value but its still in cache another thread 
+			may read stale value from main memory(RAM). Volatile ensures any update is directly written to main memory.
+			It ensures every read and write to volatile variable will be done to main memory than cache.
+ 
+??? Volatile as Object and multi-member variables. Volatile not work for multi thread working on member variable.
+
+ 
+ -Collection
+	-Q: ArrayList vs LinkedList
+	-Q: What is immutable class
+	-Q: What is Cloning 
+ 
+ -Java Security
+ 
+ -Java puzzles
+	Q: How to Create a Simple In Memory Cache (in any language)
+		Eviction rules
+		-TTL
+		-Size of cache is full
+
+	Q: Now make it Thread safe
+
+	Q: Immutable class
+		To create immutable class in java, you have to do following steps.
+
+		-Declare the class as final so it can’t be extended.
+		-Make all fields private so that direct access is not allowed.
+		-Don’t provide setter methods for variables
+		-Make all mutable fields final so that it’s value can be assigned only once.
+		-Initialize all the fields via a constructor performing deep copy.
+		-Perform cloning of objects in the getter methods to return a copy rather than returning the actual object reference.
+
+	Q: Why Map Key should be Immutable Object ?		
+	Actual problem was the new Hashcode for the object doesn't match the Hashcode the set used to store the value.
+	
+	
+	Q: What is a Blocking Queue
+
+	Q: Remove duplicates from a List using plain Java
+
+	List<Integer> listWithDuplicates = Lists.newArrayList(0, 1, 2, 3, 0, 0);
+	List<Integer> listWithoutDuplicates = new ArrayList<>(new HashSet<>(listWithDuplicates));
+
+	Q: How to Read a Large File Efficiently with Java
+
+		~1GB file
+		FileInputStream inputStream = null;
+		Scanner sc = null;
+		try {
+			inputStream = new FileInputStream(path);
+			sc = new Scanner(inputStream, "UTF-8");
+			while (sc.hasNextLine()) {
+				String line = sc.nextLine();
+				// System.out.println(line);
+			}
+			
+		Now – let’s discuss the difference between Scanner and BufferedReader – we generally use:
+		BufferedReader when we want to read the input into lines
+		Scanner to read the input into tokens	
+			
+			Or
+		
+	Q: Implement producer and consumer using a blocking Q
+	 
+	Q) Comparator to sort score if score is same then sort by alphabetical
+	class Checker implements Comparator<Player> {
+
+		@Override
+		public int compare(Player o1, Player o2) {
+			
+			return (o1.score < o2.score ? 1 : (o1.score == o2.score ? (o1.name.toLowerCase().compareTo(o2.name.toLowerCase())) : -1));
+		
+		}
+
+	}
+
+	Q) Generate a Long within a Range 
+
+	public void givenUsingPlainJava_whenGeneratingRandomLongBounded_thenCorrect() {
+		long leftLimit = 1L;
+		long rightLimit = 10L;
+		long generatedLong = leftLimit + (long) (Math.random() * (rightLimit - leftLimit));
+	}
+
+
+ 
+J2EE
+ -Spring
+	-Spring boot
+	-Spring security
+ 
+Cloud
+	-Generic concepts
+	-AWS
+	-Dockers
+		-
+	-Manage Security in cloud
+	-Deployment
+	-service discovery 
+	
+
+DevOps
+dev: java / scripting / ansible / | DS | PS | Design | Distributed system
+	 CAP theoram | HA | 
+
+TechnicalSupport: 
+		customerincident, Escalations, RCA, KB articles, Runbooks
+		
+-----------------------------------------Microservices------------------------------------------------------
+Q: What are Microservices ?
+	A: Microservices is a variant of the service-oriented architecture (SOA) architectural style that structures 
+	an application as a collection of loosely coupled services. In a microservices architecture, services should be 
+	fine-grained and the protocols should be lightweight. The benefit of decomposing an application into different 
+	smaller services is that it improves modularity and makes the application easier to understand, develop and test. 
+	It also parallelizes development by enabling small autonomous teams to develop, deploy and scale their respective 
+	services independently.
+	
+	
+
+Q: What are the advantages and disadvantages of microservices?
+	Microservices Advantages
+
+	Smaller code base is easy to maintain.
+	Easy to scale as individual component.
+	Technology diversity i.e. we can mix libraries, databases, frameworks etc.
+	Fault isolation i.e. a process failure should not bring whole system down.
+	Better support for smaller and parallel team.
+	Independent deployment
+	Deployment time reduce
+
+	Microservices Disadvantages
+
+	Difficult to achieve strong consistency across services
+	ACID transactions do not span multiple processes.
+	Distributed System so hard to debug and trace the issues
+	Greater need for end to end testing
+	Required cultural changes in across teams like Dev and Ops working together even in same team.
+
+		
+Q: How to provide the API documentation of the RESTFUL APIs
+ 
+
+Q: Difference between Microservices and REST ful services	
+	-Are your web services individually deployable? Individually scalable? Individually monitored?
+	- Microservices is more about architectural whereas RESTful API focuses more on how to expose Microservices.
+	-
+
+-REST METHODS | HTTP has a small, fixed set of operational methods. Each method has
+	-GET
+		-GET is a read-only operation. It is used to query the server for specific information. It is both an
+		 idempotent and safe operation. Idempotent means that no matter how many times you apply the
+		 operation, the result is always the same
+		
+	-PUT
+		-PUT requests that the server store the message body sent with the request under the location
+		 provided in the HTTP message. It is usually modeled as an insert or update. It is also idempotent.
+		 When using PUT, the client knows the identity of the resource it is creating or updating. It is
+		 idempotent because sending the same PUT message more than once has no effect on the
+		 underlying service.
+	-POST
+		-POST is the only nonidempotent and unsafe operation of HTTP. Each POST method is allowed to
+		 modify the service in a unique way. You may or may not send information with the request. You may
+		 or may not receive information from the response.
+		 
+		 POST creates a new resource, it respond with a code of 201, “Created” (just like
+		 PUT). The Location header in the response message provides a URI to the client so it knows where to
+		 further interact with the Order that was created
+	
+	-OPTION
+		-OPTIONS is used to request information about the communication options of the resource you are
+		 interested in. It allows the client to determine the capabilities of a server and a resource without
+		 triggering any resource action or retrieval.
+	
+	-DELETE
+		-DELETE is used to remove resources. It is idempotent as well.
+		-Overloading the meaning of DELETE	
+			-Cancelling an Order is very similar to removing it.
+			-DELETE /orders/233?cancel=true
+			-cancel query parameter would tell our service that we don’t really want to remove the Order,
+			 but cancel it. In other words, we are overloading the meaning of DELETE.
+
+	-HEAD
+		-HEAD is exactly like GET except that instead of returning a response body, it returns only a response
+		 code and any headers associated with the request.
+
+	-TRACE
+
+	-CONNECT	
+	
+	
+	Q: Diff between put and post
+	Q: Why OPTIONS is used
+	Q: How would you design the RESTFULL interface like which all to expose
+	 -When modeling a RESTful interface for the operations of your object modeled
+	 -States versus operations
+		-When modeling a RESTful interface for the operations of your object model, you should ask yourself a
+		 simple question: is the operation a state of the resource? If you answer yes to this question, the operation
+		 should be modeled within the data format
+	
+-Proxy and reverse proxy | https://stackoverflow.com/questions/224664/difference-between-proxy-server-and-reverse-proxy-server
+
+	In the computer realm, we are talking about one server acting on the behalf of another computer.
+	For the purposes of accessibility, I will limit my discussion to web proxies - however, the 
+	idea of a proxy is not limited to web sites.
+
+	-FORWARD proxy
+		The proxy event in this case is that the "forward proxy" retrieves data from another web site on behalf of the original requestee.
+		For an example, I will list three computers connected to the internet.
+
+		X = your computer, or "client" computer on the internet
+		Y = the proxy web site, proxy.example.org
+		Z = the web site you want to visit, www.example.net
+		Normally, one would connect directly from X --> Z.
+		However, in some scenarios, it is better for Y --> Z on behalf of X, which chains as follows: X --> Y --> Z.
+
+		Reasons why X would want to use a forward proxy server:	
+			- X is unable to access Z directly because
+				a) Someone with administration authority over X's internet connection has decided to block all access to site Z
+				b) The administrator of Z has blocked X.
+		
+	-Reverse proxy
+		For this example, I will list three computers connected to the internet.
+
+		X = your computer, or "client" computer on the internet
+		Y = the reverse proxy web site, proxy.example.com
+		Z = the web site you want to visit, www.example.net
+		Normally, one would connect directly from X --> Z.
+
+		However, in some scenarios, it is better for the administrator of Z to restrict or disallow direct access, and force 
+		visitors to go through Y first. So, as before, we have data being retrieved by Y --> Z on behalf of X, 
+		which chains as follows: X --> Y --> Z
+	
+		What is different this time compared to a "forward proxy," is that this time the user X does not know he is 
+		accessing Z, because the user X only sees he is communicating with Y. The server Z is invisible to clients and 
+		only the reverse proxy Y is visible externally. A reverse proxy requires no (proxy) configuration on the client side.
+		
+		Reasons why Z would want to set up a reverse proxy server:
+
+			1) Z wants to force all traffic to its web site to pass through Y first.
+			2) The administrator of Z is worried about retaliation for content hosted on the server and does not want to expose the main server directly to the public.
+
+
+-----------------------------------------Design problems------------------------------------------------------
+Q: Design a microService oriented archtecture for a online product store that displays product details
+	-authenticates service to authnticate a usr
+	-authorizes a user
+	-a/c service
+	-inventory service
+	-shipping service
+	
+	>>later: The number of service instances and their locations (host+port) changes dynamically
+	>>later-Add security to this application
+	>>Partitioning into services can change over time and should be hidden from clients
+	
+	?How do the clients of a Microservices-based application access the individual services
+	?How to prevent a network or service failure from cascading to other services (circuit breaker)
+
+	ALB -> reverse proxy (security) -> gateway -> all microservices 
+	
+	
+Q: Gateway | http://microservices.io/patterns/apigateway.html
+	-Pattern: API Gateway
+	-Why u need to design an API gateWay
+	-Single enrty point
+	-The number of service instances and their locations (host+port) changes dynamically
+	-Partitioning into services can change over time and should be hidden from clients
+	-Services might use a diverse set of protocols, some of which might not be web friendly
+	-Different clients need different data. For example, the desktop browser version of a product details 
+	 page desktop is typically more elaborate then the mobile version
+	-Reduces the number of requests/roundtrips. For example, the API gateway enables clients to retrieve data 
+	 from multiple services with a single round-trip. Fewer requests also means less overhead and improves the 
+	 user experience. An API gateway is essential for mobile applications.
+
+	-Related patterns
+		The Microservice architecture pattern creates the need for this pattern.
+		The API gateway must use either the Client-side Discovery pattern or Server-side Discovery pattern to route requests to available service instances.
+		The API Gateway may authenticate the user and pass an Access Token containing information about the user to the services
+		An API Gateway will use a Circuit Breaker to invoke services
+		An API gateway often implements the API Composition pattern 
+	 
+	 
+Q: Authentication service | https://medium.com/technology-learning/how-we-solved-authentication-and-authorization-in-our-microservice-architecture-994539d1b6e6
+	-The api gateway is the middleman between the frontend apps and the suite of microservices. It’s responsible for 
+	 generating the jwt and hence authentication. It achieves this by communicating with authorization and users 
+	 service.
+	-JSON Web Tokens are an open, industry standard RFC 7519 method for representing claims securely between two parties. 
+		-Compact: Because of their smaller size, JWTs can be sent through a URL, POST parameter, or inside an HTTP header. 
+		 Additionally, the smaller size means transmission is fast.
+		-Self-contained: The payload contains all the required information about the user, 
+		 avoiding the need to query the database more than once. 
+	 
+Q: Autorization RBAC based
+	-Authorization in our systems is purely permission based. The permissions are used to restrict access to an api 
+	 endpoint and also control users view on the frontend apps.
+	
+	-(userService) User, Roles & UserRoles
+	-(Authorization service) Permissions, activities(url, method, url_regex), PermissionActivities
+	-rolePermissions(role & permissions)
+		SELECT COUNT(*) FROM permission_activities pa 
+		JOIN activities a ON pa.activity_id = a.id 
+		WHERE a.method = :method AND :url ~ a.url_regex AND pa.permission_id IN(:permissionIds)
+		
+	>>-The above authorization setup works in most scenarios. However, there are some situations where different users 
+	 have access to the same endpoint but the content they see are different i.e some users can see extra properties 
+	 in the returned result.	
+	 
+	 
+Q: Implement Security
+	Security in microservices
+	-Token Based Authentication
+		-In a monolith, it’s ok for it to be built as a stateful application. Hence, session based authentication works really well
+		-To maintain statelessness in our system, we opted to use token authentication. We packaged user claims in the jwt. JSON Web Token(jwt) 
+		-When a user logs in successfully, a jwt is returned. On subsequent requests, the user must attach this token to each request. 
+		 This is needed so that the api gateway can establish the identity of the user and extract the user’s claims from the token.
+		- 
+	-Single SignON(SSO)
+		-The way SSO is implemented in our system is simple. When a user logs in for the first time from any frontend app, 
+		 a cookie called jwt-token gets created on the api-gateway. 
+		-The cookie’s domain is .andela.com and hence accessible to all andela.com subdomain.
+
+	-Security attack like SQL injection/block IP
+	-MIM Attackers, who are in a network position to monitor and alter communications between a victim and server, 
+	 could re-write all HTTPS links as HTTP links. 
+	
+	
+-Circuit Breaker pattern
+	-How to prevent a network or service failure from cascading to other services
+	-A service client should invoke a remote service via a proxy that functions in a similar fashion to an 
+	 electrical circuit breaker. When the number of consecutive failures crosses a threshold, the circuit breaker 
+	 trips, and for the duration of a timeout period all attempts to invoke the remote service will fail immediately
+	-This pattern has the following benefits:
+		Services handle the failure of the services that they invoke
+	-This pattern has the following issues:
+		It is challenging to choose timeout values without creating false positives or introducing excessive latency.
+		
+-Access token pattern
+	-A service can include the access token in requests it makes to other services
+	-The API Gateway authenticates the request and passes an access token (e.g. JSON Web Token) that securely 
+	 identifies the requestor in each request to the services.
+	
+-Auth0 
+	-Auth0 is a service that abstracts how users authenticate to applications
+	-
+
+
+-----------------------------------------Core Java problems------------------------------------------------------
+-Design patterns
+	-Singleton |  
+	-Fly weight
+	-Decorator 
+	-Facade
+	-
+-Service discovery 
+-Dependency Injection
+	Dependency injection (DI) is a process whereby objects define their dependencies, that is, the other
+	objects they work with, only through constructor arguments, arguments to a factory method, or properties
+	that are set on the object instance after it is constructed or returned from a factory method. The container
+	then injects those dependencies when it creates the bean. This process is fundamentally the inverse,
+	hence the name Inversion of Control (IoC), of the bean itself controlling the instantiation or location of
+	its dependencies on its own by using direct construction of classes, or the Service Locator pattern.
+	
+	
+-Java puzzles
+Q: How to Create a Simple In Memory Cache in Java | http://crunchify.com/how-to-create-a-simple-in-memory-cache-in-java-lightweight-cache/
+
+Q: Now make it Thread safe
+
+Q: Immutable class
+
+Q: What is a Blocking Queue
+
+Q: Remove duplicates from a List using plain Java
+
+List<Integer> listWithDuplicates = Lists.newArrayList(0, 1, 2, 3, 0, 0);
+List<Integer> listWithoutDuplicates = new ArrayList<>(new HashSet<>(listWithDuplicates));
+
+Q: How to Read a Large File Efficiently with Java
+
+~1GB file
+FileInputStream inputStream = null;
+Scanner sc = null;
+try {
+    inputStream = new FileInputStream(path);
+    sc = new Scanner(inputStream, "UTF-8");
+    while (sc.hasNextLine()) {
+        String line = sc.nextLine();
+        // System.out.println(line);
+    }
+	
+Now – let’s discuss the difference between Scanner and BufferedReader – we generally use:
+BufferedReader when we want to read the input into lines
+Scanner to read the input into tokens	
+	
+	Or
+	
+	
+	
+
+
+Q: Implement producer and consumer using a blocking Q
+http://javarevisited.blogspot.in/2015/07/how-to-use-wait-notify-and-notifyall-in.html#axzz4tZvml11U
+ 
+Q) Create a genericMethod printArray to accept and printArray of Integers & String
+public static <T> void printArray(T[] arr) {
+		for (T t : arr) {
+			System.out.println(t);
+		}
+		
+	}
+	
+	
+Q) Comparator to sort score if score is same then sort by alphabetical
+class Checker implements Comparator<Player> {
+
+	@Override
+	public int compare(Player o1, Player o2) {
+		
+		return (o1.score < o2.score ? 1 : (o1.score == o2.score ? (o1.name.toLowerCase().compareTo(o2.name.toLowerCase())) : -1));
+    
+    }
+
+}
+
+Q) Generate a Long within a Range 
+
+public void givenUsingPlainJava_whenGeneratingRandomLongBounded_thenCorrect() {
+    long leftLimit = 1L;
+    long rightLimit = 10L;
+    long generatedLong = leftLimit + (long) (Math.random() * (rightLimit - leftLimit));
+}
+
+Or
+
+public void givenUsingApacheCommons_whenGeneratingRandomLongBounded_thenCorrect() {
+    long leftLimit = 10L;
+    long rightLimit = 100L;
+    long generatedLong = new RandomDataGenerator().nextLong(leftLimit, rightLimit);
+}
+
+
+
+
+-----------------DS interview Questions------------------
+?1) M X N matrix with 0s and 1s all sorted i.e. 
+00001
+00111
+00011
+
+Find no of occurances of 1 in linear complexity O(n)
+
+Soln:
+Traverse thru first row, call recusively getNeighbour by adding 1 to row. If no is 1 return with 0s occurances
+
+??2) [1,2,6,7,4,8,10] array of nos
+for any input, fetch the pair of nos from array whose sum is equal to input
+
+Soln: 
+Iterate over array
+Store input % a[i] and store result in Map<> key=remainder and value = index of array/no itself
+Now for subsequent run check a[i] is contained in Map<>, if yes, the a[i] and the map value are the pair
+else update Map with % values
+
+??3) Sum of two linkList (No reversing is allowed)
+Pseudocode:
+Step 1. Traverse the linked lists and push the elements in two different stacks
+Step 2. Pop the top elements from both the stacks 
+Step 3. Add the elements (+ any carry from previous additions) and store the carry in a temp variable
+Step 4. Create a node with the sum and insert it into beginning of the result list
+
+
+
+Threads:
+? Volatile: Why would you need volatile keyword when member varaibles are shared across threads and will have same value.
+			Ans: If your computer contains more than one CPU, each thread may run on a different CPU
+			Java memory model and CPU architecture, main memory->cache->register. Value is flushed to main memory 
+			from cache. It may be possible 1 thread update shared var value but its still in cache another thread 
+			may read stale value from main memory(RAM). Volatile ensures any update is directly written to main memory.
+			It ensures every read and write to volatile variable will be done to main memory than cache.
+
+
+? What is functional interface ?
+	A functional interface is any interface that contains only one abstract method. (A functional interface 
+	may contain one or more default methods or static methods.) Because a functional interface contains only 
+	one abstract method, you can omit the name of that method when you implement it.
+
+? What is the Difference between JDK and JRE ?
+
+	The Java Runtime Environment (JRE) is basically the Java Virtual Machine (JVM) where your Java programs are being executed.
+	It also includes browser plugins for applet execution. The Java Development Kit (JDK) is the full featured Software Development
+	Kit for Java, including the JRE, the compilers and tools (like JavaDoc, and Java Debugger), in order for a user to develop, compile
+	and execute Java applications.	
+
+? How would you improve performance of a Java application
+	-Manage Pools of reusable objects – thread, JDBC connection pool
+	-Optimize I/O – use buffers
+	-Avoid N/W trips
+	-Memory mamangement
+	-Vectors Vs ArrrayList, lazy initialization
+	-Static - always make it a point to nullify the references as soon as you reach at a point in your code where 
+	 the use of the static member is over.
+
+? Monitor Vs semaphore Vs mutex
+		Mutex:
+		Used to provide mutual exclusion i.e. ensures at most one process can do something (like execute a 
+		section of code, or access a variable) at a time.
+		A famous analogy is the ba3throom key in a Starbucks; only one person can acquire it, 
+		therefore only that one person may enter and use the bathroom. Everybody else who wants to 
+		use the bathroom has to wait till the key is available again.
+
+		Monitor:
+		Provides mutual exclusion to an object i.e. at any point in time, at most one process may access any 
+		of the object's members/ execute any of its methods. This is ideologically similar to a mutex for an 
+		entire OOP instance*; no part of the instance can be touched by more than one process at a time.
+
+		Semaphore:
+		Is a counter which grants count number**of accesses to a resource at a time. So if a semaphore has 
+		initial count = 5, the resource it protects may be accessed by at most 5 requestors*** at a time; 
+		the 6th requestor onwards will have to wait for an empty 'slot'.
+		Think of a patient's hospital room that has 5 seats; the nurse allows visitors to enter until all 
+		5 seats are occupied. Any other visitors must wait outside until a seat becomes vacant, at which 
+		point the nurse allows one to enter.
+
+		Semaphores are typically used as a signaling mechanism between processes.
+
+? What is Java Priority Queue ?
+	The PriorityQueue is an unbounded queue, based on a priority heap and its elements are ordered in their natural order. 
+	At the time of its creation, we can provide a Comparator that is responsible for ordering the elements of the PriorityQueue. 
+	A PriorityQueue doesn’t allow null values, those objects that doesn’t provide natural ordering, or those objects that 
+	don’t have any comparator associated with them. Finally, the Java PriorityQueue is not thread-safe and it requires 
+	O(log(n)) time for its enqueing and dequeing operations.		
+
+? What is the difference between a synchronized method and a synchronized block ?
+	In Java programming, each object has a lock.  A thread can acquire the lock for an object by using the synchronized keyword.
+	The synchronized keyword can be applied in a method level (coarse grained lock) or block level of code (?ne grained lock).
+
+? How do you ensure that N threads can access N resources without deadlock ?
+	A very simple way to avoid deadlock while using N threads is to impose an ordering on the locks and force each thread to follow
+	that ordering. Thus, if all threads lock and unlock the mutexes in the same order, no deadlocks can arise.
+
+? Thread local
+
+? Java memory model
+	
+-----------------------------------------Cloud Questions---------------------------------------------------------
+Diff between software as a service Vs Managed Service
+
+Private Cloud Model in Cloud Computing
+	-The Private Cloud is operated only within a single organization. However, It may be managed internally or by third-party.
+	-
+	
+Public Cloud in Cloud Computing
+Hybrid Cloud Model in Cloud Computing
+	-It is the mixture of public and private cloud.
+	-Advantages
+		Scalable-It provides both the features of public and private cloud scalability.
+		Flexible and secure-It provides secure resources because of private cloud and scalable resources because of public cloud.
+		Cost effective
+	-Disadvantage
+		-Network Issue –
+			Networking becomes complex due to presence of private and public cloud.
+		-Security Compliance-
+			It is necessary to ensure that cloud services are compliant with the security policies of an organization.
+		
+Software as a Service (SaaS)
+Platform as a Service (PaaS)
+Infrastructure as a service (IaaS)
+
+=-----------------------------------------------------------------------
+Stateless sessions
+
+JWT
+	-It is possible to remove the signature and then change the
+	header to claim the JWT is unsigned. Careless use of certain JWT validation libraries can result in
+	unsigned tokens being taken as valid tokens
+		
+	-Cross-site request forgery attacks attempt to perform requests against sites where the user is logged
+	in by tricking the user’s browser into sending a request from a different site. To accomplish this,
+	a specially crafted site (or item) must contain the URL to the target
+	Short-lived JWTs can help in this case.
+	
+	-JWTs, like any other client-side data, can be stored as cookies.
+
+	-
+	
+	
+	Luck2W1n@2626
+	23/6
+-----------------------------------------------------------------------
+
+RunBooks:
+a runbook is a compilation of routine procedures and operations that the system administrator or operator carries out.
+	
+	
+Serverless	
+	
+	
+-----------------------------------------------------
+
+    EASY
+1.	Find the nth node from the end.
+2.	Reverse a linked List using recursion
+3.	Reverse linked list.
+4.	Level order transversal of binary tree.
+5.	Find max element in array present to right of the given element.
+6.	Find height of a tree.
+7.	Given an array of size n-1 containing all the numbers from 1 to n, except one number. 
+Find the missing number.
+8.	Check if given two linked list is merged at end or not.
+9.	Code for binary search in an sorted array.
+10.	Sort any array containing only 0,1 and 2.
+
+MEDIUM
+1.	Code for DFS(Depth first search) of a graph
+2.	Create a function to verify n-numbers whether the number are prime or not in O(n). 
+3.	Find lowest common ancestor of given two nodes in binary tree.
+4.	Program for quick -sort.
+5.	Program for merge-sort.
+6.	Insert element in binary search tree.
+7.	Delete element in binary search tree.
+8.	For a given array, print  max sum possible for any sub array. Complexity: O(n)
+9.	For a given string print max size palindrome substring.
+10.	Generate all the subset of given string. 
+11.	Design and write code for LRU cache.
+12.	Find if sorted array contains two elements, sum of which corresponds to given value.
+13.	A string composed of character from a to z, occurring any number of times. Find total number of possible 
+permutation of the string.
+14.	Design an data structure to fetch min element in O(1) time from a given list of numbers. Data structure 
+should also support removal/addition of element.  
+15.	Generate all the possible sub-matrix from given matrix.
+16.	Sort an array in O(n). If elements of array is less than a 10^6. 
+17.	Find square root of given number.
+18.	Find  nth Fibonacci number in O(logn).
+19.	Write a function to find nth power of given number in O(logn). 
+20.	Write a code check if binary tree contains a path from root to leave, sum of which corresponds to given number.
+
+HARD
+1.	Generate all the permutation of string. 
+2.	Convert BST to doubly linked list, preserving the sorting of the elements.
+3.	For given n co-ordinates, find Manhattan distance for all the possible combination. 
+Complexity required: O(n). Manhattan Distance: |x1-x2|+|y1-y2|
+4.	Partition an array into K-groups, each group having equal sum.
+5.	Find min steps required by Knight in chess to move from given initial position 
+to given final position.
+6.	Write a code to solve Sudoku.
+7.	Find number of BST(Structurally) that can be formed for given n - nodes.  
+8.	Design an data structure to query (things like sum, max value, min value) from array 
+for a given range in O(logn). Example: Find sum/max value from given range Left-Index to Right-Index.
+9.	Number of ways to partition an array.
+10.	Design a data structure to optimally store full path of all the files/folder present in the Drive. 
+The data structure to support search by file/folder name.
+	
+	
+---------------------------------
+
+Class design for cacheManager: 
+Core Java:
+- ArrayList vs LinkedList
+- LinkedHashMap
+- Cloning
+- Volatile
+- Generics:
+  - Difference between 
+	Public Object doSomething(Object obj) {....}
+	public <T> T doSomething(T t) {....}
+-Sum of two linkList (No reversing is allowed)
+		Step 1. Traverse the linked lists and push the elements in two different stacks
+		Step 2. Pop the top elements from both the stacks 
+		Step 3. Add the elements (+ any carry from previous additions) and store the carry in a temp variable
+		Step 4. Create a node with the sum and insert it into beginning of the result list
+
+-Q: LRU cache implementation
+-Q: Design a data structure to optimally store full path of all the files/folder present in the Drive. The data structure to support search by file/folder name	
+	
+-Immutablity
+-OOPs
+  -Abtraction
+  -Aggregation Vs Compostition
+-Problem: Remove duplicates from a List using plain Java
+-Design Pattern
+  -Singleton
+  -Factory method
+
+  
+  C:\work\sw\Oracle\VirtualBox\VBoxGuestAdditions.iso
+  
+
+Designing a MS:
+-first “What does this context do?”, and then “So what data does it need to do that?”
+-The modeling of your software after your business domain shouldn’t stop at the idea of bounded contexts
+-Avoid Breaking Changes
+-communication between microservices technology-agnostic
+-Should communication be synchronous or asynchronous?
+-This pattern is sometimes referred to as backends for frontends (BFFs).
+-“Build if it is unique to what you do, and can be considered a strategic asset; buy if your use of the tool isn’t that special.”
+-The Strangler Pattern: when we want to remove systems that are not in our control or at least move away from them
+  
+??
+?-Domain-driven design.  
+?Java itself doesn’t have a true concept of modules, and we’ll have to wait at least until Java 9 to see this added to the language.
+?sidecar services, onion architecture
+?PCI, DSS
+?Vulnerabilities: SQL injection, Cross scripting, etc
+?CORS
+?API versioning with the Semantic Versioning specification
+?Kerberos vs JWT
+?JSON vs protoBuff
+
+-get ebook Java 9 Modularity
+
+-Spring boot MS  
+-hypermedia
+-JSON/protobuff
+-auth0
+-docker
+-deploy on aws
+-actuator features
+-swagger / spring text..
+-test 
+
+-aws
+ -iam
+ -lambda
+ -api gateway
+ -aws elastic beanstalk
+ -vpc, security group
+ 
+above as a lambda
+
+-Semantic versioning
+-commercial off-the-shelf software (COTS)
+
+----------------------
+Ref architecture:
+?API versioning with the Semantic Versioning specification
+
+
+
+
+--------------
+-aws
+ -iam
+ -lambda
+ -api gateway
+-MS book
+ 
+ 
+ 
+Serverless:
+-Serverless can also mean applications where server-side logic is still written by the application developer, but, unlike traditional architectures, it’s run in stateless compute containers that are event-triggered, ephemeral (may only last for one invocation), 
+-Functions-as-a-Service platform
+-Breaking up different logical requirements into separately deployed components is a very common approach when using FaaS.
+-preference for choreography over orchestration, with each component playing a more architecturally aware role—an idea also common in a microservices approach.
+-Asynchronous message processing is a very popular use case for Serverless technologies
+-FaaS environment we upload the code for our function to the FaaS provider, and the provider does everything else necessary for provisioning resources, instantiating VMs, managing processes, etc.
+-Startup latency and “cold starts”
+-“warm start”—reusing an instance of a Lambda function and its host container from a previous event
+-or a “cold start” —creating a new container instance
+-Amazon retires inactive Lambda instances after a few minutes. 
+-Beyond purely routing requests, API gateways may also perform authentication, input validation, response code mapping, and more.
+-Ops” means—at least—monitoring, deployment, security, networking, support, and often some amount of production debugging and system scaling.
+-Immutable Pojos and Overloaded Constructors vs. the Builder Pattern
+
+
+
+https://www.youtube.com/watch?v=EnnwyIrlN7Y&index=4&list=PLTgRMOcmRb3P_pTRDY_w4tJkatqBAmSc7
+https://www.youtube.com/watch?v=Sao5EbBemzw&t=164s
+
+

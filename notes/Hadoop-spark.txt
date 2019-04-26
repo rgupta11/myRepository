@@ -1,0 +1,1383 @@
+Learning URLs
+-------------
+spark examples from dataBricks: https://github.com/databricks/learning-spark/tree/master/src/main/java/com/oreilly/learningsparkexamples/java
+spark-memory-management: https://0x0fff.com/spark-memory-management/
+spark2.0 adavanced concept | https://www.youtube.com/watch?v=1a4pgYzeFwE
+shuffle: https://0x0fff.com/spark-architecture-shuffle/
+myths of spark: https://0x0fff.com/spark-misconceptions/
+
+
+URLs
+----
+	-Spark UI: http://localhost:4040 [ http://<driver-node>:4040 ]
+	- cluster  manager’s  web  UI  should  appear  at @ http://masternode:8080 
+		and show all your workers.
+	-spark.yarn.historyServer.address : http://lnxcdh21.emeter.com:18088/history
+
+
+	yarn logs -applicationId <appid> --appOwner <userid>
+	resource manager UI -> nodes page -> particular node -> particular container
+
+	Oozie urls
+
+	oozie job -oozie http://lnxcdh21.emeter.com:11000/oozie/ -kill 0000029-160511162000176-oozie-oozi-W
+	oozie job -oozie http://lnxcdh21.emeter.com:11000/oozie/ -info 0000029-160511162000176-oozie-oozi-W
+	oozie job -oozie http://lnxcdh21.emeter.com:11000/oozie/ -log 0000029-160511162000176-oozie-oozi-W
+
+	JobTracker webUI
+	-http://<job_tracker_address>:50030/ 
+	-http://localhost:50030/     | if"running"in"pseudo/distributed"mode"
+
+	NameNode webUI
+	-http://<name_node_address>:50070/ 
+
+	HBase WebUI
+	http://master.foo.com:60010
+	http://lnxcdh01.emeter.com:60010
+
+	HBaseMaster:  ports: HBaseMaster @60000 | <ip>:60000
+	RegionServer: http://<region-server-address>:60030
+
+	hadoop cluster: http://lnxcdh05.emeter.com:8088/cluster
+	JobHistory: http://lnxcdh04.emeter.com:19888/jobhistory/
+	Spark historyServer: http://lnxcdh21.emeter.com:18088/
+	
+------------------------------------
+spark examples from dataBricks:
+https://github.com/databricks/learning-spark/tree/master/src/main/java/com/oreilly/learningsparkexamples/java
+
+Hadoop | jobHistory | http://lnxcdh21.emeter.com:19888/jobhistory
+
+Spark - History Server | http://lnxcdh21.emeter.com:18088/
+-----
+spark Tutorial : https://www.youtube.com/watch?v=7ooZ4S7Ay6Y
+
+from same speaker: Myth of sparks
+? Why we need spark
+	-In distributed programming using java, we end up writing many MR jobs or pipelines of MR
+	  to acheive the desired result i.e difficulty in programming directly in Hadoop
+	-Performance bottlenecks, batch processing does not fit all use-cases. Spark not only 
+	  provides batch processing but micro batch processing.
+	-***Better support for Iterative jobs, typically for machine learning where data is loaded once.
+	  Spark caching with LRU eviction is good. 
+	-***Spark offers lazy initialization
+	  Optimize the job before executing it. Only when a action is called Spark analyzes how best\
+	  the optimization can be done
+	-***In memory Caching. 
+	  Scan HDD once and then scan the RAM
+	-Efficient pipelining:
+	  Avoids data hitting the HDD by all means
+	
+	Spark pillars
+	--------------
+	-Two main abstractions of spark
+	 -RDD: resilient distributed dataSets
+	 	-Simple: collection of dataset splitted in partitions across nodes of cluster
+	 	-Complex: is an interface for data transformation
+	 			 -RDD refers to data stored either in HDD store like HBase, cassandra, HDFS	
+	 			  OR in cache memory
+	 			  OR in another RDD
+	 			-Partitions are recomputes on cache eviction i.e fault tolerant.
+	 			-MetaData stored in interface
+	 				-partitions	
+	 					-set of data splits associated with this RDD
+	 					-stores references to the partitions, 
+	 					-can be a reference to a specific input split residing in HDFS 
+	 					-can be a refernce to a cache item
+	 				-dependencies 
+	 					-List of parent RDD invloved in creation of this RDD
+	 				-Compute: 
+	 					-Re-compute a partition, if something is wrong or evicted in HDD
+	 					-Depends on dependencies
+	 					-if u have to recompute a partition after a shuffle, then u have to execute the whole shuffle
+	 				-Preferred locations:
+	 					-split has the info where this data belongs to. spark uses this info for use data locally concept
+	 				-partitioner
+	 	-Transformation: is lazy computation. only meta data is changed and computation actally starts.
+	 		-everything is rdd in spark, datframe has rdd...
+	 	-Action: computation starts after an action is called. sparks start with last rdd and goes to first rdd.
+	 	
+	 -DAG: Direct acyclic graph
+	 	-Sequence of computation performed on data
+	 	-Node: of the graph is rdd partition
+	 	-Edge:is the transformation that is actually executed.
+	 	-Acyclic: is a graph cannot return to previous partition. 
+	 		-Spark is written in scala where all objects are immutable
+	 		-If u have a partition u cannot update a partition but u create another RDD
+	 	-Direct:it is direct as each transformation is from one partition to another
+	 
+	 
+	 -IF u lose single partition from cache then spark will go back to part partition 
+	  to re-create the partition and if that also not avlbl then go back to its parent
+	  partition and so on...
+
+Spark architecture: Two types of nodes
+	-Driver Node: Runs driver. 
+		Driver:
+		-Has the sparkContext(all meta information about the cluster).
+		-Is the entry point for spark shell
+		-Translates RDD into execution graph
+		-Brings up Spark Web UI.
+		-
+		
+	-Worker Node: Runs no. of executors. 
+		-Have cache. 
+		-Each worker has no of tasks
+		-Executors:
+			-Stores data in cache in JVM / HDD
+			-Reads data from sources, so driver does not read data unless you 
+			 call sc.paralleize.. there u read data in driver
+		-Each node can have many executors
+		-Each executor can start multiple tasks as tasks are related to no of cores in the machine.
+		
+	
+	-Executor Memory
+		-10% of heap: JVM heap: for itself: 10% is reserved to avoid OutOfMem
+		-90% of heap: safe: 90% of memory is dedicated to processing tasks
+			-20% of safe: Shuffle: 
+				-to sort the data in partition u need to have some buffer space. This is the buffer space
+				-Used for append only map used for shuffling data
+			-60% of safe: Storage
+				-20% of storage: Unroll: Place where all desierailization happens. 
+				 Cache can contain data and serialized data. Need some place to 
+				 deserialize and transform data back to java objects.
+				 Partitions are also enrolled here one-by-one. Unrolling is converting to java object.
+				-80% Storage:
+	
+	-Application
+		-Single instance of sparkContext that store some data, logic to process it and can schedule
+		 series of jobs sequentially or parallel(sparkContext is threadSafe).
+		 -Each job is set of transformations on RDD
+		 	-Each job is split in stages
+		 
+		-When u run spark shell, application starts and when u close spark shell, application stops
+		
+	-Job: Each app is split in jobs
+	-Stage: Each Job is split in stages. Set of transformations can be pipelined by a single worker.
+		-Usually it is app transformations b/w  read, shuffle, action, save
+	-Task: Each Stage is split in tasks. Execution of stage on single partition is called task.
+	
+	Spark memory management: https://0x0fff.com/spark-memory-management/
+	-Memory: Spark considers memory as cache with LRU eviction rules.
+	 If disk is available, the data is evicted to disk
+	-rdd.cache().count(): only cache is just update in metaData but using
+	 count as action actually evaluates the RDD and caches it.
+	 
+	-SparkDataFrame:
+		-used as interface for all the languages and not specific to one languages
+		-It is a RDD with schema - fields names, field dataTypes & statistics
+		-RDD of row objects. 
+		-Data is stored in row columnar format. row chunksize set by spark.sql.inMemoryColumnarStorage.batchSize
+		-Delivers fast performance for small subsets 
+		-DataBricks look dataFrame as future of spark
+		-
+	
+	****spark2.0 adavanced concept | https://www.youtube.com/watch?v=1a4pgYzeFwE
+	Structuring Apache Spark 2.0: SQL, DataFrames, Datasets And Streaming - by Michael Armbrust
+	https://www.youtube.com/watch?v=pZQsDloGB4w
+	
+	
+	
+	-RDD disadvantage 
+		-Dependencies: are list of dependencies that one RDD need
+		-Partitions:Given these dependencies how am I going to split the work or computation
+		-The data is unstructured 
+		-By structure u can limit what u can express.
+		
+		-The computation is opaque, spark has no idea what the operation wld b join, etc .. just return a iterator
+		-The data is also opaque, serialize into bytes , can't look into columns and do some optimization like compression etc
+		-caching a RDD needs more memory that dataSet
+		-serialization performance matters in spark as it makes suffling fast. 
+		
+		-Idea is tell spark more about the structure of data so that spark can use optimization and 
+		 execute your code more efficiently.
+		- Hence we need in some structure i.e take ur data and arrange them in some plan 	
+		
+		-spark is able to understand the computation
+		-catalyst is the name of query optimizer(catalyst optimizer) that runs inside spark
+		
+		1.x -> dataFrame & dataSet were 2 diff | not to break code compatibility
+		2.x-> made same 
+		*****
+							syntaxError					AnalysisError
+		-SQL				runtime						runtime	
+		-DataFrame			compileTime					runtime
+		-DataSet			compileTime					compileTime
+		
+		
+		DLS: domain-specific language (DSL) 
+		
+		-DataFrames are faster than RDD in general and now DataSet are the fastest due to optimizations
+		-DF can make intelligent decisions and speed up things
+		-DrawBack lost type safety. When we do .collect etc what we get is RDD of row which is not type safe.
+		-You can anytime move back from DF to RDD to gain typeSafety but you lose all optimization.
+		-To overcome above drawback and also not to lose  optimization, dataSet are used
+		-catalyst optimizer provides all these optimizations
+		-DataSets are
+			-Extension to dataFrame APIs i.e operate on data thru sqlContext
+			-Conceptually similar to RDD i.e. get back the lambdas and type
+			-DataSet uses Tungesten's fast in-memory encoding
+				-started managing spark memory(JVM objects and serialized objects) to off heap as 
+				 in heap it is bound for garbage collection.
+				-Also has columnar based storage that allows to acess fast and efficiently
+				-In order to do optimization it has to know about the data.
+				-It can expose expressions and fields to the DF query planner, where the 
+				 optimizer(catalyst optimizer) can use to make decisions.
+			-Provides interoperability with DF which RDD does not.
+			-Avlbl from spark1.6 as experimental API
+			-DataSet code is more visually compact(less typing) and	will tend to execute faster than 
+			 than RDD counterpart because of Tungesten's encoding and Encoders 
+			-When u want to store Person dataSet can store its efficient serialized from using encoders
+			 and when u need baak dataSet it can deserialize the data back from the compact format(off-heap).
+				**some doubt on serialization/deser, so use term compact form rather than ser/deser
+			-Greatly efficient when using caching as less memory is used.. hence less spill overs...
+			-The data compacted in tungesten format is 2 times compact than kryo..
+			-***Datasets are similar to RDDs, however, instead of using Java serialization or Kryo they use 
+			 a specialized Encoder to serialize the objects for processing or transmitting over the network. 
+			 While both encoders and standard serialization are responsible for turning an object into bytes,
+			 encoders are code generated dynamically and use a format that allows Spark to perform many 
+			 operations like filtering, sorting and hashing without deserializing the bytes back into an object.
+		
+		-Limitation (1.6 they are marked experimental)
+		
+		Example
+		import java.util.Arrays;
+		import java.util.Collections;
+		import java.io.Serializable;
+		
+		import org.apache.spark.api.java.function.MapFunction;
+		import org.apache.spark.sql.Dataset;
+		import org.apache.spark.sql.Row;
+		import org.apache.spark.sql.Encoder;
+		import org.apache.spark.sql.Encoders;
+		
+		public static class Person implements Serializable {
+		  private String name;
+		  private int age;
+		
+		  public String getName() {
+		    return name;
+		  }
+		
+		  public void setName(String name) {
+		    this.name = name;
+		  }
+		
+		  public int getAge() {
+		    return age;
+		  }
+		
+		  public void setAge(int age) {
+		    this.age = age;
+		  }
+		}
+		
+		// Create an instance of a Bean class
+		Person person = new Person();
+		person.setName("Andy");
+		person.setAge(32);
+		
+		// Encoders are created for Java beans
+		Encoder<Person> personEncoder = Encoders.bean(Person.class);
+		Dataset<Person> javaBeanDS = spark.createDataset(
+		  Collections.singletonList(person),
+		  personEncoder
+		);
+		javaBeanDS.show();
+		
+		
+		//OR read from textFile
+		// Create an RDD of Person objects from a text file
+		JavaRDD<Person> peopleRDD = spark.read()
+		  .textFile("examples/src/main/resources/people.txt")
+		  .javaRDD()
+		  .map(new Function<String, Person>() {
+		    @Override
+		    public Person call(String line) throws Exception {
+		      String[] parts = line.split(",");
+		      Person person = new Person();
+		      person.setName(parts[0]);
+		      person.setAge(Integer.parseInt(parts[1].trim()));
+		      return person;
+		    }
+  		});
+		Dataset<Person> javaBeanDS = spark.createDataset(
+				 peopleRDD,
+				 personEncoder
+		);
+		// +---+----+
+		// |age|name|
+		// +---+----+
+		// | 32|Andy|
+		// +---+----+
+		
+		// Encoders for most common types are provided in class Encoders
+		Encoder<Integer> integerEncoder = Encoders.INT();
+		Dataset<Integer> primitiveDS = spark.createDataset(Arrays.asList(1, 2, 3), integerEncoder);
+		Dataset<Integer> transformedDS = primitiveDS.map(new MapFunction<Integer, Integer>() {
+		  @Override
+		  public Integer call(Integer value) throws Exception {
+		    return value + 1;
+		  }
+		}, integerEncoder);
+		transformedDS.collect(); // Returns [2, 3, 4]
+		
+		// DataFrames can be converted to a Dataset by providing a class. Mapping based on name
+		String path = "examples/src/main/resources/people.json";
+		Dataset<Person> peopleDS = spark.read().json(path).as(personEncoder);
+		peopleDS.show();
+		// +----+-------+
+		// | age|   name|
+		// +----+-------+
+		// |null|Michael|
+		// |  30|   Andy|
+		// |  19| Justin|
+		// +----+-------+
+		
+	-GZIP file: cannot split a gzip file while reading so only one partition can be used.
+	-DataFrame.explain - explain the query optmz plan
+	-DataFrame.explain..true - explain the query optmz for each stage or so
+	-
+	
+? When use spark / MapReduce
+	-Spark reduces development time
+	-Spark has MLib implementation
+	
+? Difference between cache and persist
+	-With cache(), you use only the default storage level MEMORY_ONLY.
+	-With persist(), you can specify which storage level you want,(rdd-persistence).
+	-Use persist() if you want to assign another storage level than MEMORY_ONLY to the RDD (which storage level to choose)
+	
+? Which API in spark use shuffle: Examples @ http://backtobazics.com/big-data/spark/apache-spark-reducebykey-example/
+	-flatMap: not uses shufle
+	-flatMapToPair: not uses shufle
+	-reduceByKey: forces shuffle
+	-groupByKey: It uses shuffle
+		groupBy is a transformation operation in Spark hence it is lazily evaluated
+		It is a wide operation as it shuffles data from multiple partitions and create another RDD
+		It is a costly operation as it doesn’t us combiner local to a partition to reduce the data transfer
+		Not recommended to use when you need to do further aggregation on grouped data
+	-filter(): not shuffling data
+	
+? In a typical MR how many times the data is put in HDD 1,2,3 or 4
+	-Three or more [rare case two, when data of single reducer fits into memory of this reducer]
+
+? How shuffle works in Spark: https://0x0fff.com/spark-architecture-shuffle/
+	-prior to spark 1.2.0, shuffle was a problem in spark. It was implemented as Hash shuffle
+	-Now it is sort shuffle as default: it uses append only map in shuffle memory area shown above. 10% 20% etc
+	-Tungsten sort: optimized one (dataBrics is working on it). Now available with spark 1.5 & >
+	
+? How many MR jobs are required by hive
+	-Typically Hive queries perform 3-5 MR jobs
+	-And each MR writes data 3 or more times in disk
+	-
+
+? Which sort algorithm is used in spark
+	-Timsort is a hybrid stable sorting algorithm, derived from merge sort and insertion sort, 
+	 designed to perform well on many kinds of real-world data.
+
+? appendOnlyMap: spark/scala impl
+
+myths of spark:
+https://0x0fff.com/spark-misconceptions/
+
+
+
+		-Spark is an in-memory technology
+		-Spark performs 10x-100x faster than Hadoop
+		-Spark introduces completely new approach for data processing on the market
+
+		What do we see in Spark? It has no option for in-memory data persistence, it has pluggable connectors 
+		for different persistent storage systems like HDFS, Tachyon, HBase, Cassandra and so on, but it does 
+		not have native persistence code, neither for in-memory nor for on-disk storage. Everything it can do 
+		is to cache the data, which is not the “persistence”. Cached data can be easily dropped and recomputed 
+		later based on the other data available in the source persistent store available through connector.
+
+		Given the fact that Spark allows you to use in-memory cache with the LRU eviction rules, you might 
+		still assume that it is in-memory technology, at least when the data you are processing fits in memory. 
+
+		And even more. Do you think that Spark processes all the transformations in memory? You would be disappointed, 
+		but the heart of Spark, “shuffle”, writes data to disks. If you have a “group by” statement in your 
+		SparkSQL query or you are just transforming RDD to PairRDD and calling on it some aggregation by key, 
+		you are forcing Spark to distribute data among the partitions based on the hash value of the key. 
+
+		The “shuffle” process consists of two phases, usually referred as “map” and “reduce”.
+		
+		So if you have an RDD of M partitions and you transform it to pair RDD with N partitions, 
+		there would be M*N files created on the local filesystems in your cluster, holding all the 
+		data of the specific RDD. There are some optimizations available to reduce amount of files. 
+		Also there are some work undergo to pre-sort them and then “merge” on “reduce” side, but 
+		this does not change the fact that each time you need to “shuffle” you data you are putting 
+		it to the HDDs.
+		
+		So finally, Spark is not an in-memory technology. It is the technology that allows you to 
+		efficiently utilize in-memory LRU cache with possible on-disk eviction on memory full condition. 
+		It does not have built-in persistence functionality (neither in-memory, nor on-disk). And it 
+		puts all the dataset data on the local filesystems during the “shuffle” process.
+		
+		
+		Next misconception is that “Spark performs 10x-100x faster than Hadoop”. Let’s refer to one 
+		of the early presentations on this topic: http://laser.inf.ethz.ch/2013/material/joseph/LASER-Joseph-6.pdf. 
+		It states as a goal of Spark to support iterative jobs, typical for machine learning. If you 
+		refer to the Spark main page on Apache website, you would again see an example of 
+		where the Spark shines:
+
+		And again, this example is about the machine learning algorithm called “Logistic Regression”. 
+		What is the essential part of the most machine learning algorithms? They are repeatedly iterating 
+		over the same dataset many times. And here is where Spark in-memory cache with LRU eviction 
+		really shines! 
+		
+		****In general, Spark is faster than MapReduce because of:
+		
+		-Faster task startup time. Spark forks the thread, MR brings up a new JVM
+		-Faster shuffles. Spark puts the data on HDDs only once during shuffles, MR do it 2 times
+		-Faster workflows. Typical MR workflow is a series of MR jobs, each of which persists data to 
+			HDFS between iterations. Spark supports DAGs and pipelining, which allows it to execute 
+			complex workflows without intermediate data materialization (unless you need to “shuffle” it)
+		-Caching. It is doubtful because at the moment HDFS can also utilize the cache, but in general 
+			Spark cache is quite good, especially its SparkSQL part that caches the data in optimized column-oriented form
+
+
+		They are good in implementing the idea of efficient LRU cache and data processing pipelining, 
+		but they are not alone. If you would be open-minded thinking about this problem, you would 
+		notice that in general they are implementing almost the same concepts that were earlier introduced 
+		by MPP databases: 
+
+		Let’s start with fault tolerance. “Cache” concept assumes that data is persisted somewhere else. 
+		If it is not this way, this is not the “cache”, but yet another persistent store. In case of HDFS, 
+		caching data does not mean removing it from HDFS, so you have full fault tolerance – if the cache 
+		entry is evicted, it can be easily read from HDFS (one of N copies of your data there). 
+		So HDFS cache is fully fault-tolerant
+		
+		***About lineage – Hadoop and MapReduce concept does not include multi-step computation model, 
+		so the data is persisted after each MapReduce job. Within the map or reduce task it is again 
+		lineaged – when you lose one map task you would recompute it on another node with the same 
+		input split (you don’t have to restart everything), if the reducer fails it would copy map 
+		outputs once again on another node and execute there.
+		
+		So again, Spark is a great engine for distributed compute, but it is good because of 2 things: 
+		caching and pipelining, and both of them are not new concepts. But I agree that Spark provides 
+		unique blend of them
+		
+		****Spark cannot be 10x and even 100x faster than traditional MR, I just say that you won’t 
+		have 10x and even 2x+ improvement by just moving to Spark – only certain cases would benefit 
+		from using it, but on average moving to Spark won’t magically make your system blazing fast 
+
+		
+		***Spark is not designed to be a persistent storage engine. What they call “persistence” is effectively caching, because:
+		1. The data is available to your session only. You cannot share cached RDD with other sessions
+		2. The data lifetime is limited by your session runtime. If your session is failed or terminated, you lose your cached data
+		In case you have some experience with databases, this caching works more or less like temporary tables
+		
+		
+		
+Hadoop is 3 apache proj
+	-HDFS
+	-Yarn
+	-MapReduce (spark core is a contender of replacing it)
+	
+RDDs can be created:
+1) Loading external data Set : sc.textFile()
+2) Distributing collection of objects : sc.parallelize
+
+
+-
+
+JavaRDD<String> inputRDD = sc.textFile("Log.txt");
+JavaRDD<String> errorsRDD = inputRDD.filter(
+  new Function<String, Boolean>() {
+    public Boolean call(String x) { return x.contains("error"); }
+  }
+});
+
+-RDD (Resilient Distributed Datasets):  
+	a collection of elements partitioned across the nodes of the cluster that can be operated on in parallel
+
+
+-An RDD in Spark is simply an immutable distributed collection of objects. Each RDD is split into multiple partitions, 
+ which may be computed on different nodes of the cluster
+-Transformation and action: If you are ever confused whether a given function is a transformation or an action, 
+ you can look at its return type: transformations return RDDs, whereas actions return some other data type.
+-cache() is the same as calling persist() with the default storage level
+-parallelize() The simplest way to create RDDs is to take an existing collection in your program and pass it to SparkContext’s parallelize() method 
+	JavaRDD<String> lines = sc.parallelize(Arrays.asList("pandas", "i like pandas"));
+-Spark keeps track of the set of dependencies between different RDDs, called the lineage graph.
+
+-Although transformations are lazy, you can force Spark to execute them at any time by running an action, such as count(). This is an easy way to test out just part of your program.
+-Both anonymous inner classes and lambda expressions can reference any final variables in the method enclosing them, so you can pass these variables to Spark just as in Python and Scala.
+-Note that distinct() is expensive
+-The performance of intersection() is much worse than union()
+-Cartesian product is very expensive for large RDDs.
+-The persist() call on its own doesn’t force evaluation.
+-RDDs come with a method called unpersist() that lets you manually remove them from the cache.
+-Spark keep dependencies between different RDDs, called the lineage graph
+-Both  anonymous  inner  classes  and  lambda  expressions  can  reference any  final  variables in the 
+ method enclosing them, so you can pass these variables to Spark
+-function: 
+	Function<T,R> : R call(T) : Take in one input and return one output
+	Function2<T1, T2, R>: R call(T1,T2) : 2 input and 1 o/p in operations like aggregate(), fold()
+	FlatMapFunction<T,R>: Iterable<R> call(T) : 1 input and 0 or more o/p for flatMap()
+-The  map()  transformation takes in a function and applies it to each element in the RDD with
+	the result of the function being the new value of each element in the resulting RDD.
+	Its useful to note that map() ’s return type does not have  to be the same as its input type
+
+-.flatMap():Spark RDD flatMap function returns a new RDD by first applying a function to all elements of this RDD, 
+			and then flattening the results
+			
+			Sometimes we want to produce multiple output elements for each input element. 
+			The operation to do this is called flatMap()
+			
+			Its useful to note that map() ’s return type does not have to be the same as its input type
+			
+			-It is a narrow operation as it is not shuffling data from one partition to multiple partitions
+			-Output of flatMap is flatten
+			-flatMap parameter function should return array, list or sequence 
+			
+			Ex.
+				public class FlatMapExample {
+					public static void main(String[] args) throws Exception {
+						JavaSparkContext sc = new JavaSparkContext();
+
+						// Parallelized with 2 partitions
+						JavaRDD<String> rddX = sc.parallelize(
+								Arrays.asList("spark rdd example", "sample example"),
+								2);
+
+						// map operation will return List of Array in following case
+						JavaRDD<String[]> rddY = rddX.map(e -> e.split(" "));
+						List<String[]> listUsingMap = rddY.collect();
+
+						// flatMap operation will return list of String in following case
+						JavaRDD<String> rddY2 = rddX.flatMap(e -> Arrays.asList(e.split(" ")));
+						List<String> listUsingFlatMap = rddY2.collect();
+					}
+				}			
+				
+	
+			
+-The filter() transformation takes in a function and returns an RDD that only has elements that pass the filter()  function.
+-.persist(): When we ask Spark to persist an RDD, the nodes that compute the RDD store their partitions.
+-.
+****
+spark architecture:
+https://0x0fff.com/spark-architecture/
+
+-  So if you want to know how much data you can cache in Spark, you should take the sum of all the heap sizes for all the executors, 
+	multiply it by safetyFraction and by storage.memoryFraction, and by default it is 0.9 * 0.6 = 0.54 or 54% of the total heap size 
+	you allow Spark to use
+
+-key/value RDD:
+
+
+operations: Basic RDD transformations on an RDD containing {1, 2, 3, 3}
+
+
+1-RDD transformations 
+
+map() - Apply a function to each element in the RDD and return an RDD of the result.
+flatmap() - Apply a function to each element in the RDD and return an RDD of the contents of the iterators returned. Often used to extract words
+			-  as “flattening” the iterators returned to it, so that instead of ending up with an RDD of lists we have an RDD of the elements in those lists.
+filter() - 
+distinct()
+sample(withReplacement, fraction, [seed]) - 
+
+2-RDD transformations 
+
+subtract()
+union()
+intersection()
+cartesian()
+
+RDD actions
+
+.first()
+collect() - Return all elements from the RDD.
+count() - Number of elements in the RDD.
+countByValue() - Number of times each element occurs in the RDD
+take(num) - Return num elements from the RDD.
+top(num) - Return the top num elements the RDD.
+takeOrdered(num)(ordering) - Return num elements based on provided ordering.
+takeSample(withReplacement, num, [seed]) - Return num elements at random.
+reduce(func) - Combine the elements of the RDD together in parallel (e.g., sum).
+fold(zero)(func) - Same as reduce() but with the provided zero value
+aggregate(zeroValue)(seqOp, combOp) - Similar to reduce() but used to return a different type.
+foreach(func) - Apply the provided function to each element of the RDD.
+
+
+fold()
+
+-require that the return type of our result be the same type as that of the elements in the RDD we are operating over
+
+
+
+spark Tutorial : https://www.youtube.com/watch?v=7ooZ4S7Ay6Y
+--------------
+
+Spark:
+	scheduling 
+	monitring 
+	distributing
+
+Spark universe
+	
+1) spark core (at centre)
+
+2) spark library: push computation to core
+	SQL - hive queries work automatically
+	Streaming: flume and kafka buffer straming
+	Mlib
+	GraphX
+	BlinkDB: query result in x sec with y error rate..
+	TackYon: data distribution 
+
+3) Resource managers
+	Node	
+	yarn
+	Mesos
+	spark standalone node
+
+4) File systems
+	HDFS
+	HBASE
+	MongoDB
+	...
+
+Oozie shoots MR jobs in order in a cluster
+
+Oozie urls
+
+oozie job -oozie http://lnxcdh21.emeter.com:11000/oozie/ -kill 0000029-160511162000176-oozie-oozi-W
+oozie job -oozie http://lnxcdh21.emeter.com:11000/oozie/ -info 0000029-160511162000176-oozie-oozi-W
+oozie job -oozie http://lnxcdh21.emeter.com:11000/oozie/ -log 0000029-160511162000176-oozie-oozi-W
+
+JobTracker webUI
+-http://<job_tracker_address>:50030/ 
+-http://localhost:50030/     | if"running"in"pseudo/distributed"mode"
+
+NameNode webUI
+-http://<name_node_address>:50070/ 
+
+Data read speed
+1) RAM 10GB/s
+2) HDD 100MB/s
+3) External 
+4) N/w slow
+
+White paper : 
+	-spark 
+	-RDD
+	-streaming
+	-sparkSql
+	-blinkDB
+	-graphX
+
+
+	RDD
+----------
+-Partitions: More partitions leads to more parallelism. 
+-For each partition we need a task/thread to complete operations on that RDD
+-RDD can be created:
+	-parallize a collection 
+		e.g.: sc.parallelize(Arrays.asList("fish","cat","dogs"));
+		Not used outside testing or prototyping
+	-read from file, cluster etc
+		e.g. sc.textFile("xxx.txt")
+	-Types:
+		HadoopRDD
+		FilteredRDD
+		JdbcRDD
+		ShuffledRDD
+		
+		....
+		....
+
+-RDD interface has:
+	-Partitions
+	-dependencies
+	-
+-Base RDD (with some partitions)- transforms to new RDD (it gets same no of partitions) -> Action like collect() [give me data back at driver] 
+-All tranformations in RDD are lazy. So it keep on creating meta data that this 
+	RDD depends on this etc. But no read happen.
+-Dont call collect action on RDD of TB size, out of memory 
+-Which RDD to cache: intermediate RDD used many times, should be cached (cleaned RDD shld be cached)
+-caching a RDD is also lazy. Cachced in JVM (cached RDD are visible in spark UI)
+-when RDD is cached, where its gets cached ?
+-LifeCycle of spark program
+	-create RDD(parallelize / external data) in driver program
+	-Lazy transform them to new RDDs using transformations like filter() or map()
+	-Cache any intermediate RDDs that can be reused
+	-Launch actions like count() and collect() to kick of parallel computation. Optimized and executed by spark
+
+-Transformations(lazy): it work on every item of RDD e.g. map() howeever some transformations work on per partition base e.g. 
+	open DB connection save and then close DB connection. 
+-Actions: 
+-download spark scala source code to understand transormations and actions in details. API comments explains better
+
+
+.count() -> no f items in RDD
+.collect() -> collect all items from RDDs and bring back to driver
+
+
+
+Fast:
+1) keeps intermediate data in memory unlike Hadoop MR it does not write to HDFS 10-100x speed
+2) MapRed has hardcoded map and reduce slots so CPU usage is not 100%. In spark has generic slots 
+	that can be used either by map/reduce
+3) Empty slots for map or reduce are not filled aggressively in Map-reduce (Face book noticed that and used corona to 
+   agressively start next map/reduce job). In spark it does
+4) parallelism in MapRed - is by process Id on a node (???). Slots in MapRed is called processId
+   parallelism in spark - is by threads on a executor. So better. Spark calls them cores. So eg. 6 cores are started in a Executor 
+
+
+
+Spark architecture:
+
+1) Local mode	shell starts JVM runs and start
+		executor and
+		driver process
+		
+	Jvm has slots called cores	eg. 6 cores i.e. 6 threads can run simultenously 	
+2) Standalone mode: Driver tells the master that need some worker JVM to run my tasks
+3) Yarn
+4) 
+
+spark mailing lists	 - q are answered quickly
+Table 3-4. Basic actions on an RDD containing {1, 2, 3, 3}
+
+Spark performance enhancements tips:
+-use mapPartitions works per-partition to avoid setup wprk again & again
+
+URLs
+----
+-Spark UI: http://localhost:4040 [ http://<driver-node>:4040 ]
+- cluster  manager’s  web  UI  should  appear  at @ http://masternode:8080 
+	and show all your workers.
+-spark.yarn.historyServer.address : http://lnxcdh21.emeter.com:18088/history
+
+yarn logs -applicationId <appid> --appOwner <userid>
+resource manager UI -> nodes page -> particular node -> particular container
+
+Questions
+---------
+?coalesce : to unite so as to form one mass
+?lineage graph : Spark dependencies between different RDDs, called the lineage graph
+?Task Vs Executors in SPark, can a executor run multiple tasks
+
+*********************************************************
+Spark MLib
+----------
+-spark.ml, which aims to provide a uniform set of high-level APIs that help users create and tune practical machine learning pipelines.
+-spark.mllib will later be deprecated and expected ml will be used. (My conclusion)
+-MLlib uses the linear algebra package Breeze, which depends on netlib-java for optimised numerical processing
+
+-MLlib’s  design  and  philosophy  are  simple:  it  lets  you  invoke  various  algorithms  on
+ distributed datasets, representing all data as RDDs but at the end of the day, it is simply 
+ a set of functions to  call  on  RDDs.
+
+-Regression refers to predicting a numeric quantity like size or income or temperature
+-Classification refers to predicting a label or category,like spam or picture of a cat
+-Clustering
+
+e.g. spam filter
+-RDD: Create RDD of strings representing your messages
+-Feature Creation: Run one of MLlib’s feature extraction algorithms to convert text into numerical
+ features (suitable for learning algorithms); this will give back an RDD of vectors.
+-Training model: Call a classification algorithm (e.g logistic  regression) on the RDD of vectors.
+ this will give back a model object that can be used to classify new points
+-Evaluation: Evaluate the model on a test dataset using one of MLlib’s evaluation functions
+-Prediction: Predict test data using created model
+
+-System requirement:
+	gfortran runtime library
+	
+-Data Types: package org.apache.spark.mllib
+	
+	-Vector: Vectors can be constructed with the  mllib.linalg.Vectors  class
+		Dense: stores every entry in an array of floating point numbers.
+		Sparse: only the nonzero entries and their entries are stored to save space.
+		
+		-Vector denseVec1 = Vectors.dense(1.0, 2.0, 3.0);
+		 Vector denseVec2 = Vectors.dense(new double[] {1.0, 2.0, 3.0});
+		-Vector sparseVec1 = Vectors.sparse(4, new int[] {0, 2}, new double[]{1.0, 2.0});
+
+	
+	-LabeledPoint: A labeled data point for supervised learning algorithms such as classification and
+				   regression. Includes a feature vector and a label (which is a floating-point value).
+				   Located in the  mllib.regression  package.
+					
+	-Rating: A rating of a product by a user, used in the  mllib.recommendation  package for
+             product recommendation.
+	
+	-Model: Each  Model   is  the  result  of  a  training  algorithm,  and  typically  has  a  predict()
+			method  for  applying  the  model  to  a  new  data  point  or  to  an  RDD  of  new  data
+			points.
+			
+Most algorithms work directly on RDDs of  Vector s,  LabeledPoint s, or  Rating s			
+
+
+-Feature extraction: The  mllib.feature  package contains several classes for common feature transformations
+					 Create Feature vectors from text
+
+
+-LIBSVM is a library for Support Vector Machines (SVMs).					 
+
+
+
+			************************************
+
+
+Machine Learning
+----------------
+
+Machine learning explores the construction and study of algorithms that can learn from and make predictions on data.
+Such algorithms operate by building a model from example inputs in order to make data-driven predictions or decisions
+rather than following strictly static program instructions.
+
+
+R randomForest implements Breiman’s random forest algorithm for classification and regression.
+The wrongness measure is known as the cost function (a.k.a., loss function)
+George E. P. Box that "all models are wrong, but some are useful"
+predict.randomForest :: predict method for random forest objects
+
+Classification Problems
+Regression machine learning systems: 
+------------------------------------
+	Systems where the value being predicted falls somewhere on a continuous spectrum. These systems help us 
+	with questions of How much? or How many?
+Classification machine learning systems: 
+----------------------------------------
+Systems where we seek a yes-or-no prediction, such as Is this tumer cancerous?, Does this cookie meet our quality standards?, and so on.
+
+
+What is Random Forests?
+		Segment and cluster
+		Suited for wide data
+		Advantages of Random Forests
+		Case Study example
+
+-CART (Classification and Regression Trees)
+-RandomForests are constructed from decision trees.
+-Random Forests is a tool that leverages the power of many decision trees, judicious randomization, and ensemble 
+	learning to produce astonishingly accurate predictive models, insightful variable importance rankings, missing value imputations, 
+	novel segmentations, and laser-sharp reporting on a record-by-record basis for deep data understanding. 
+-Random Forests are collections of decision trees that together produce predictions and deep insights into the structure of data 
+
+
+
+decision tree
+--------------
+https://www.youtube.com/watch?v=eKD5gxPPeY0
+http://spark.apache.org/docs/latest/mllib-decision-tree.html
+
+-Decision trees are widely used since they are easy to interpret, handle categorical features, extend to the 
+ multiclass classification setting, do not require feature scaling, and are able to capture non-linearities and 
+ feature interactions.
+
+-MLlib supports decision trees for binary and multiclass classification and for regression, 
+ using both continuous and categorical features. The implementation partitions data by rows, allowing 
+ distributed training with millions of instances
+
+-Basic algorithm: 
+ The decision tree is a greedy algorithm that performs a recursive binary partitioning of the feature space. 
+ The tree predicts the same label for each bottommost (leaf) partition. Each partition is chosen greedily by 
+ selecting the best split from a set of possible splits, in order to maximize the information gain at a tree node. 
+ 
+-Node impurity
+ The node impurity is a measure of the homogeneity of the labels at the node. The current implementation 
+ provides two impurity measures for classification (Gini impurity and entropy) 
+
+		mpurity			Task			Formula			Description
+		Gini impurity	Classification	?Ci=1fi(1-fi)	fi is the frequency of label i at a node and C is the number of unique labels.
+		Entropy			Classification	?Ci=1-filog(fi)	fi is the frequency of label i at a node and C is the number of unique labels.	
+
+		? is 
+
+-Information gain 
+ The information gain is the difference between the parent node impurity and the weighted sum of the two child node impurities
+
+-Stopping rule
+ The recursive tree construction is stopped at a node when one of the following conditions is met:
+ 
+ 1) The node depth is equal to the maxDepth training parameter.
+ 2) No split candidate leads to an information gain greater than minInfoGain.
+ 3) No split candidate produces child nodes which each have at least minInstancesPerNode training instances.
+ 
+-Problem specification parameters: These parameters describe the problem you want to solve and your dataset. 
+ They should be specified and do not require tuning.
+ 
+ -algo: Classification or Regression 
+ -numClasses: Number of classes (for Classification only)
+ -categoricalFeaturesInfo: Specifies which features are categorical and how many categorical values each 
+  of those features can take. This is given as a map from feature indices to feature arity (number of categories). 
+  Any features not in this map are treated as continuous.
+  
+  E.g., Map(0 -> 2, 4 -> 10) specifies that feature 0 is binary (taking values 0 or 1) and that 
+  feature 4 has 10 categories (values {0, 1, ..., 9}). 	
+ 
+ 
+-Stopping criteria parameters: These parameters determine when the tree stops building (adding new nodes). 
+ When tuning these parameters, be careful to validate on held-out test data to avoid overfitting.
+ 
+ 	-maxDepth: Maximum depth of a tree. Deeper trees are more expressive (potentially allowing higher accuracy), 
+		but they are also more costly to train and are more likely to overfit.
+	-minInstancesPerNode: For a node to be split further, each of its children must receive at least this 
+		number of training instances. This is commonly used with RandomForest since those are often trained 
+		deeper than individual trees.
+	-minInfoGain: For a node to be split further, the split must improve at least this 
+		much (in terms of information gain).
+ 
+-Tunable parameters: These parameters may be tuned. Be careful to validate on held-out test data when tuning in order to avoid overfitting
+ 	-maxBins: Number of bins used when discretizing continuous features.
+		Increasing maxBins allows the algorithm to consider more split candidates and make fine-grained 
+		split decisions. However, it also increases computation and communication.
+		Note that the maxBins parameter must be at least the maximum number of categories 
+		M for any categorical feature.	
+ 	-maxMemoryInMB: Amount of memory to be used for collecting sufficient statistics.
+	-subsamplingRate: Fraction of the training data used for learning the decision tree.
+	-impurity: Impurity measure (discussed above) used to choose between candidate splits. 
+	 This measure must match the algo parameter.
+
+
+RandomForest : Random forests are ensembles of decision trees.
+------------
+-An ensemble method is a learning algorithm which creates a model composed of a set of other base models. 
+ MLlib supports two major ensemble algorithms: 
+ 	GradientBoostedTrees (takes longer as train each tree at a time) 
+ 	RandomForest(can train multiple trees in parallel)
+
+-GBT VS RandomForest 	
+	-Less vs more time
+	-Training more trees in a Random Forest reduces the likelihood of overfitting
+	-Random Forests can be easier to tune since performance improves monotonically with the 
+	 number of trees (whereas performance can start to decrease for GBTs if the number of trees grows too large).
+
+-Basic algorithm
+	-Random forests train a set of decision trees separately, so the training can be done in parallel. 
+	-The algorithm injects randomness into the training process so that each decision tree is a bit different. 
+	-Combining the predictions from each tree reduces the variance of the predictions, improving the performance on test data.
+	
+-Prediction: To make a prediction on a new instance, a random forest must aggregate the predictions 
+			 from its set of decision trees. This aggregation is done differently for classification and regression.
+			 
+	-Classification: Majority vote. Each tree’s prediction is counted as a vote for one class. 
+	 The label is predicted to be the class which receives the most votes.			 
+ 	-Regression: Averaging. Each tree predicts a real value. The label is predicted to be the average 
+ 	 of the tree predictions.
+ 	 
+-Tunning parameters
+	-numTrees: Number of trees in the forest.
+		-Increasing the number of trees will decrease the variance in predictions, improving the model’s test-time accuracy.
+		-Training time increases roughly linearly in the number of trees
+	-maxDepth: Maximum depth of each tree in the forest.
+		-Increasing the depth makes the model more expressive and powerful. However, deep 
+		 trees take longer to train and are also more prone to overfitting
+		-In general, it is acceptable to train deeper trees when using random forests than when using a single decision tree. 
+		 One tree is more likely to overfit than a random forest (because of the variance 
+		 reduction from averaging multiple trees in the forest).
+	
+	Below parameters can be tuned to speed up training (generally not required to tune)
+	-subsamplingRate: This parameter specifies the size of the dataset used for training each tree in 
+	 the forest, as a fraction of the size of the original dataset. The default (1.0) is recommended, 
+	 but decreasing this fraction can speed up training.	
+	-featureSubsetStrategy: Number of features to use as candidates for splitting at each tree node. 
+	 The number is specified as a fraction or function of the total number of features 
+	 
+-Precision and recall
+ Precision is actually a common metric for binary classification problems, where there are two category values, 
+ not several. In a binary classification problem, where there is some kind of positive and negative class, 
+ precision is the fraction of examples that the classifier marked positive that are actually positive. 
+ It is often accompanied by the metric recall. This is the fraction of all examples that are actually 
+ positive that the classifier marked positive.
+
+ For example, say there are 20 actually positive examples in a data set of 50 examples. 
+ The classifier marks 10 of the 50 as positive, and of those 10, 4 are actually positive 
+ (correctly classified). Precision is 4/10 = 0.4 and recall is 4/20 = 0.2 in this case.
+ 
+ 
+
+
+Data Types:
+----------
+
+-Vector
+	-Dense
+	-sparse
+	
+-LabeledPoint: A labeled point is a local vector, either dense or sparse, associated with a label/response	
+
+-MLlib supports reading training examples stored in LIBSVM format
+ each line represents a labeled sparse feature vector using the following format:	
+ e.g. 
+ label index1:value1 index2:value2 ...
+ 
+ 
+ Transformation
+		 filter
+		 map
+		 union
+
+ 
+ Action
+		 count - which  returns  the  count  as  a  number
+		 take -  retrieve a small number of elements in the RDD
+		 collect (not to use on large data sets) - function to retrieve the entire RDD
+		 saveAs...
+
+*************************************************************************************************************************************************
+spark streaming:
+----------------
+		-Spark Streaming provides an abstraction called DStreams, or discretized streams. 
+		-A DStream is a sequence of data arriving over time
+		-Each DStream is represented as a sequence of RDDs arriving at each time step (hence the name “discretized”)
+		-DStreams can be created from various input sources, such as Flume, Kafka, or HDFS
+		-Once built provide 2 types of operations: 
+			-transformations: yeild new DStream
+			-output operations: write data to external system
+		-Example, We will receive a stream of newline-delimited lines of text from a server running at
+		 port 7777, filter only the lines that contain the word error, and print them.
+			//Create a StreamingContext with a 1-second batch size from a SparkConf
+			JavaStreamingContext jssc = new JavaStreamingContext(conf, Durations.seconds(1));
+			//Create a DStream from all the input on port 7777
+			JavaDStream<String> lines = jssc.socketTextStream("localhost", 7777);
+			// Filter our DStream for lines with "error"
+			JavaDStream<String> errorLines = lines.filter(new Function<String, Boolean>() {
+			 public Boolean call(String line) {
+			 return line.contains("error");
+			 }});
+			// Print out the lines with errors
+			errorLines.print();	
+
+			//To start receiving data, we must explicitly call start() on the StreamingContext.
+			// Start our streaming context and wait for it to "finish"
+			jssc.start();
+			// Wait for the job to finish
+			jssc.awaitTermination();
+			
+			-Note that a streaming context can be started only once, and must be started after we set up 
+			 all the DStreams and output operations we want.
+						
+		-Spark Streaming uses a “micro-batch” architecture
+		-Spark Streaming is a discretized stream or a DStream, which is a sequence of RDDs	
+		-Additionally, DStreams also have new “stateful” transformations that can aggregate data across time
+		-This data is stored in the memory of the executors in the same way as cached RDDs.
+		 The StreamingContext in the driver program then periodically runs Spark jobs to 
+		 process this data and combine it with RDDs from previous time steps.
+		-By default, received data is replicated across two nodes, as mentioned, so Spark Streaming can 
+		 tolerate single worker failures 
+		-Spark Streaming also includes a mechanism called checkpointing that saves state periodically to 
+		 a reliable filesystem (e.g., HDFS or S3). Typically, you might set up checkpointing every 5–10 
+		 batches of data. When recovering lost data, Spark Streaming needs only to go back to the last 
+		 checkpoint.
+		- 
+		 
+			
+??checkpointing, the main mechanism Spark Streaming:
+*************************************************************************************************************************************************
+
+Google paper: MapReduce:  Simplified  Data Processing  on  Large Cluster.
+
+Spark addition:
+-Hadoop is designed mainly for batch processing, while with enough memory/RAM,  Spark may be used for 
+ near real-time processing. To understand basic usage of  Spark RDDs, you may reference
+ 
+-This means that all mappers can work independently, and when mappers complete their job, reducers 
+ start to work independently (no  data or critical-region is shared among  mappers or reducers  – 
+ having  a  critical-region  will  slow  distributed  computing).  This  ?shared-nothing?  paradigm 
+ enables us to write map() and reduce() functions in an easy manner and improves parallelism 
+ effectively and effortlessly. Even though, MapReduce frameworks (such as Hadoop and Spark) is 
+ built  on  ?shared-nothing?  paradigm,  but  they  do  support  sharing  immutable  data  structures 
+ among      all      cluster      nodes.      In      Hadoop,      you      may      pass      these      values      by 
+ Hadoop‘s Configuration object  to  mappers  and  reducers  and  in  Spark,  you  may  share  data 
+ structures among mappers and reducers by using Broadcastobjects. 
+ 
+-Where NOT to use MapReduce? 
+ There  are  few  scenarios[9]  where  MapReduce  programming  model  cannot  be  employed.  If  the 
+ computation of a value depends on previously computed values, then MapReduce cannot be used. 
+ One  good  example  is  the  Fibonacci  series  where  each  value  is  summation  of  the  previous  two 
+ values. i.e., 
+ F(k + 2)= F(k + 1)+ F(k)  
+
+ Also, if the data set is small enough to be computed on a single machine, then it is better to do it 
+ as  a  single reduce(map(data)) operation 
+
+-Apache    Giraph    is    an    iterative    graph    processing    system    built    for    high    scalability 
+ Source:http://giraph.apache.org/ 
+ 
+-https://github.com/mahmoudparsian/data-algorithms-book/ 
+
+-http://www.mapreduce4hackers.com
+
+spark problems 
+-------------
+-Section-1: Basic Design Patterns 
+	-Secondary Sort Problem
+		-Secondary  Sort  design  pattern  enable  us  to  sort  reducer‘s values.
+		-The goal of the secondary sort is to give some ordering for the values received by a reducer
+		-Sometimes, this is called value-to-key conversion. 
+		-Secondary sorting is a design pattern which will put some kind or ordering 
+			(such as ?ascending sort? or ?descending sort?) among the values Vi‘s.
+		
+		-Eg I/P.. stockSymbol	Date	closed-price
+		-o/p stockSymbol:(Date1, price1)(Date2, price2)..(Date3, price3)
+			date1<=date2<=date3
+		-That is we want the reducer values to be sorted by the date of closed price. This can be accomplished by Secondary sorting
+		-Spark impl (combineByKey): 
+		https://github.com/mahmoudparsian/data-algorithms-book/blob/master/src/main/java/org/dataalgorithms/chap01/sparkwithlambda/SecondarySortUsingCombineByKey.java
+		
+		-JavaRDD<String> lines = ctx.textFile(inputPath, 1)
+				-//create (key, value) pairs from JavaRDD<String> where key is the {name} and value is a pair of (time, value).
+				-//The resulting RDD will be JavaPairRDD<String, Tuple2<Integer, Integer>>. convert each record into Tuple2(name, time, value)
+			
+			-JavaPairRDDD<String, Tuple2<Integer, Integer>>	pairs = lines.mapToPair((String s) -> {
+					String[	] tokens = s.split(",");
+					Tuple2<Integer, Integer> timevalue = new Tuple2<Integer, Integer>(Integer.parseInt(tokens[1]), Integer.parseInt(tokens[2]));
+					return new Tuple2<String, Tuple2<Integer, Integer>>(tokens[0], timevalue);
+				});
+			
+			-// combiner | mergeValues | mergeCombiners
+			-//combiner
+			-Function<Tuple2<Integer, Integer>, Map<Integer, Integer>> createCombiner = 
+				(Tuple2<Integer, Integer> x) -> {
+					Integer time = x._1;
+					Integer value = x._2;
+					SortedMap<Integer, Integer> map = new TreeMap<Integer, Integer>();
+					map.put(time, value);
+					return map;
+				};
+			-Function2<SortedMap<Integer, Integer>, Tuple2<Integer,Integer>, SortedMap<Integer,Integer>> mergeValue = 
+				(SortedMap<> map, Tuple2<> x) -> {
+					map.put(x._1, x._2);
+					return map;
+				};
+ 			-Function2<SortedMap<>, SortedMap<>, SortedMap<>> mergeCombiners =
+				(SortedMap<> map1, SortedMap<> map2) -> {
+					//merge map1 & map2
+					
+				};
+			-JavaPairRDD<String, SortedMap<Integer, Integer>> combined = pairs.combineByKey(
+								createCombiner,
+								mergeValue,
+								mergeCombiners
+								)
+		
+		
+		
+		
+			----Using GroupByKey-----
+			https://github.com/mahmoudparsian/data-algorithms-book/blob/master/src/main/java/org/dataalgorithms/chap01/sparkwithlambda/SecondarySortUsingGroupByKey.java
+			
+			-JavaPairRDDD<String, Tuple2<Integer, Integer>>	pairs = lines.mapToPair((String s) -> {
+					String[] tokens = s.split(",");
+					Tuple2<Integer, Integer> timevalue = new Tuple2<Integer, Integer>(Integer.parseInt(tokens[1]), Integer.parseInt(tokens[2]));
+					return new Tuple2<String, Tuple2<Integer, Integer>>(tokens[0], timevalue);
+				});
+			-JavaPairRDD<String, Iterable<Tuple2<Integer, Integer>> groups = pairs.groupByKey();
+			-JavaPairRDD<String, Iterable<Tuple2<Integer, Integer>>> sorted = groups.mapValues(Iterable<Tuple2<Integer, Integer>> val -> {
+				List<Tuple2<Integer, Integer>> newList = new ArrayList<Tuple2<Integer, Integer>>(iteratorToList(val));
+				Collections.sort(newList, SparkTupleComparator.INSTANCE);
+				return newList;
+			});
+			
+			static List<Tuple2<Integer,Integer>> iterableToList(Iterable<Tuple2<Integer,Integer>> iterable) {
+				List<Tuple2<Integer,Integer>> list = new ArrayList<Tuple2<Integer,Integer>>();
+				for (Tuple2<Integer,Integer> item : iterable) {
+				   list.add(item);
+				}
+				return list;
+			}
+				
+------------------------------------------------------------------
+			
+	-TopN problem:
+		-The easy way to implement top-N in Java is to use SortedMap and TreeMap data structures and then 
+		 keep adding all elements of L to topN, but make sure to remove the first element (an element with the 
+		 smallest frequency) of topN if topN.size() > N
+		
+		-TopN Unique keys
+			-JavaRDD<String> lines = sc.textFile(path, noPartitions);
+			//cerate K,V pairs
+			-JavaPairRDD<String, Integer> pairs = lines.mapToPair((String line) -> {
+				String[] token = line.split(",");
+				return Tuple2<String, Integer> (token[0], Integer.parseInt(token[1]));
+			 });
+			-//For no Unique keys add additional reduceByKey operation else continue with local and final topN
+			-pairs = pairs.reduceByKey((Integer i1, Integer i2) -> i1 + i2);
+			
+			-//local topN 
+			JavaPairRDD<SortedMap<Integer, String>> localTopN = pairs.mapPartitions((Iterator<Tuple2<String, Integer>> iter)-> {
+				SortedMap<Integer, String> map = new TreeMap<Integer, String>();
+				while(iter.hasNext()){
+					Tuple2<String, Integer> tuple = iter.next();
+					map.put(tuple._2, tuple._1);
+					if(map.size() > N){
+						map.remove(map.firstKey()); //OR for TopN desecending remove lastKey
+					}
+				}
+				return Collections.singletonList(map).iterator();
+			});
+			
+			-//final topN
+			SortedMap<Integer, String> finalTopN = new TreeMap<String, Integer>();
+			List<SortedMap<Integer, String>> allTopNList localTopN.collect();
+			for(SortedMap<> map : allTopNList){
+				
+				for(Map.Entry<Integer, String> entry: map.entrySet()){
+					finalTopN.put(entry.getKey(), entry.getValue());
+					If(finalTopN.size() > N){
+						finalTopN.remove(finalTopN.firstKey());
+					}
+				}
+			}
+		
+		-read from textFIle
+			sc.textFile("", noPartitions);
+		 
+			 Partitioning RDD is an art and science. What is the right number of partitions? There is no magic bullet 
+			 formula for calculating the number of partitions. This does depend on the number of cluster nodes, the 
+			 number of cores per server, and the size of RAM available.	
+		-Create [K, V] pair from line rdd
+			JavaPairRDD<String,Integer> kv = rdd.mapToPair((String s) -> {
+				String[] tokens = s.split(","); // url,789
+				return new Tuple2<String,Integer>(tokens[0], Integer.parseInt(tokens[1]));
+			});
+		[Above step creates duplicates key. We need to reduce them to K,v using JavaPairRDD.reduceByKey()]
+		-JavaPairRDD<String, Integer> uniqueKeys = pairRdd.reduceByKey((Integer i1, Integer i2) -> i1 + i2);
+		-// STEP-8: create a local top-N
+		  JavaRDD<SortedMap<Integer, String>> partitions = 
+				  uniqueKeys.mapPartitions((Iterator<Tuple2<String,Integer>> iter) -> {
+			  final int N1 = topN.value();
+			  SortedMap<Integer, String> localTopN = new TreeMap<Integer, String>();
+			  while (iter.hasNext()) {
+				  Tuple2<String,Integer> tuple = iter.next();
+				  localTopN.put(tuple._2, tuple._1);
+				  // keep only top N
+				  if (localTopN.size() > N) {
+					  localTopN.remove(localTopN.firstKey());
+				  }
+			  }
+			  return Collections.singletonList(localTopN).iterator();
+		  });
+			
+		-mapPartitions() Example
+		 mapPartitions() can be used as an alternative to map() & foreach(). mapPartitions() is called once 
+		 for each Partition unlike map() & foreach() which is called for each element in the RDD. 
+		 The main advantage being that, we can do initialization on Per-Partition basis instead of 
+		 per-element basis(as done by map() & foreach())
+		
+		 Consider the case of Initializing a database. If we are using map() or foreach(), the number of times 
+		 we would need to initialize will be equal to the no of elements in RDD. Whereas if we use mapPartitions(), 
+		 the no of times we would need to initialize would be equal to number of Partitions
+
+		We get Iterator as an argument for mapPartition, through which we can iterate through all the elements in a Partition. 
+		
+		-// STEP-9: find a final top-N
+		  SortedMap<Integer, String> finalTopN = new TreeMap<Integer, String>();
+		  List<SortedMap<Integer, String>> allTopN = partitions.collect();
+		  for (SortedMap<Integer, String> localTopN : allTopN) {
+			 for (Map.Entry<Integer, String> entry : localTopN.entrySet()) {
+				 // count = entry.getKey()
+				 // url = entry.getValue()
+				 finalTopN.put(entry.getKey(), entry.getValue());
+				 // keep only top N 
+				 if (finalTopN.size() > N) {
+					finalTopN.remove(finalTopN.firstKey());
+				 }
+			 }
+		  }
+		
+		
+		-Left outer join:
+			contain all records of left table even if the joining condition does not find any matching condition in the right table
+			A left outer join returns all the values from an inner join plus all values in the left table that do 
+			not match to the right table
+			
+			A left outer join returns all the values from an inner join plus all values in the left table that do 
+			not match to the right table.
+			
+			TableA LEFT OUTER JOIN TableB is equivalent to TableB RIGHT OUTER JOIN Table A.
+			
+			SQL syntax
+			----------
+			LEFT OUTER JOIN
+
+			SELECT *
+			FROM A, B
+			WHERE A.column = B.column(+)
+			RIGHT OUTER JOIN
+
+			SELECT *
+			FROM A, B
+			WHERE B.column(+) = A.column
+			
+			
+			
+		Spark -- (called LeftOuterJoin), which will include a series of map(),groupBy(), and reduce() functions.	
+		
+		------------------------
+	
+		
+			-Performance spark
+			
+			poc-kafka, research 
+			
+			-Spark use combineByKey and avoid using groupByKey
+				-Both produces same result but reduceByKey works better on larger dataSet as spark knows it can combine 
+				 output with a common key on a partition before applying any shuffle i.e. shuffle happens after u combine
+					-e.g. .reduceByKey(_ + _)
+				-In groupByKey all data is shuffled across network, unnecessary data being transferred 
+					-Spark calls a partitioning function to determine which machine to shuffle the pair
+				
+				-Here are more functions to prefer over groupByKey:
+					-combineByKey can be used when you are combining elements but your return type differs from your input value type.
+					-foldByKey merges the values for each key using an associative function and a neutral "zero value".	
+					
+			-Don't copy all elements of a large RDD to the driver.
+				-If your RDD is so large that all of it's elements won't fit in memory on the drive machine, don't do this:
+					-.collect()
+					-.countByKey()
+					-.countByValue()
+					-.collectAsMap()
+			
+			-Gracefully Dealing with Bad Input Data
+				-Using a filter transformation, you can easily discard bad input		
+				-or use a map transformation if it's possible to fix the bad input
+				-Or perhaps the best option is to use a flatMap function where you can try fixing the input but 
+				 fall back to discarding the input if you can't
+				
+				-json example
+				-corrected_input_rdd = input_rdd.flatMap(try_correct_json)
+				-sqlContext.jsonRDD(corrected_input_rdd).registerTempTable("valueTable")
+				-sqlContext.sql("select * from valueTable").collect()
+				
+			-Data Locality
+			-No of partitions
+			-		
+				
+				
+				
+# Returns [Row(value=1), Row(value=2), Row(value=3)]
+1.4.2 Expected Output 
+Input will be a set of files, which will have the following format:
+			
+-Section-2: Data Mining and Machine Learning 
+	-
+	-
+-Section-4: Optimization Techniques 
+	-
+	-
+	-
+	-
+-HC 1.1
+
+-Spark problems:
+	-Secondary index problem 
+
+Spark APIs	
+Pg - 59 Learning spark
+	
+Choosing the right partitioning for a distributed dataset is similar to choosing the right data 
+structure for a local one—in both cases, data layout can greatly affect performance.
+
+-
+
+************************************************************************************************************************************************				

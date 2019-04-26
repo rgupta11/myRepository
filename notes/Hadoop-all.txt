@@ -1,0 +1,833 @@
+-
+-Hadoop I/O
+	-OLAP is an acronym for Online Analytical Processing. OLAP performs multidimensional analysis of business 
+	 data and provides the capability for complex calculations, trend analysis, and sophisticated data modeling.
+	 
+	-Some common storage formats for Hadoop include: blog: http://blog.matthewrathbone.com/2016/09/01/a-beginners-guide-to-hadoop-storage-formats.html
+
+		Plain text storage (eg, CSV, TSV files)
+		Sequence Files
+		Avro
+		Parquet
+
+	-Choosing an appropriate file format can have some significant benefits:
+	
+			Faster read times
+			Faster write times
+			Splittable files (so you don’t need to read the whole file, just a part of it)
+			Schema evolution support (allowing you to change the fields in a dataset)
+			Advanced compression support (compress the files with a compression codec without sacrificing these features)
+
+	-Avro is not really a file format, it’s a file format plus a serialization and deserialization framework. 
+	 With regular old sequence files you can store complex objects but you have to manage the process. 
+	 Avro handles this complexity whilst providing other tools to help manage data over time.
+	
+	-The latest hotness in file formats for Hadoop is columnar file storage.
+	 One huge benefit of columnar oriented file formats is that data in the same column tends 
+	 to be compressed together which can yield some massive storage optimizations (as data in the same column tends to be similar).
+
+	- compress data in Hadoop.
+
+		File-Level Compression
+		Block-Level Compression 
+		
+		
+	-Parquet three concepts: specifying data at bit level, encoding
+
+		-Storage formats, which are binary representations of data. For Parquet this is contained within the 
+		 parquet-format GitHub project.
+		-Object model converters, whose job it is to map between an external object model and Parquet’s 
+		 internal data types. These converters exist in the parquet-mr GitHub project.
+		-Object models, which are in-memory representations of data. Avro, Thrift, Protocol Buffers, Hive and Pig 
+		 are all examples of object models. Parquet does actually supply an example object model (with MapReduce support)
+		 , but the intention is that you’d use one of the other richer object models such as Avro.	
+		-Interoperable
+		-scan all columnar data in one seek and save a lot of I/O 
+		-Storing homogenous data ie. same type data. All columnar data of same type together i.e all ints together 
+		-Encoding bunch of values in on chunk
+		-Borrowed from Google Dermel paper. 
+		-File format to store nested dataStructure
+		-Also helpful in CPU bus architectute as less pageFault all column data is available in cache
+		
+	- Avro, thrift, ProtocolBuffers and Pojos are dataModels
+	
+	-Parquet is a column-oriented data storage format for Hadoop from Twitter. Column-oriented storage is really nice 
+	 for “wide” data, since you can efficiently read just the fields you need.
+
+
+	-Parquet
+		Parquet is built to support very efficient compression and encoding schemes
+	
+	-parquet Vs protocolBuffers
+		-Parquet is a column-oriented data storage format for Hadoop from Twitter. Column-oriented storage is really 
+		 nice for “wide” data, since you can efficiently read just the fields you need.
+	
+		-Protobuf is a data serialization library developed by google. It lets you efficiently and quickly serialize 
+		 and deserialize data for transport.
+		
+		-Avro, Protocol Buffers, and Thrift
+			Most applications will prefer to define models using a framework like Avro, Protocol
+			Buffers, or Thrift, and Parquet caters to all of these cases. Instead of  ParquetWriter and
+			ParquetReader,  use  AvroParquetWriter,  ProtoParquetWriter,  or  ThriftParquet
+			Writer, and the respective reader classes.
+		
+		-Projection schema
+	
+	-Serialization vs encoding ?? Need more data 
+		-Encoding is a process of representation some information is optimal format for storing or transmission data. 
+		 And serialization is representation some object or objects for transmission data between some computer programs. 
+		 So the difference is:
+	
+			a. Encoding deals for some data (text, images, videos) but serialization deals with 
+			   some objects (data structure) in computer program
+			b. As a rule encoding means compression and encryption some data, 
+			   serialization doesnot use compression and encryption
+	
+	-checkSum: error detection during dataTransfer
+		-Hadoop uses CRC32
+		-HDFS uses a more efficient variant called CRC-32C.
+		-Datanodes are responsible for verifying the data they receive before storing the data and its  checksum.
+		-A client writing data sends it to a pipeline of datanodes
+			(as explained in Chapter 3), and the last datanode in the pipeline verifies the checksum.
+			If the datanode detects an error, the client receives a subclass of  IOException
+		-Datanode block scanner on page 328:  each datanode runs a  DataBlockScan
+			ner in a background thread that periodically verifies all the blocks
+		-client detects an error when reading a block, it reports the bad block and the datanode
+			it was trying to read from to the namenode before throwing a  ChecksumException. The
+			namenode marks the block replica as corrupt so it doesn’t direct any more clients to it
+			or try to copy this replica to another datanode
+		-You  can  find  a  file’s  checksum  with  hadoop fs -checksum. Check 2 files have same content with their checkSum
+		-To disable checkSum:  This is accomplished by using RawLocalFileSystem in place of
+		 LocalFileSystem.
+	
+	-Compression
+		
+		-A summary of compression formats
+				Compression format 	Tool 	Algorithm 	Filename extension    Splittable?
+				DEFLATE(a) 			N/A 	DEFLATE 	.deflate 				No
+				gzip 				gzip 	DEFLATE 	.gz 					No
+				bzip2 				bzip2 	bzip2 		.bz2 					Yes
+				LZO 				lzop 	LZO 		.lzo 					No(b)
+				LZ4 				N/A 	LZ4 		.lz4 					No
+				Snappy 				N/A 	Snappy 		.snappy 				No
+		
+		-Codecs	
+			-A codec is the implementation of a compression-decompression algorithm
+			-Hadoop compression codecs
+				Compression format 		Hadoop CompressionCodec
+				DEFLATE 				org.apache.hadoop.io.compress.DefaultCodec
+				gzip 					org.apache.hadoop.io.compress.GzipCodec
+				bzip2 					org.apache.hadoop.io.compress.BZip2Codec
+				LZO 					com.hadoop.compression.lzo.LzopCodec
+				LZ4 					org.apache.hadoop.io.compress.Lz4Codec
+				Snappy 					org.apache.hadoop.io.compress.SnappyCodec
+				
+		-Native libraries
+			-For  performance,  it  is  preferable  to  use  a  native  library  for  compression  and
+			 decompression. For example, in one test, using the native gzip libraries reduced de-
+			 compression times by up to 50% and compression times by around 10% 		
+		
+		-Compression and Input Splits
+			-Use a container file format such as sequence files (see the section on page 127), Avro
+			 datafiles (see the section on page 352), ORCFiles (see the section on page 136),
+			 or Parquet files (see the section on page 370), all of which support both compression
+			 and splitting. A fast compressor such as LZO, LZ4, or Snappy is generally a good
+			 choice.
+			 
+			-For large files, you should not use a compression format that does not support splitting
+			 on  the  whole  file,  because  you  lose  locality  and  make  MapReduce  applications  very
+			 inefficient.
+			 
+		-Serialization
+			-Serialization is the process of turning structured objects into a byte stream for trans-
+			 mission over a network or for writing to persistent storage. Deserialization is the reverse
+			 process of turning a byte stream back into a series of structured objects.
+			
+			-Serialization  is  used  in  two  quite  distinct  areas  of  distributed  data  processing:  for
+			 interprocess communication and for persistent storage
+			 
+			-In Hadoop, interprocess communication between nodes in the system is implemented
+			 using remote procedure calls (RPCs). The RPC protocol uses serialization to render the
+			 message into a binary stream to be sent to the remote node, 
+			 
+			-In general, it is desirable that an RPC serialization format is:
+				-Compact
+				-fast
+				-extensible
+				-Interoperable: that is why Avro/protocolBuffers 
+					For some systems, it is desirable to be able to support clients that are written in
+					different languages to the server, so the format needs to be designed to make this
+					possible.
+			-Hadoop uses its own serialization format, Writables	
+			-Chapter 12 for more details
+			
+		-Writables
+			-Java primitive     Writable implementation     Serialized size (bytes)
+				boolean    		BooleanWritable    			1
+				byte       		ByteWritable       			1
+				short      		ShortWritable      			2
+				int        		IntWritable        			4
+			  					VIntWritable       			1-5
+				float      		FloatWritable      			4
+				long       		LongWritable       			8
+			  					VLongWritable      			1-9
+				double     		DoubleWritable     			8
+	
+		-File-Based Data Structures
+			-SequenceFile: providing a persistent data structure for binary key-value pairs.
+				-Choose  a  key,  such  as  timestamp  represented  by  a LongWritable, and the value would be a 
+				 Writable that represents the quantity being logged.
+				-The keys and values stored in a  SequenceFile do not necessarily need to be  Writables.
+				 Any types that can be serialized and deserialized by a  Serialization may be used.
+				-SequenceFile.Writer, you then write key-value pairs using the append() method.
+				-Reading sequence files from beginning to end is a matter of creating an instance of
+				 SequenceFile.Reader  and  iterating  over  records  by  repeatedly  invoking  one  of  the
+				 next() methods.
+				- 
+				-SequenceFiles also work well as containers for smaller files.
+				-??Processing a whole file as a record on page 228 contains a program to pack files into a  SequenceFile
+				-Packing  files  into  a  SequenceFile  makes  storing and processing the smaller files more efficient
+				-??io.serializations property 
+				-??sync points
+					 A sync point is a point in the stream that can be used to resynchronize
+					with a record boundary if the reader is “lost”—for example, after seeking to an arbitrary
+					position in the stream. Sync points are recorded by SequenceFile.Writer, which in-
+					serts a special entry to mark the sync point every few records as a sequence file is being
+					written. Such entries are small enough to incur only a modest storage overhead—less
+					than 1%. Sync points always align with record boundaries.
+					
+				-There are two ways to seek to a given position in a sequence file. 
+					-The first is the  seek()
+						-reader.seek(359); //OK
+						
+						-Position= // beginning of next record
+						 But if the position in the file is not at a record boundary, the reader fails when the  next() method is called:
+					     reader.seek(360);
+    					 reader.next(key, value); // fails with IOException
+					-The second way to find a record boundary makes use of sync points.
+					-we can call  sync() with any position in the stream—not necessarily a record boundary—and the reader will reestablish itself at
+					 the next sync point so reading can continue:
+					-SequenceFile.Writer   has  a  method  called  sync()   for  inserting  a sync point at the current position in the stream.
+					-The  hadoop fs command has a  -text option to display sequence files in textual form.
+						- hadoop fs -text numbers.seq | head   -----[hdfs dfs -text numbers.seq | head]
+				
+				-The SequenceFile format
+					-A sequence file consists of a header followed by one or more records
+					-
+-----------------------------------------------------------------------------------------------------------------------------------------------------
+	Protocol Buffers
+	----------------
+	
+	-Protobuf is a data serialization library developed by google. It lets you efficiently and quickly serialize 
+	 and deserialize data for transport.	 
+	 
+	
+	-Protocol Buffers: https://developers.google.com/protocol-buffers/docs/overview
+	
+		-a language-neutral, platform-neutral, extensible way of serializing structured data for use in 
+		 communications protocols, data storage etc. Think XML, but smaller, faster, and simpler.
+		
+		-You define how you want your data to be structured once, then you can use special generated 
+		 source code to easily write and read your structured data to and from a variety of data 
+		 streams and using a variety of languages
+		
+		-Each protocol buffer message is a small logical record of information, containing a series of name-value pairs
+		
+		-You should always use lowercase-with-underscores for field names in your .proto files; this ensures 
+		 good naming practice in all the generated languages
+		
+		
+		-E.g. 
+		 D:\..\em-bt-schema>.\compiler\protoc.exe --proto_path=src --java_out=src src\schema\proto\DeviceEventData.proto
+				
+				1)
+				 message Person {
+				   required string name = 1;
+				   required int32 id = 2;
+				   optional string email = 3;
+	
+				   enum PhoneType {
+					 MOBILE = 0;
+					 HOME = 1;
+					 WORK = 2;
+				   }
+	
+				   message PhoneNumber {
+					 required string number = 1;
+					 optional PhoneType type = 2 [default = HOME];
+				   }
+	
+				   repeated PhoneNumber phone = 4;
+				 }
+				
+				
+				2)
+				package com.emeter.bt.rp;
+				
+				option java_package = "com.emeter.bt.rp";
+				option java_outer_classname = "RPAnalysisData2";
+				
+				message RPFeatureAnalysis2 {
+					repeated RPFeature2 RPFeatures = 3;
+				}
+				
+				message RPFeature2 {
+					required int64 featureId = 1;
+					required int32 featureCode = 2;
+					required string featureEipCode = 3;
+					required string featureName = 4;
+					optional string featureDescription = 5;
+					required double value = 6;
+				}
+				
+				message RPScore2 {
+					required string scorerName = 1;
+					required double score = 2;
+			 	}
+			 	
+		-a protocol buffer message is a series of key-value pairs.
+		
+		-Protocol buffers have many advantages over XML for serializing structured data. Protocol buffers:
+			-are simpler
+			-are 3 to 10 times smaller
+			-are 20 to 100 times faster
+			-are less ambiguous
+			-generate data access classes that are easier to use programmatically 	
+			-Automatically-generated serialization and deserialization code avoided the need for hand parsing.
+			
+			-When this message is encoded to the protocol buffer binary format 
+			 (the text format above is just a convenient human-readable representation for debugging and editing), 
+			 it would probably be 28 bytes long and take around 100-200 nanoseconds to parse. 
+			 The XML version is at least 69 bytes if you remove whitespace, and would take 
+			 around 5,000-10,000 nanoseconds to parse.
+		
+			-When not to use
+			 	-However, protocol buffers are not always a better solution than XML for instance, 
+			 	 protocol buffers would not be a good way to model a text-based document with markup (e.g. HTML), 
+			 	 since you cannot easily interleave structure with text. In addition, XML is human-readable 
+			 	 and human-editable; protocol buffers, at least in their native format, are not. XML is also 
+			 	 to some extent – self-describing. A protocol buffer is only meaningful if you have the 
+			 	 message definition (the .proto file).
+			 	
+			 	-Protocol Buffers are not designed to handle large messages. As a general rule of thumb, 
+			 	 if you are dealing in messages larger than a megabyte each, it may be time to consider an alternate strategy.
+		
+		-Protocol buffer encoding
+		 
+		 -Base 128 Varints: 
+		  To understand your simple protocol buffer encoding, you first need to understand varints. 
+		  Varints are a method of serializing integers using one or more bytes. Smaller numbers take a 
+		  smaller number of bytes.
+		  
+		 -a protocol buffer message is a series of key-value pairs.
+		 
+		 -The binary version of a message just uses the field's number as the key – the name and declared 
+		  type for each field can only be determined on the decoding end by referencing the message type's 
+	 	  definition
+		  
+		 -Each key in the streamed message is a varint with the value (field_number << 3) | wire_type 
+		  in other words, the last three bits of the number store the wire type.
+		  
+		 -Wire Type	Meaning	Used For
+			0	Varint	int32, int64, uint32, uint64, sint32, sint64, bool, enum
+			1	64-bit	fixed64, sfixed64, double
+			2	Length-delimited	string, bytes, embedded messages, packed repeated fields
+			3	Start group	groups (deprecated)
+			4	End group	groups (deprecated)
+			5	32-bit	fixed32, sfixed32, float 
+	
+		 -string
+		 	Setting the value of b to "testing" gives you:
+			
+			12 07 74 65 73 74 69 6e 67
+			The red bytes(from 74) are the UTF8 of "testing". The key here is 0x12 ? tag = 2, type = 2. 
+			The length varint in the value is 7 and lo and behold, we find seven bytes following it – our string.
+			
+		 -repeatedMsg
+		 	22        // tag (field number 4, wire type 2)
+			06        // payload size (6 bytes)
+			03        // first element (varint 3)
+			8E 02     // second element (varint 270)
+			9E A7 05  // third element (varint 86942)
+		 
+		 -While you can use field numbers in any order in a .proto, when a message is serialized 
+		  its known fields should be written sequentially by field number, 	
+		
+		-ProtocolBuffer serialization/Deserialization
+			-The protocol buffer compiler creates a class that implements automatic encoding and parsing of 
+			 the protocol buffer data with an efficient binary format. The generated class provides getters 
+			 and setters for the fields that make up a protocol buffer and takes care of the details of 
+			 reading and writing the protocol buffer as a unit.
+			 
+			-Required Is Forever You should be very careful about marking fields as required. If at some point 
+			 you wish to stop writing or sending a required field, it will be problematic to change the field 
+			 to an optional field – old readers will consider messages without this field to be incomplete and 
+			 may reject or drop them unintentionally. You should consider writing application-specific custom 
+			 validation routines for your buffers instead. Some engineers at Google have come to the conclusion 
+			 that using required does more harm than good; they prefer to use only optional and repeated. 
+			
+			-The message classes generated by the protocol buffer compiler are all immutable.
+			
+			-protocol buffer class has methods for writing and reading messages of your chosen type using the 
+			 protocol buffer binary format. These include:
+					-byte[] toByteArray();: serializes the message and returns a byte array containing its raw bytes.
+					-static Person parseFrom(byte[] data);: parses a message from the given byte array.
+					-void writeTo(OutputStream output);: serializes the message and writes it to an OutputStream.
+					-static Person parseFrom(InputStream input);: reads and parses a message from an InputStream.
+			
+			-Protocol Buffers and O-O Design Protocol buffer classes are basically dumb data holders 
+			 (like structs in C++); they don't make good first class citizens in an object model.
+			
+			-If you want to add richer behaviour to a generated class, the best way to do this is to 
+			 wrap the generated protocol buffer class in an application-specific class
+			
+			-You should never add behaviour to the generated classes by inheriting from them. 
+			 This will break internal mechanisms and is not good object-oriented practice anyway.
+			
+			-compatible: In the new version of the protocol buffer:
+				-you must not change the tag numbers of any existing fields.
+				-you must not add or delete any required fields.
+				-you may delete optional or repeated fields.
+				-you may add new optional or repeated fields but you must use fresh tag numbers 
+				 (i.e. tag numbers that were never used in this protocol buffer, not even by deleted fields).
+			
+			-Assigning Tags
+				As you can see, each field in the message definition has a unique numbered tag. 
+				These tags are used to identify your fields in the message binary format, and 
+				should not be changed once your message type is in use. Note that tags with values 
+				in the range 1 through 15 take one byte to encode, including the identifying number 
+				and the field's type (you can find out more about this in Protocol Buffer Encoding). 
+				Tags in the range 16 through 2047 take two bytes. So you should reserve the tags 
+				1 through 15 for very frequently occurring message elements. 
+				Remember to leave some room for frequently occurring elements that might be added in 
+				the future.
+
+	
+	-Interoperability
+		-If you’re introducing a new service with one in Java or Go, or even communicating with a backend written in Node, 
+		 or Clojure, or Scala, you simply have to hand the proto file to the code generator written in the target language 
+		 and you have some nice guarantees about the safety and interoperability between those architectures. The finer points 
+		 of platform specific data types should be handled for you in the target language implementation, and you can get 
+		 back to focusing on the hard parts of your problem instead of matching up fields and data types in your ad hoc 
+		 JSON encoding and decoding schemes.
+
+		When Is JSON A Better Fit?
+
+		There do remain times when JSON is a better fit than something like Protocol Buffers, including situations where:
+
+		You need or want data to be human readable
+		Data from the service is directly consumed by a web browser
+		Your server side application is written in JavaScript
+		You aren’t prepared to tie the data model to a schema
+		You don’t have the bandwidth to add another tool to your arsenal
+		The operational burden of running a different kind of network service is too great
+
+--------------------------------------------------------------------------------------------------------------
+-YARN: This chapter has given a short overview of YARN. For more detail, see Apache Hadoop
+		YARN by Arun C. Murthy et al. (Addison-Wesley, 2014).
+	
+	-YARN provides APIs for requesting and working with cluster resources.
+	-Two  types  of  long-running  daemon:  a  resource
+		manager (one per cluster) to manage the use of resources across the cluster, and node
+		managers running on all the nodes in the cluster to launch and monitor containers.
+	-A client contacts the resource manager and asks it to run an application master process
+	-The resource manager then finds a node manager that can launch the application master in a container
+	-YARN itself does not provide any way for the parts of the application 
+	 (client, master, process) to communicate with one another. 
+	-Most nontrivial YARN applications use some form of remote communication (such as Hadoop’s RPC
+     layer) to pass status updates and results back to the client, but these are specific to the
+     application.
+    -A request for a set of containers can express the amount of computer resources required for each 
+     container (memory and CPU), as well as locality constraints for the containers in that request. 
+    -A YARN application can make resource requests at any time while it is running
+    	-An  application  can  make  all  of  its  requests  up  front,  or  it  can  take  a  more
+		 dynamic approach whereby it requests more resources dynamically to meet the changing needs 
+		 of the application.
+	-Spark takes the first approach, starting a fixed number of executors on the cluster
+	-MapReduce, on the other hand, has two phases: the map
+	 task containers are requested up front, but the reduce task containers are not started
+	 until later. Also, if any tasks fail, additional containers will be requested so the failed
+	 tasks can be rerun.
+	-LifeSpan
+		-Rather than look at how long the application runs for, it’s useful to categorize applications in
+		 terms of how they map to the jobs that users run. 
+			-The simplest case is one application per user job, which is the approach that MapReduce takes.
+			-The second model is to run one application per workflow or user session. 
+		 		-This approach can be more efficient than the first, since containers can
+				  be reused between jobs, and there is also the potential to cache intermediate data between jobs.
+				  Spark is an example that uses this model.
+		-The third model is a long-running application that is shared by different users
+			-Used by Apache slider & Impala
+			-The always on application master means that users have very low-
+				latency responses to their queries since the overhead of starting a new application master
+				is avoided.
+			 (provide  a  proxy  application  that  the  Impala  daemons  communicate  with  to  request cluster resources.)
+	-Building Yarn applications
+		
+	-MapReduce 1 Vs MapReduce 2:
+		In MapReduce 1, there are two types of daemon that control the job execution process:
+		-a jobtracker and 
+		-one or more tasktrackers
+
+		YARN these responsibilities are handled by separate entities: 
+		-the resource manager and 
+		-an application master (one for each MapReduce job).
+		-nodeManager
+		
+		In YARN, the equivalent role is the timeline server, which stores application history.
+		
+		MapReduce 1          YARN
+		Jobtracker 		Resource manager, application master, timeline server
+		Tasktracker 	Node manager
+		Slot 			Container	
+		
+	-MapReduce is just one YARN application among many	
+	
+	-Three schedulers are available in YARN: 
+		FIFO, 
+		Capacity, 
+		Fair Schedulers.
+
+
+--------------------------------------------------------------------------------------------------------------
+-HDFS
+http://storageconference.org/2010/Papers/MSST/Shvachko.pdf
+http://developer.yahoo.net/blogs/hadoop/2008/09/scaling_hadoop_to_4000_nodes_a.html
+
+Hadoop definitive guide:
+http://storageconference.org/2010/Papers/MSST/Shvachko.pdf
+http://developer.yahoo.net/blogs/hadoop/2008/09/scaling_hadoop_to_4000_nodes_a.html
+-The Hadoop Distributed Filesystem (HDFS)
+	- Filesystems that manage the storage across a network of machines are called distributed filesystems.
+	
+	-HDFS is a filesystem designed for storing very large files with streaming data access
+	 patterns, running on clusters of commodity hardware.
+		-“Very large” in this context means files that are hundreds of megabytes, gigabytes,
+			or terabytes in size.
+		-streaming data access pattern: write-once,  read-many-times  pattern.  	
+		-not very expensive h/w
+	
+	
+	-The number of mappers launched is roughly equal to the input size divided by dfs.block.size (the default block 
+	 size is 64 MB).
+	
+	-Compression(bzip2, gzip, DEFLATE)
+		-However, there is a drawback to storing data in HDFS using the compression formats listed 
+		 previously. These formats are not splittable. Meaning, once a file is compressed using any 
+		 of the codecs that Hadoop provides, the file cannot be decompressed without the whole file 
+		 being read.
+		-uncompressed file that was 128 MB, this would probably result in two mappers being launched (128 MB/64 MB)
+		-files compressed using the bzip2, gzip, and DEFLATE codecs cannot be split, the whole 
+		 file must be given as a single input split to the mapper. Using the previous example, if the 
+		 input to a MapReduce job was a gzip compressed file that was 128 MB, the MapReduce 
+		 framework would only launch one mapper.
+	-LZO
+		-LZO algorithm was designed to have  
+		 fast decompression speeds while having a similar compression speed as compared to 
+		 DEFLATE. In addition, thanks to the hard work of the Hadoop community, LZO compressed 
+		 files are splittable.
+		-core-site.xml to use the LZO codec classes	
+			-<property>
+				<name>io.compression.codecs</name>
+				<value>org.apache.hadoop.io.compress.GzipCodec,
+							org.apache.hadoop.io.compress.DefaultCodec,
+				org.apache.hadoop.io.compress.BZip2Codec,
+				com.hadoop.compression.lzo.LzoCodec,
+				com.hadoop.compression.lzo.LzopCodec
+				  </value>
+				</property>
+				<property>
+				  <name>io.compression.codec.lzo.class</name>
+				  <value>com.hadoop.compression.lzo.LzoCodec</value>
+				</property>
+			-1)Compress the test dataset:
+				$ lzop weblog_entries.txt	
+			-2)Put the compressed weblog_entries.txt.lzo file into HDFS:
+			-3)Run the MapReduce LZO indexer to index the weblog_entries.txt.lzo file:
+				$ hadoop jar /usr/lib/hadoop/lib/hadoop-lzo-0.4.15.jar com.hadoop.
+				compression.lzo.DistributedLzoIndexer /test/weblog_entries.txt.lzo
+				- DistributedLzoIndexer. This is a MapReduce application that will read 
+					one or more LZO compressed files and index the LZO block boundaries of each file
+	-SequenceFile
+		-flexible format included with the Hadoop distribution.
+		-capable of storing both text and binary data
+		-SequenceFiles store data as binary key-value pairs.
+		-SequenceFiles are able to do this because individual values (or blocks) are compressed, not the entire SequenceFile
+		-SequenceFiles have three compression options:
+			-Uncompressed: Key-value pairs are stored uncompressed
+			-Record compression: The value emitted from a mapper or reducer is compressed
+			-Block compression: An entire block of key-value pairs is compressed
+				-If  you  are  emitting  sequence  files  for  your  output,  you  can  set  the  mapreduce.out
+				 put.fileoutputformat.compress.type property to control the type of compression
+				 to use. The default is RECORD, which compresses individual records. Changing this to
+				 BLOCK, which compresses groups of records, is recommended because it compresses
+				 better (see “The SequenceFile format” on page 133).
+
+	-ProtocolBuffers
+	-ApacheThrift
+	-ApacheAvro:
+		-Apache Avro supports a language-independent file format and includes serialization and
+		RPC mechanisms. One of the neat features of Avro is that you do not need to compile any
+		type of interface or protocol definition files in order to use the serialization features of
+		the framework
+
+
+
+	- HDFS is a filesystem designed for storing very large files with streaming data access patterns, running on clusters
+	- HDFS is built on efficient data processing pattern is a write-once, read-many-times pattern
+	- HDFS is not a good fit
+		- low latency data operations (HBase is currently a better choice for low-latency access)
+		- lots of small files:
+			-	Since the namenode holds filesystem metadata in memory, the limit to the number
+				of files in a filesystem is governed by the amount of memory on the namenode. As
+				a  rule  of  thumb,  each  file,  directory,  and  block  takes  about  150  bytes.  So,  for
+				example, if you had one million files, each taking one block, you would need at
+				least 300 MB of memory
+		- Multiple writers, arbitrary file modifications
+			- Files in HDFS may be written to by a single writer. Writes are always made at the end of the file. 
+			  There is no support for multiple writers.
+		- A disk has a block size, which is the minimum amount of data that it can read or write.
+		  Filesystems for a single disk build on this by dealing with data in blocks, which are an
+		  integral multiple of the disk block size.
+		- disk block size(512b) -> file system block size (~kbs)-> HDFS block size (128 MB default) 
+		- HDFS, too, has the concept of a block, but it is a much larger unit 128 MB by default.(large as to minimize cost of seek)
+		- A 1 MB file stored with a block size of 128 MB uses 1 MB of disk space, not 128 MB.
+		- Tried to acheive the seek time 1% of the transfer time by keeping 128 MB default size
+		- Each HDFS block is replicated to a small number of physically separate machines (typically three).  
+		
+		- HDFS’s fsck command understands blocks. For example, running:
+			% hadoop fsck / -files -blocks
+			will list the blocks that make up each file in the filesystem.
+	
+	NameNode & dataNode
+	
+	- NameNode: master. manages fileSystem namespace
+		-Under federation, each namenode manages a namespace volume, which is made up of the metadata for the namespace, and a 
+		 block pool containing all the blocks for the files in the namespace.
+		-Information is stored persistently on the local disk in the form of two files: the namespace image and the edit log 
+		
+	- NameNode resilient to failure: 2 ways
+		- To back up the files that make up the persistent state of the filesystem
+		- Secondary NameNode:  it does not act as a namenode. Its main role is to periodically merge the namespace 
+		  image with the edit log to prevent the edit log from becoming too large.
+		  ****edit log
+		- It keeps a copy of the merged name-space image, which can be used in the event of the namenode failing.
+		- **However, the state of the secondary namenode lags that of the primary, so in the event of total failure of the primary, 
+		  data loss is almost certain. The usual course of action in this case is to copy the namenode’s metadata files 
+		  that are on NFS to the secondary and run it as the new primary metadata. 
+	
+	
+	-HDFS federation (NameNode)
+		-Namenode keeps reference to every file and block in fileSystem in memory
+		-On large cluster it becomes a limiting factor (how much memory needed by NameNode)
+		-High Availability for nameNode:2.x release series, allows a cluster to scale by adding
+			namenodes, each of which manages a portion of the filesystem namespace. For example,
+			one namenode might manage all the files rooted under /user, say, and a second name-
+			node might handle files under /share.
+		-The combination of replicating namenode metadata on multiple filesystems and using
+			the secondary namenode to create checkpoints protects against data loss, but it does
+			not provide high availability of the filesystem. 		
+				
+		-The new namenode is not able to serve requests
+		 until it has 
+		 (i) loaded its namespace image into memory, 
+		 (ii) replayed its edit log, and
+		 (iii) received enough block reports from the datanodes to leave safe mode. On large
+		 		clusters with many files and blocks, the time it takes for a namenode to start from cold
+		 		can be 30 minutes or more.		
+	
+	-Datanode reads blocks from disk, but for frequently accessed files the blocks
+	 may  be  explicitly  cached  in  the  datanode’s  memory,  in  an  off-heap  block  cache
+	
+	-Users or applications instruct the namenode which files to cache (and for how long) by
+	 adding a cache directive to a cache pool. Cache pools are an administrative grouping for
+     managing cache permissions and resource usage.
+	
+	- DataNode: worker
+	- Namenode: Failover and fencing
+		-Failover: the first implementation  uses  ZooKeeper  to  ensure  that  only  one  namenode  is  active.  
+					Each namenode runs a lightweight failover controller process whose job it is to monitor its
+					namenode for failures 
+		-Fencing: In the case of an ungraceful failover, however, it is impossible to be sure that the failed
+					namenode has stopped running. For example, a slow network or a network partition
+					can trigger a failover transition. 
+			-revoking access of namenode from shred storage
+			-killing Namenode process
+			-disabling n/w port
+			-STONITH: Shoot the other node in the head. forcibly shurtt down machine
+	- We’ll be running HDFS on localhost(pseudo-distributed mode), on the default HDFS port, 8020
+		- Namenode’s embedded web server (which runs on port 50070): caters webRequests to client HDFS
+	- DataNode's embeded webServer (running on port 50075)
+	- hdfs dfs -ls .
+		-The first column shows the file mode
+		-The second column is the replication factor of the file. The entry in this column is 
+			empty for directories since the concept of replication does not apply to them. 
+			-directories are treated as metadata and stored by the namenode, not the datanodes.
+		-.... usual meaning
+
+	-Hadoop  provides  many  interfaces  to  its  filesystems,  and  it  generally  uses  the  URI
+		scheme to pick the correct filesystem instance to communicate with	
+			-% hdfs dfs -ls file:///
+	
+	-HDFS security enable dfs.permissions.enabled  property
+	
+	- Hadoop Filesystems
+		-file
+		-hdfs
+		-hftp
+		-hsftp
+		-webhdfs
+		-...
+
+	-HTTP: accessing HDFS via HTTP
+		-There are two ways of accessing HDFS over HTTP: directly, where the HDFS daemons serve 
+			HTTP requests to clients; and via a proxy (or proxies), which accesses HDFS on the 
+			client’s behalf using the usual DistributedFileSystem API.
+		- Directory listings are served by the namenode’s embedded web server (which runs on port 50070) 
+			formatted in XML or JSON, while file data is streamed from datanodes by their web servers 
+			(running on port 50075)
+		- The second way of accessing HDFS over HTTP relies on one or more standalone proxy 
+			servers. (The proxies are stateless so they can run behind a standard load balancer.) All
+			traffic  to  the  cluster  passes  through  the  proxy	
+		- The original  HTTP interface (HFTP and HSFTP) was read-only
+		- The new WebHDFS implementation supports all filesystem operations, including Kerberos 
+			authentication. WebHDFS must be enabled by setting dfs.webhdfs.enabled to true
+
+	- Hadoop provides a C library called libhdfs that mirrors the Java FileSystem interface.
+
+	- FUSE: Filesystem in Userspace (FUSE) 
+
+	- The Java Interface
+		Example   3-1.   Displaying   files   from   a   Hadoop   filesystem   on   standard   output   using   a
+		URLStreamHandler
+
+		public class URLCat {
+		  static {
+			URL.setURLStreamHandlerFactory(new FsUrlStreamHandlerFactory());
+		  }
+
+		  public static void main(String[] args) throws Exception {
+			InputStream in = null;
+			try {
+			  in = new URL(args[0]).openStream();
+			  IOUtils.copyBytes(in, System.out, 4096, false);
+			} finally {
+			  IOUtils.closeStream(in);
+			}
+		  }
+		}
+
+		setting up URLStreamHandler is not always possible hence below example
+
+		- A  file  in  a  Hadoop  filesystem  is  represented  by  a  Hadoop  Path  object  (and  not a java.io.File object)
+			-Path as a Hadoop filesystem URI, such as hdfs://localhost/user/tom/quangle.txt
+		-Rewriting above program
+
+		Example 3-2. Displaying files from a Hadoop filesystem on standard output by using the FileSystem
+		directly
+		public class FileSystemCat {
+		  public static void main(String[] args) throws Exception {
+			String uri = args[0];
+			Configuration conf = new Configuration();
+			FileSystem fs = FileSystem.get(URI.create(uri), conf);
+			InputStream in = null;
+			try {
+			  in = fs.open(new Path(uri));
+			  IOUtils.copyBytes(in, System.out, 4096, false);
+			} finally {
+			  IOUtils.closeStream(in);
+			}
+		  }
+		}
+
+	- HDFS’s coherency model:
+		-A coherency model for a filesystem describes the data visibility of reads and writes for
+		 a file
+		-Once more than a block’s worth of data has been written, the first block will be visible
+		 to new readers. This is true of subsequent blocks, too: it is always the current block being
+		 written that is not visible to other readers.
+		-it’s in the datanodes’ memory
+		-With no calls to hflush() or hsync(), you should be prepared to lose up to a block of data in
+		 the event of client or system failure
+		- 
+	-
+
+--------------------------------------------------------------------------------------------------------------
+
+	-*** Distributed Cache (on page 288)
+	-*** Anatomy of a MapReduce Job Run
+	-*** How much memory does a namenode need?
+	-*** Benchmarking a Hadoop Cluster
+
+	*** As described, the edits file would grow without bound. Though this state of affairs would have no impact on 
+	   the system while the namenode is running, if the namenode were restarted, it would take a long time to apply 
+	   each of the operations in its (very long) edit log. The solution is the checkPoint process.
+
+	***The filesystem image and edit log	
+	- When a filesystem client performs a write operation (such as creating or moving a file), it is first recorded in the edit log
+	- The namenode also has an in-memory representation of the filesystem metadata, which it updates 
+	  after the edit log has been modified. (may be this is concurrentSkipList)
+	- The in-memory metadata is used to serve read requests.
+	- The edit log is flushed and synced after every write before a success code is returned to the client.
+	- For namenodes that write to multiple directories, the write must be flushed and synced to every copy 
+	  before returning successfully. This ensures that no operation is lost due to machine failure.
+	- The ***fsimage file is a persistent checkpoint of the filesystem metadata.
+		- However, it is not  updated  for  every  filesystem  write  operation,  since  writing  out  the  
+		  fsimage  file, which can grow to be gigabytes in size, would be very slow
+		- ***This does not compromise resilience, however, because if the namenode fails, then the latest 
+		  state of its metadata can be reconstructed by loading the fsimage from disk into memory, 
+		  then applying each of the operations in the edit log.
+		- The fsimage file contains a serialized form of all the directory and file inodes in the filesystem.  
+		- Each inode is an internal representation of a file or directory’s metadata and contains such information 
+		  as the file’s replication  level,  modification  and  access  times,  access  permissions, block size, 
+		  and the blocks a file is made up of.
+		- The fsimage file does not record the datanodes on which the blocks are stored.  
+		- Instead the namenode keeps this mapping in memory, which it constructs by asking the datanodes for their
+		  block lists when they join the cluster and periodically afterward to ensure the namenode’s block mapping 
+		  is up-to-date.
+	- The checkpointing process: The solution is to run the secondary namenode, whose purpose is to produce check-points
+								 of the primary’s in-memory filesystem metadata.
+		1 The secondary asks the primary to roll its edits file, so new edits go to a new file
+		2 The secondary retrieves fsimage and edits from the primary (using HTTP GET).
+		3 The secondary loads fsimage into memory, applies each operation from edits, then creates a new consolidated fsimage file.
+		4 The secondary sends the new fsimage back to the primary (using HTTP POST).
+		5 The primary replaces the old fsimage with the new one from the secondary, and the old edits file with the new 
+		  one it started in step 1. It also updates the fstime file to record the time that the checkpoint was taken.
+
+		- At the end of the process, the primary has an up-to-date  fsimage file and a shorter edits  file
+		- It is possible for an administrator to run this process manually   while   the   namenode   is   
+		  in   safe   mode,   using   the   hadoop  dfsadmin -saveNamespace command.
+	- This procedure makes it clear why the secondary has similar memory requirements to the primary 
+	  (since it loads the fsimage into memory), which is the reason that the secondary needs a dedicated 
+	  machine on large clusters.
+	- Schedule of checkPoints: fs.checkpoint.period  in  seconds  
+	- The schedule for checkpointing is controlled by two configuration parameters. The secondary  namenode  
+	  checkpoints  every  hour  (fs.checkpoint.period  in  seconds)  or sooner if the edit log has reached 64 MB 
+	  (fs.checkpoint.size in bytes), which it checks every five minutes.
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+-----------------------------------------------------------------------------------------------------------------------------
+

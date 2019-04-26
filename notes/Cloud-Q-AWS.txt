@@ -1,0 +1,624 @@
+0.0.0.0/0 -> every other IP
+
+
+fplace
+1) Parag Jain: 11 am 
+2) Sujata Indalkar: Between 11:30 to 12 pm
+3) Sandeep Shivaji: Between 12:30 to 1 pm
+
+EC2
+EC2
+CloudWatch
+AMI
+
+Two origins are considered to be equal if they have the same protocol, host, and port  
+------------AWS as data back up and recovery--------------------------
+Data protection strategies:
+
+Durability: Amazon Simple Storage Service (Amazon S3) and Amazon Glacier are designed for 99.999999999% 
+			of durability for the objects stored in them. Both platforms offer reliable locations 
+			for backup data.
+Security: AWS provides a number of options for access control and encrypting data in transit and at rest.
+Global infrastructure: AWS services are available around the globe so you can back up and store data in 
+					   the region that meets your compliance requirements.			
+Compliance: AWS services are security certified like HIPPA, PCI etc 
+Scalability: With AWS, you don’t have to worry about capacity. You can scale your 
+			 consumption up or down as your needs change without administrative overhead.
+Lower TCO: The scale of AWS operations drives down service costs and helps lower the total 
+		   cost of ownership (TCO) of the storage. AWS passes these cost savings on to 
+		   customers in the form of price drops.			 
+Pay-as-you-go pricing: Purchase AWS services as you need them and only for the period you plan to use them. 
+						AWS pricing has no upfront fees, termination penalties, or long-term contracts.		   
+						
+						
+ File-level recovery
+ Volume-level recovery
+ Application-level recovery (for example, databases)
+ Image-level recovery
+
+------------SSH-----------------------
+Secure shell | https://www.ssh.com/ssh/protocol/ | https://www.ssh.com/ssh/command/
+ 
+The ssh command is used for
+-Logging into the remote machine, 
+-Transferring files between the two machines
+-Executing commands on the remote machine
+
+The traffic between the communicating parties is protected with industry standard strong 
+encryption algorithms (such as AES (Advanced Encryption Standard)), and the SSH protocol 
+also includes a mechanism that ensures the integrity of the transmitted data by using 
+standard hash algoritms (such as SHA-2 (Standard Hashing Algorithm)).
+
+ssh-keygen -t rsa -b 4096
+ssh-keygen -t dsa
+ssh-keygen -t ecdsa -b 521
+ssh-keygen -t ed25519
+SPECIFYING THE FILE 
+
+
+-----------------OOPs-----------------
+Q: Composition Vs Aggregation
+-----------------AWS pricing----------------------------------------
+-On demand pricing
+-Spot pricing: servers at minimum cost. AWS give discount as servers are not always used. bid for the minimum price and as the price go up, the server stops
+-Reserved pricing
+
+
+-----------------AWS Regions, AZ----------------------------------------
+-IAM is  global, AMIs are regional, instances belong to AZs, and so on.
+-
+
+-----------------Cloud Security---------------------
+Q: What are the possible vulnerabilities a web application be exposed to? 
+Q: What is session hijacking? 
+Q: Mention what happens when an application takes user inserted data and sends it to a 
+   web browser without proper validation and escaping?
+Q: What is SQL Injection? Could you give an example?
+Q: Explain what is OWASP ESAPI?
+----------------------------------------AWS-----------------------------------
+Marketplace: where commercial players create their AMI and make them avlbl
+community AMIs like ubuntu, which are free
+
+AMI: Image of server including OS, additional S/Web
+
+-------------------------------Spanning----------------------------------
+•	A placement group can't span multiple Availability Zones.
+•	A placement group can span peered 3s (but limitation)
+•	Reserved Instances provide a capacity reservation for EC2 instances in an Availability Zone
+•	IAM is a global service
+•	KMS keys should be created and used in same region.  
+------------------------------Pricing---------------------------------------
+•	There is no charge for creating a placement group
+•	Elastic IP: refer below
+
+----------------------------------------Elastic IP-----------------------------------
+• An Elastic IP address is for use in a specific region only
+• An Elastic IP address is associated with your AWS account
+• Limit of 5 or 4 EIPs in a region
+• EIP associated against a private IP (could be many) in a Elastic network interface (ENI)
+• 
+• 
+• 
+----------------------------------------AWS regions-----------------------------------
+
+--------------------------------AWS availability zones-----------------------------------
+• How do you choose availability zones
+
+-----------------Placement group-----------------------------------------------
+•	A placement group is a logical grouping of instances within a single Availability Zone. Placement groups
+	are recommended for applications that benefit from low network latency, high network throughput, or
+	both. To provide the lowest latency, and the highest packet-per-second network performance for your
+	placement group, choose an instance type that supports enhanced networking.
+•	Withing a placement group N/W flow of 20GBPS but outside fixed to 5 GBPS (full duplex i.e. In-Out)
+	The servers withing the PG interact with each other with above speed. Its not the internet speed.
+	
+-----------------CloudWatch---------------------
+Q: What is cloudwatch
+Q: Use case: Configure cloudwatch for 
+	-Logs
+	-Custom application data 
+--------------------IAM-------------------------
+Q: Users, Groups, Roles, Policies
+Q: Resource policy
+	-for an aws resource 2 policies are attached 1 allow and 1 deny. What will happen and why.
+Q: Secure communication between AWS services
+Q: AWS signature 4 
+Q: API key Vs AWS sign Vs auth0 or token management
+Q: What is use of aws userName/password vs accessKey and secret key
+Q: How will one store/configure passwords/secret keys in code
+--------------EC2-----------------
+Q: Docker vs AWS AMI
+Q: Elastic vs Private vs Public IPs
+Q: Pricing options of EC2
+	-On-Demand instances — Pay, by the hour, for the instances that you launch.
+	-Reserved Instances — Purchase, at a significant discount, instances that are always available, for a
+		term from one to three years.
+	-Scheduled Instances — Purchase instances that are always available on the specified recurring
+		schedule, for a one-year term.
+	-Spot instances — Bid on unused instances, which can run as long as they are available and your bid is
+		above the Spot price, at a significant discount.
+	-Dedicated hosts — Pay for a physical host that is fully dedicated to running your instances, and bring
+		your existing per-socket, per-core, or per-VM software licenses to reduce costs.
+	-Dedicated instances — Pay, by the hour, for instances that run on single-tenant hardware. 
+Q: To determine the instance lifecycle using the console
+	1. Open the Amazon EC2 console at https://console.aws.amazon.com/ec2/.
+	2. In the navigation pane, choose Instances.
+	3. Select the instance.
+	4. On the Description tab, find Tenancy. If the value is host, the instance is running on a Dedicated
+		Host. If the value is dedicated, the instance is a Dedicated Instance.
+	5. On the Description tab, find Lifecycle. If the value is spot, the instance is a Spot instance. If the
+		value is scheduled, the instance is a Scheduled Instance. If the value is normal, the instance is either
+		an On-Demand instance or a Reserved Instance.
+
+Q: 
+Q: 
+Q: 
+Q: 
+Q: 
+Q: 
+Q: 
+Q: 
+Q: 
+Q: 
+
+--------------ENI-----------------
+Elastic network interface
+
+
+--------------RDS-----------------
+
+
+--------------SQS-----------------
+Q: What is Queue
+   Offers a reliable, highly-scalable hosted queue for storing messages as they travel between 
+   applications or microservices. It moves data between distributed application components and 
+   helps you decouple these components. Amazon SQS provides familiar middleware constructs such 
+   as dead-letter queues and poison-pill management. It also provides a generic web services API 
+   and can be accessed by any programming language
+   - Use Amazon SQS when you need each unique message to be consumed only once.
+   - Amazon SQS tracks the ACK/FAIL results
+   - After a configured visibility timeout, Amazon SQS deletes acknowledged messages and redelivers 
+     failed messages
+   - Amazon SQS can process each buffered request independently, Amazon SQS can scale transparently 
+     to handle the load without any provisioning instructions from you.
+   - Amazon SQS locks the message during processing, keeping other parts of your system from processing
+     the message simultaneously. 
+   - Standard SQS has the issue of delivering duplicate 
+   - Access control: You control who can send messages to a queue, and who can receive messages from a queue
+   - To use Amazon SQS API actions (for example, using Java or through the AWS Command Line Interface),
+     you need an access key ID and a secret access key.
+   - When you request a message from a queue, you can't specify which message to get. Instead, you specify the
+     maximum number of messages (up to 10) that you want to get	.
+   - By default, a queue retains messages for four days after the message is sent/consumed
+   - After the message is received, it remains in the queue. To prevent other consumers from processing 
+     the message again, Amazon SQS sets a visibility timeout, a period of time during which 
+	 Amazon SQS prevents other consuming components from receiving and processing the message.
+   - Immediately after the message is received, it remains in the queue. To prevent other consumers from
+     processing the message again, Amazon SQS sets a visibility timeout, a period of time during which 
+	 Amazon SQS prevents other consuming components from receiving and processing the message.	 
+
+Q: AWS: multiple instances reading SQS? Multiple instance which processes the messages from a SQS queue. 
+   But how do I know that the instances aren't processing the same messages
+   - Delete the message once processed during the visibility timeout
+   - https://stackoverflow.com/questions/30187683/aws-multiple-instances-reading-sqs
+Q:  
+   
+   
+Q: Queue use cases
+   -Decoupling the components of an application
+   -Configuring individual message delay
+Q: Types of Queues:
+	-FIFO: Send data between applications when the order of events is important
+		-Limited through put
+		-First-In-First-Out Delivery order is maintained
+		-Exactly-Once Processing
+		-
+	-Standard: Send data between applications when the throughput is important
+		-High Throughput
+		-At-Least-Once Delivery – A message is delivered at least once, but occasionally more than one copy
+         of a message is delivered.
+		-Best-Effort Ordering – Occasionally, messages might be delivered in an order different from which they were sent. 
+Q: How will you check a duplicate message?
+   - Generate hash using SHA-256 hash to generate the message deduplication ID using the body of the message
+Q: Message lifecycle
+Q: Dead letter Q
+   - A dead-letter queue is a queue that other (source) queues can target for messages that can't be
+     processed (consumed) successfully.
+   - The dead-letter queue of a FIFO queue must also be a FIFO queue. Similarly, the dead-letter
+     queue of a standard queue must also be a standard queue.	 
+   - Configure the dead-letter queue, choose Use Redrive Policy. Enter the name of the existing 
+     Dead Letter Queue to which sources queues will send messages.	 
+Q: Poison-pill management
+--------------SNS-----------------
+Q: Diff b/w SQS and SNS | https://stackoverflow.com/questions/13681213/what-is-the-difference-between-amazon-sns-and-amazon-sqs
+   -SNS is a distributed publish-subscribe system. Messages are pushed to subscribers as and when 
+    they are sent by publishers to SNS. SNS where messages are immediately pushed to subscribers. 
+		- SNS supports several end points such as email, sms, http end point and SQS
+		- If you want unknown number and type of subscribers to receive messages, you need SNS.
+		
+   -SQS is distributed queuing system. Messages are NOT pushed to receivers. Receivers have to 
+    poll SQS to receive messages.
+		-Any one receiver can receive a message, process and delete it. Other receivers do not 
+		 receive the same message later.
+		-Polling inherently introduces some latency in message delivery in SQS 
+   -
+--------------lambda--------------
+Q: How concurrent requests are handled in AWS lambda
+   -Lambda provides a concurrent execution limit control at both the account level and the function level (1000)
+   -Functions scale automatically based on incoming request rate, but not all resources in your architecture 
+    may be able to do so. For example, relational databases have limits on how many concurrent connections 
+	they can handle. You can set the concurrent execution limit for a function to align with the values of 
+	its downstream resources support.
+   -
+Q: Throttling Behavior
+   -On reaching the concurrency limit associated with a function, any further invocation requests to that 
+    function are throttled, i.e. the invocation doesn't execute your function.
+Q: What is container in lambda
+   -AWS Lambda launches a container (that is, an execution environment) based on the configuration settings
+    you provided 
+   -AWS Lambda tries to reuse the container for subsequent invocations of the Lambda function.
+   -After a Lambda function is executed, AWS Lambda maintains the container for some time in anticipation
+	of another Lambda function invocation. In effect, the service freezes the container after a Lambda
+	function completes, and thaws the container for reuse, if AWS Lambda chooses to reuse the container
+	when the Lambda function is invoked again.	
+--------------step function--------------	
+
+
+--------------VPC--------------
+Q: What is VPC and its benefit
+		-Its like a N/W and not like any server
+		-5 VPC per region and 200 subnets per VPC
+		-VPC has subnets
+		-Private n/w of IPs
+		-Launches instances in a subnet
+		-Define custom IP range inside each subnet
+		-create layered n/w of resources
+		-Layered security
+			-security groups -> Instance | one at the resource level
+			-access control list -> Subnet | One at the N/W layer
+			-SG / ACL can block traffic only related to ports, protocol, sourceIp addresses 
+			
+		-Extend your n/w onto the cloud using VPG through
+		-Route tables within subnet
+		-To connect to a VPC u need ssh user accounts on your linux servers
+	Q: What is default and Non default VPC
+		Default VPC is created by the the AWS when you create new account 
+		where as any VPC created by you is a non-default VPC
+	Q: Components of an VPC 
+		-IP addressing
+		-Subnets: Public and private subnets
+			-public: can be accessed from the Internet.
+				-Instances withing public subnet are exposed to internet via Internet gateway and Elastic IPs
+				-If a public subnet has Internet gateway in its route table then its public subnet else not
+			-private: cannot be accessed from internet
+				-Instances in private subnet are not accessible to the outside world
+			-There can be multiple subnets in an AZ but there will be one ethernet in an AZ.	
+		-Route tables
+			-Used to determine that how the traffic will flow within the VPC and b/w the VPC and outside
+			-Each subnet in VPC must be associated with a route table
+			-A route table contains a set of rules called routes that determines where the N/W traffic is diverted
+		-Access control list
+			-At VPC level 
+			-Firewall at the n/w level in addition to the security groups
+			-An optional layer of security for VPC that act as a firewall for controlling the traffic 
+			 in and out of one or more subnets
+			-N/W ACLs has separate inbound and outbound rules and each rule can either allow or deny the traffic  
+		-VPC peering
+			-Connect 2 VPCs in same and different accounts
+			-Allows to connect b/w 2 VPCs via a direct network route using private IPs
+			-Can peer b/w same and different accounts
+			
+		[Components used to communicate b/w the VPCs and outside the VPC. Nat, Internet & Virtual gateway]
+		-Nat Instance and Gateway (N/W address translation)
+			-Used by the private subnets only on the outbound sites or traffic. 
+			 E.g. Instance to download s/w patches over internet
+			-Nat device forwards traffic from the instances in the private subnet to the internet or to the 
+			 other AWS services and sends response back to instances
+			-NAT device (N/W address translation)
+			-NAT gateway: provide better availability and bandwidth compare to NAT into
+			-NAT instance (N/W address translation): Its an EC2 which we have to manage
+		-Internet and virtual gateway
+			-Internet gateway is something that makes the public subnet available over internet
+			-Virtual gateway is used to create a VPN connection b/w your coorporate n/w and VPC
+			
+	Q: What is CIDR
+	Q: What is direct connect
+		-Its as VPN. it connects bypassing the internet. dedicated connection to the AWS.
+		-VPN is just a protocol for encrypting the internet connection b/w network and AWS.
+		 If you use internet then use VPN to secure it. 
+		 You can also use VPN with direct connect but nt required as its a dedicated connection.
+		-Ensure Direct connect is location specific.
+		
+	Q: What is transit VPC
+	   Use this to connect multiple Virtual Private Clouds (VPCs) that might be geographically disparate 
+	   and/or running in separate AWS accounts, to a common VPC that serves as a global network transit center.
+	Q: What is a jump host
+	Q: What is private link
+	Q: What is elastic IPs
+	Q: Security group
+		-Firewall
+		-Mandatory when launch an EC2
+		-Provides security at port and protocol level
+		-Act as a virtual firewall for your instance to control inbound and outbound traffic
+		-Security group act at the instance level and not at the subnet level
+		-Security groups are associated with network interfaces.
+		-500 security Grps per VPC
+		-Can specify allow rules but not deny rules
+	Q: Access control list
+		-
+	Q: Public and private IP addresses
+		-Private IPs are not reachable by over the internet
+		-Used to communicate between the instances in the VPC
+		
+		-Public IPs are reachable over the internet
+		-It can be used to communicate the instances and the internet or other AWS services that have the public endpoints
+		
+	Q: DNS hostnames
+	Q: Direct connect (leased client) Vs VPN
+		-Direct connect is as VPN. it connects bypassing the internet. dedicated connection to the AWS.
+		-VPN is just a protocol for encrypting the internet connection b/w network and AWS.
+		 If you use internet then use VPN to secure it. 
+		 You can also use VPN with direct connect but not required as its a dedicated connection.
+		-Direct connect (leased client) is a N/W service that provides an alternative to internet to utilize the AWS cloud services
+		-One end of the cable is connected to your router and other is connected to an AWS direct connect router
+		
+	Q: VPC usecases, 4 common use cases
+	   1: VPC with single public subnet
+		  Run a single tier public facing web application such as blog or simple website etc
+	   2: VPC with a public and private subnet
+		  Run a public facing web application while still maintaining the non-public back-end servers in private subnet 
+	   3: VPC with a public and private subnet and hardware VPN access
+	      Extend your data center into cloud and also directly access the internet from ur VPC
+	   4: VPC with only private subnet and hardware VPN access
+	      Extend your data center into cloud and leverage amazon infrastructure without exposing your network to the internet.
+	
+	Q: How to create a connection b/w two offices withoout a h/w VPN i.e. use software VPN.
+	   
+	Q: How networking happens within a VPC
+		Subnet -> route table (-local & -IGW)
+		subnet -> route table2 (-local) private subnet
+	
+	Q: What is a VPC endpoints (VPCE) 
+		-Usecase: want to access S3 without IGW i.e. to communicate in a private network
+		- can be used with S3 and dynamo DB		
+		
+	Q: VPC interface end points
+		- Other AWS services are mapped to ENIs and the communication is private
+		- EC2 to ENI (private) and ENI to other AWS services is also private
+		-
+		
+	Q: How to expand the VPC (using additional cidr range)
+	
+	Q: 
+	
+		
+	    1..m			1..1 ??
+	VPC ----> Subnet (route table) ----> Internet gateway (Public) 
+		----> Subnet (route table) ----> Nat gateway (private)
+		----> Subnet (route table) ----> Virtual gateway (to create VPN b/w instances and corporate n/w)
+
+	
+	VPC in 1 region only cannot span regions. Even peering across regions is future and not available as of now.
+	subnet in an availability zones cannot span in availability zones
+	
+	??? VPC is limited 5 per region. Is this 5 again for subaccount or 5 for a/c and sub-a/c
+SNS 
+	
+Subnet
+	Q: What is subnet and subnet mask
+		-Portion of network that shares common address components
+		-Subnets are defined by all devices that have the same prefix.
+ 		 e.g. all devices starting with 100.100.100 are part of same subnet
+		-Subnet mask is made by setting n/w bits to all 1s and host bits to all 0s
+		-Within a given network, 2 host addresses are reserved for special purposes and cannot be assigned to hosts
+		 The 0 address is assigned to n/w address and 255 is assigned to broadcast address.	
+		-Subnet mask classes 
+			-class A: 255.0.0.0 | N/W 8 bit Host 24 bit | very large n/w
+				No of n/w= 2^8 = 256
+				No of host= 2^24 - 2 = 16,777,214  
+			-class B: 255.255.0.0 | N/W 16 bit Host 16 bit | for medium n/w
+				No of n/w= 2^16 = 65,536
+				No of host= 2^16 - 2 = 65,534
+			-class C: 255.255.255.0 | N/W 24 bit Host 8 bit | for smaller n/ws
+				No of n/w= 2^24 - 2 = 16,777,214
+				No of host= 2^8 = 256
+	
+	
+--------------Ingress and egress traffic--------------
+--------------Elastic Bean stalk service--------------
+--------------AWS logging and monitoring--------------
+--------------AWS step functions--------------
+--------------AWS CFT--------------
+
+Serverless / lambda
+	Q: What is a cold start time in lambda?
+	Q: How multi-threading is taken care in AWS lambda?
+--------------Autoscaling and Load balancer-----------------------------------
+Q: Diff b/w scalability and Elasticity
+-Scalability is the increase in the h/w. Increase the specification of the server (RAM 2 to 4, HD 5TB 100TB etc)
+-Increase the no of servers rather than specification of the server (RAM 2 to 4, HD 5TB 100TB etc). But also
+	rolling back of the servers when there is no requirement
+Q: When to use a classic load balancer vs Application load balancer
+-App load balancer: When there is differntiation b/w the traffic like image vs compute. It is 
+ more suited for MS architecture and container based architecture
+-Classic: round robin load balancing 
+
+Q: What is connection draining in AWS?
+- Reroute traffic from instances which are to be updated or failed the health check.
+  It is enabled at the EC2 instance
+
+--------------Cloud concepts-----------------------------------
+
+Q: URI URL URN
+
+https://danielmiessler.com/study/url-uri/#gs.LA_zcW0
+
+	URI
+   /   \
+URN		URL
+	
+One can classify URIs as locators (URLs), or as names (URNs), or as both. A Uniform Resource Name (URN) 
+functions like a person’s name, while a Uniform Resource Locator (URL) resembles that person’s street address. 
+In other words: the URN defines an item’s identity, while the URL provides a method for finding it.
+
+-all URIs are URLs but all URLs are not URIs
+
+Q: Hybrid cloud vs Multi cloud
+Q: Auto scaling
+Q:	PaaS, SaaS, IaaS  | https://www.bmc.com/blogs/saas-vs-paas-vs-iaas-whats-the-difference-and-how-to-choose/
+	Software as a Service (SaaS), Platform as a Service (PaaS), and Infrastructure as a Service (IaaS).   
+	
+	SaaS utilizes the internet to deliver applications to its users, which are managed by a 
+	third-party vendor. A majority of SaaS applications are run directly through the web browser, 
+	and do not require any downloads or installations on the client side.
+	SaaS	Google Apps, Dropbox, Salesforce, Cisco WebEx, Concur, GoToMeeting
+	
+	Cloud platform services, or Platform as a Service (PaaS), provide cloud components to certain 
+	software while being used mainly for applications. PaaS provides a framework for developers 
+	that they can build upon and use to create customized applications. All servers, storage, 
+	and networking can be managed by the enterprise or a third-party provider while the developers 
+	can maintain management of the applications.
+	PaaS	AWS Elastic Beanstalk, Windows Azure, Heroku, Force.com, Google App Engine, Apache Stratos, OpenShift
+	
+	Cloud infrastructure services, known as Infrastructure as a Service (IaaS), are made of highly scalable 
+	and automated compute resources. IaaS is fully self-service for accessing and monitoring things 
+	like compute, networking, storage, and other services, and it allows businesses to purchase 
+	resources on-demand and as-needed instead of having to buy hardware outright
+	IaaS	DigitalOcean, Linode, Rackspace, Amazon Web Services (AWS), Cisco Metapod, Microsoft Azure, 
+	        Google Compute Engine (GCE)
+
+--------------REST concepts-----------------------------------
+Q: circuit breaker pattern
+Q: reactor pattern
+Q: Micro service architecture Definition and disadvantages:
+Q: Design E-Commerce API URL for 
+		Employee-> name, age, phone number and status
+		
+		To perform the CRUD operation like create/update/fetch/delete
+		
+		Get employees with status active
+		
+		Customer/employee/product/orders
+		
+		Exception handling - HTTP status codes
+		
+		Unit test case for a controller
+		
+		Authentication/Authorization
+--------------Dockers-----------------
+Q: Diff b/w traditional VM and docker container
+	-A single guest OS on host machine can run multiple applications. Thus making it fast and lightweight.
+	 Just think as running a VM without overhead of running an OS.
+	
+   Hierarchy
+	VM: server host->Hypervisor->(APP1)guestOS->bin/libs->App1
+							   ->(APP2)guestOS->bin/libs->App2
+	
+	Docker:server host->Hypervisor->GuestOS->DockerEngine->(APP1)bin/libs->App1
+														 ->(APP2)bin/libs->App1
+														 
+--------------Data Structure--------------------------------
+Q: Caching: Caches take advantage of the locality of reference principle: recently requested data is likely to be requested again
+ttl and limit size		
+
+Q: Design a data structure to optimally store full path of all the files/folder present in the Drive. The data structure to support search by file/folder name
+
+Q: Sum of two linkList (No reversing is allowed)
+		Step 1. Traverse the linked lists and push the elements in two different stacks
+		Step 2. Pop the top elements from both the stacks 
+		Step 3. Add the elements (+ any carry from previous additions) and store the carry in a temp variable
+		Step 4. Create a node with the sum and insert it into beginning of the result list
+
+Q: LRU cache implementation
+Q: Blocking Queue
+Q: URL shortnening:
+	design a URL shortening service like TinyURL. This service will provide short aliases redirecting to long URLs.
+			-Functional Requirements:
+
+				-Given a URL, our service should generate a shorter and unique alias of it. This is called a short link.
+				-When users access a short link, our service should redirect them to the original link.
+				-Users should optionally be able to pick a custom short link for their URL.
+				-Links will expire after a standard default timespan. Users should also be able to specify the expiration time.
+			
+				A reasonable question would be: what should be the length of the short key? 6, 8 or 10 characters?
+				-Encoding actual URL
+				-Generating keys offline
+			
+			-Non-Functional Requirements:
+				The system should be highly available. This is required because, if our service is down, 
+				all the URL redirections will start failing.
+				URL redirection should happen in real-time with minimal latency.
+				Shortened links should not be guessable (not predictable).
+				
+				
+-----------------------------------------------------------------------------------------------------------------
+EMR
+Q: How do you manage access in your EMR cluster (using IAM)
+Q: Core features of EMR
+	- Cost effective
+	- Flexible data stores (S3, dynamoDB, HDFS, AMZ Glacier)
+	- 
+Q: How EMR is cost effective
+	- low hourly pricing
+	- Amazon spot instance integration
+	- Amz reserved instance integration
+	- Elasticity
+	- AMZ S3 integration
+Q: How will you write to or load from S3 i.e. EMR S3 integration
+Q: How do you develop your application in EMR 
+	- Develop the application (java, pig etc)
+	- Upload application and data in S3 
+		-For large volume of data 
+			- direct connect
+			- import export 
+			- aws sdk 
+	- Configure and launch your cluster	
+	- Optionally monitor your cluster
+	- Retrieve the output
+Q: Architecture of EMR cluster
+	- Master instance group
+	- Core instance group (it has data associated i.e. has HDFS attached)
+	- Task instance group
+Q: How EMR manages a task failure	
+Q: real time streaming data logs and want to 
+	
+----------------------------------------------------------------------------------
+BigData:
+
+Q: Diff b/w Kerberos and other security protocols like LDAP
+Q: Use case to choose b/w SQL and No SQL data
+Q: What is serializable and why it is important 	
+Q: How authentication / security works in Hadoop cluster
+	1.Authentication.  The  client  authenticates  itself  to  the  Authentication  Server  and
+		 receives a timestamped Ticket-Granting Ticket (TGT).
+		
+		2.  Authorization. The client uses the TGT to request a service ticket from the Ticket-
+		Granting Server.
+		
+		3.  Service request. The client uses the service ticket to authenticate itself to the server
+		that is providing the service the client is using. In the case of Hadoop, this might
+		be the namenode or the resource manager.
+		
+		Together, the Authentication Server and the Ticket Granting Server form the Key Dis-
+		tribution Center (KDC). 
+Q:	Top N design pattern 
+ * Assumption: for all input (K, V), K's are non-unique.
+ * This class implements Top-N design pattern for N > 0.
+ * The main assumption is that for all input (K, V)'s, K's
+ * are non-unique. It means that you will find entries like
+ * (A, 2), ..., (A, 5),...
+ * 
+ * This is a general top-N algorithm which will work unique
+ * and non-unique keys.
+ *
+ * This class may be used to find bottom-N as well (by 
+ * just keeping N-smallest elements in the set.
+ * 
+ *  Top-10 Design Pattern: “Top Ten” Structure 
+Q: 
+Q: 
+Q: 
+Q: 
+Q: 
+Q: 
+

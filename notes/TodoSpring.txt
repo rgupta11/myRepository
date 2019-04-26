@@ -1,0 +1,717 @@
+intellij
+
+Containers:
+https://docs.docker.com/get-started/#containers-and-virtual-machines
+
+Docker is a platform for developers and sysadmins to develop, deploy, and run applications with containers
+#The use of Linux containers to deploy applications is called containerization. 
+
+A container is launched by running an image. 
+An image is an executable package that includes everything needed to run an application--the code, a runtime, libraries, environment variables, and configuration files.
+
+A container is a runtime instance of an image. What the image becomes in memory when executed (that is, an image with state, or a user process).
+
+
+Container vs VM
+-----------------
+A container runs natively on Linux and shares the kernel of the host machine with other containers. 
+It runs a discrete process, taking no more memory than any other executable, making it lightweight.
+
+By contrast, a virtual machine (VM) runs a full-blown “guest” operating system with virtual access 
+to host resources through a hypervisor. In general, VMs provide an environment with more resources 
+than most applications need.
+
+
+
+Hypervisor
+------------
+
+A hypervisor or virtual machine monitor (VMM) is computer software, firmware or hardware that creates and runs virtual machines. A computer on which a hypervisor runs one or more virtual machines is called a host machine, and each virtual machine is called a guest machine. The hypervisor presents the guest operating systems with a virtual operating platform and manages the execution of the guest operating systems.
+
+
+
+docker image ls
+docker container ls --all
+
+$ docker volume ls -qf dangling=true
+Eliminate all of them with
+$ docker volume rm $(docker volume ls -qf dangling=true)
+
+------------------------------------------------------------------------------------------------------------------------
+
+
+Git:
+---------------
+ git clone
+ git log --stat
+ git config --global color.ui auto  --> getting colored output
+ 
+ git diff <filename>
+ git diff <commit1 ID> <commit2 ID>
+ 
+ git checkout <filename>
+ git checkout <commit Id>
+  
+  
+ 
+
+
+
+-------------
+Spring guides
+https://spring.io/guides
+
+Spring boot
+http://docs.spring.io/spring-boot/docs/2.0.0.BUILD-SNAPSHOT/reference/htmlsingle/
+Getting started: https://spring.io/guides/gs/spring-boot/
+Samples: https://github.com/spring-projects/spring-boot/tree/master/spring-boot-samples
+
+-Features
+	-FailureAnalyzer
+	
+	-Run a packaged application with remote debugging support enabled.
+		-java -Xdebug -Xrunjdwp:server=y,transport=dt_socket,address=8000,suspend=n -jar target/myproject-0.0.1-SNAPSHOT.jar
+		-Enable Log 
+			java -jar myproject-0.0.1-SNAPSHOT.jar --debug
+		-Using mvn
+			-mvn spring-boot:run
+			-Use the useful operating system environment variable
+				export MAVEN_OPTS=-Xmx1024m
+		-gradle bootRun
+		
+		
+	-Customizing the Banner
+		-banner.location property to custom location
+		-also add a banner.gif, banner.jpg or banner.png image file to your classpath, or set a banner.image.location property.
+		-Banner variables: ${application.version}, ${application.title} etc
+		-banner-mode: "off"	
+	
+	-Fluent builder API: (multiple contexts with a parent/ child relationship using a SpringApplicationBuilder. 
+	
+	-Application events and listeners
+		-ContextRefreshedEvent
+		-Some events are actually triggered before the ApplicationContext is created so you cannot register a 
+		 listener on those as a @Bean. You can register them via the SpringApplication.addListeners(…)
+		-If you want those listeners to be registered automatically regardless of the way the application is 
+		 created you can add a META-INF/spring.factories 
+		 org.springframework.context.ApplicationListener=com.example.project.MyListener
+		-ApplicationStartingEvent
+		-ApplicationEnvironmentPreparedEvent
+		-ApplicationPreparedEvent		
+		-ApplicationReadyEvent
+		-ApplicationFailedEvent
+	
+	-Web environment
+		-A SpringApplication will attempt to create the right type of ApplicationContext on your behalf. 
+		 By default, an AnnotationConfigApplicationContext or AnnotationConfigServletWebServerApplicationContext 
+		 will be used 
+	
+	-Accessing application arguments 
+		-you can inject a org.springframework.boot.ApplicationArguments bean
+	
+	-Application Exit: SpringApplication will register a shutdown hook with the JVM to ensure that the ApplicationContext 
+	 is closed gracefully on exit
+		-may implement the org.springframework.boot.ExitCodeGenerator interface if they wish to return a specific exit code when the application ends.
+	
+	-Admin features
+		-spring.application.admin.enabled
+	
+	-Dev Tools
+	
+	-Configuring random values
+		The RandomValuePropertySource like my.secret=${random.value}
+		
+	-Accessing command line properties	
+		-By default SpringApplication will convert any command line option arguments (starting with ‘--’,e.g. --server.port=9000) to a property and add it to the Spring Environment.
+		
+	-	
+	
+?? AWS lambda
+	? authentication / Secure communication
+	? Versioning 
+	? service discovery
+	? jar Vs zip
+	
+	
+Dependency Injection
+-Dependency injection (DI) is a process whereby objects define their dependencies, that is, the other
+objects they work with, only through constructor arguments, arguments to a factory method, or properties
+that are set on the object instance after it is constructed or returned from a factory method. The container
+then injects those dependencies when it creates the bean. This process is fundamentally the inverse,
+hence the name Inversion of Control (IoC), of the bean itself controlling the instantiation or location of
+its dependencies on its own by using direct construction of classes, or the Service Locator pattern.
+
+https://www.codeproject.com/Articles/592372/Dependency-Injection-DI-vs-Inversion-of-Control-IO
+
+-If you see the program flow it’s not sequential, its event based. So now the control is inverted. So rather than the internal program controlling the flow, events drive the program flow. Event flow approach is more flexible as their no direct invocation which leads to more flexibility.
+
+-IOC (Inversion of control) is a general parent term while DI (Dependency injection) is a subset of IOC. IOC is a concept where the flow of application is inverted. So for example rather than the caller calling the method.
+
+-Summarizing the differences. 
+	Inversion of control :- It’s a generic term and implemented in several ways (events, delegates etc).
+	Dependency injection :- DI is a subtype of IOC and is implemented by constructor injection, setter injection or method injection.
+
+-Inversion of Control is a principle in software engineering by which the control of objects or portions of a program is transferred to a container or framework. It’s most often used in the context of object-oriented programming.
+
+-Inversion of Control can be achieved through various mechanisms such as: 
+	Strategy design pattern, Service Locator pattern, Factory pattern, and Dependency Injection (DI).	
+
+
+Annotations:
+------------
+Spring 4 cor	e container improvements are depicted by annotations
+
+@Autowired
+
+@Bean
+	-method produces a bean to be managed by the Spring container.
+	Typically, @Bean methods are declared within @Configuration classes
+	
+@Component
+	Such classes are considered as candidates for auto-detection when using annotation-based configuration and classpath scanning
+	special kind of component: e.g. the @Repository, @Controller, @Service
+@Controller
+	class is a "Controller" (e.g. a web controller).
+	specialization of @Component
+	It is typically used in combination with annotated handler methods based on the RequestMapping annotation.
+@ControllerAdvice
+@Configuration
+	-a class declares one or more @Bean methods and may be processed by the Spring container to generate bean definitions
+	-@Configuration classes are typically bootstrapped using either AnnotationConfigApplicationContext or its web-capable     	variant, AnnotationConfigWebApplicationContext.
+	-@Configuration is meta-annotated with @Component, therefore @Configuration classes are candidates for component scanning 
+	-@Configuration classes may not only be bootstrapped using component scanning, but may also themselves configure 
+	 component scanning using the @ComponentScan annotation:
+		@Configuration
+	    @ComponentScan("com.acme.app.services")
+		public class AppConfig {
+@ConstructorProperties
+	-JDK annotation to explicitly name your constructor arguments
+	
+		
+@dependsOn
+
+@Inject
+	-Javax annotation
+	-Behaves similar to @Autowired
+	
+@Index
+@Import
+
+@JsonView
+
+@Lazy
+
+@MatrixVariable
+
+@Order: defined beans are defined that must be called in a specific order
+
+@PropertySource
+	-Annotation providing a convenient and declarative mechanism for adding a PropertySource to Spring's Environment. To be used in conjunction with @Configuration classes.
+		@Configuration
+		 @PropertySource("classpath:/com/myco/app.properties")
+		 public class AppConfig {
+
+@Repository
+	 specialization of @Component, allowing for implementation classes to be autodetected through classpath scanning.
+@RequestParam
+@RequestHeader
+@RequestScope
+	-@RequestScope annotation can be used to assign a component to the request scope
+@ResponseBody
+@Repeatable
+@Required
+	-use of the @Required annotation on a setter method can be used to make the property a required dependency.
+	-
+@Resource
+	Resources, which provides a convenient mechanism for reading an InputStream from locations defined in a URI syntax
+
+
+@Service
+	 class is a "Business Service Facade"
+	 serves as a specialization of @Component
+	 
+bean scope 	 
+	-@SessionScope annotation can be used to assign a component to the session scope
+	-@RequestScope annotation can be used to assign a component to the request scope
+	-@ApplicationScope annotation can be used to assign a component to the application scope.
+
+@Value
+-------------------------------------------------------------------
+
+Spring cheat sheet
+
+-Interceptors
+
+-PostProcessors
+	-bean post processors
+
+-PreProcessors
+
+-RequestContextListener
+
+-RequestContextFilter
+
+-EnvironmentPostProcessor
+
+
+	 
+-@Autowired Environment env;	 
+	-Gives access to environment properties
+	-Properties resolved through the Environment reside in one or more "property source" objects
+	-Beans managed within an ApplicationContext may register to be EnvironmentAware or @Inject the Environment in order to query profile state or resolve properties directly.
+	 
+-aliases
+	define multiple aliases of the same bean. A bean defined with x name else where can be aliased with y name 	 
+	used with @Bean 
+	
+-Constructor-based or setter-based DI?
+	Since you can mix constructor-based and setter-based DI, it is a good rule of thumb to use
+	constructors for mandatory dependencies and setter methods or configuration methods for
+	optional dependencies	
+
+-Bean creation: use of p-namespace(property) and c-namespace(constructor)
+	-works with XML, may work with @Bean
+	
+
+	
+-----------------------------------------------------------------------
+Security:
+SSL / TLS
+
+http://www.robinhowlett.com/blog/2016/01/05/everything-you-ever-wanted-to-know-about-ssl-but-were-afraid-to-ask/
+https://www.codeproject.com/Articles/326574/An-Introduction-to-Mutual-SSL-Authentication
+https://docs.oracle.com/cd/E16439_01/doc.1013/e13977/intro.htm
+https://www.ibm.com/support/knowledgecenter/SSRMWJ_6.0.0.18/com.ibm.isim.doc/securing/cpt/cpt_ic_security_ssl_scenario.htm
+
+**https://stackoverflow.com/questions/14875094/ssl-server-socket-want-auth-option
+
+Two basic types of encryption: symmetric algorithms: (also called “secret key”) use the same key for both encryption and decryption; asymmetric algorithms: (also called “public key”) use different keys for encryption and decryption.
+
+There are two Secure Shell (SSH) protocols that use public key cryptography for authentication. 
+	-The Transport Layer Protocol requires that a digital signature algorithm
+	(called the "public key algorithm") MUST be used to authenticate the
+	server to the client. 
+
+	-Additionally, the User Authentication Protocol allows for the use of a digital signature to
+	authenticate the client to the server ("publickey" authentication).
+	
+Pretty Good Privacy (PGP)	
+Online Certificate Status Protocol (OCSP)
+
+
+keystore vs truststore
+1)
+Main difference between trustStore vs keyStore is that trustStore (as name suggest) is used to store certificates from trusted Certificate authorities(CA) which is used to verify certificate presented by Server in SSL Connection while keyStore is used to store private key and own identity certificate
+
+2)| http://javarevisited.blogspot.in/2012/09/difference-between-truststore-vs-keyStore-Java-SSL.html
+TrustStore and keyStore are very much similar in terms of construct and structure as both are managed by keytoolcommand and represented by KeyStore programatically
+Only difference between trustStore and keyStore is what they store and there purpose
+In SSL handshake purpose of trustStore is to verify credentials and purpose of keyStore is to provide credential. keyStore in Java stores private key and certificates corresponding to there public keys and require if you are SSL Server or SSL requires client authentication. TrustStore stores certificates from third party, your Java application communicate or certificates signed by CA(certificate authorities like Verisign, Thawte, Geotrust or GoDaddy) which can be used to identify third party
+
+
+-"${…}" Placeholders that are resolved against JVM system properties at runtime.
+
+
+server.ssl.client-auth want vs need
+
+Previous versions of the TLS spec said "If client authentication is required by the server for the handshake to continue, it may respond with a fatal handshake failure alert.". This is the difference between need or want as implemented in the JSSE: using "need", the server responds with a fatal handshake failure, whereas using "want", the server carries on with the connection, but doesn't treat it as authenticated.
+
+
+45004655602	
+
+We can use several tools like OpenSSL, Keytool, etc. to generate a self-signed certificate. This is how we generate a key store (key bag) with keytool
+
+
+
+-----------------------------------------------------------------------
+https://moelholm.com/2016/08/16/spring-boot-enhance-your-logging/
+https://blog.jdriven.com/2017/04/correlate-services-logging-spring-boot/
+http://www.mammatustech.com/Home/microservices-news/microservices-distributed-logging-and-mdc-logging-mapped-diagnostic-context
+https://logback.qos.ch/manual/mdc.html
+http://www.baeldung.com/mdc-in-log4j-2-logback
+
+
+Spring boot logging:
+
+-Logging:
+Exception / Error
+Events
+
+https://moelholm.com/2016/08/16/spring-boot-enhance-your-logging/
+
+Distributed logging in a searchable format
+We added support for MDC to log the requests coming from Microservice you write like:
+
+-Correlation-ID
+-TimeElapsed in serving request
+-UserID
+-First name, last name
+-Request URI
+-remote address
+-browser/use-agent
+
+It helps to customize the Pattern used to log - and allows items to be properly pushed to LogStash
+This allows you to search, analyze and log streams from your microservices log to learn about usages of these services which is critical for debugging.
+
+MDC (Mapped Diagnostic Contexts) 
+
+Old:
+2016-08-16 21:57:56.269 INFO 29817 --- [o-auto-1-exec-1] com.moelholm.GreetingController : Request received. PathVariable is: [duke]
+
+New:
+2016-08-16 22:17:34.408 [userId:tux | requestId:3e21b7f3-3ba9-49b9-8390-4ab8987f995f] INFO 30158 --- [o-auto-1-exec-1] com.moelholm.GreetingController : Request received. PathVariable is: [duke]
+
+Mapped Diagnostic Context (MDC). MDC is a feature that is supported in the most modern Java logging frameworks, for example: Log4j, Log4j2, Logback 
+
+First you tell Spring Boot what MDC data to render. This property tells Spring Boot to render the MDC data variable mdcData just before the priority field in the log output
+[[ Put this in src/main/resources/application.properties. ]]
+logging.pattern.level=%X{mdcData}%5p
+
+https://blog.jdriven.com/2017/04/correlate-services-logging-spring-boot/
+
+What we need to do is add the correlation id to every call to a service. To do that we use the same convention we already used, we add the correlation id as a header to the call.
+In spring Boot we can solve that with another generic solution if we call services with the RestTemplate. Instead of adding the header manually in each service call we can add an Interceptor to the RestTemplate and add the header in there.
+
+
+you can also specify following in your application.properties.
+debug=true
+
+logging.level.org.springframework.web=DEBUG
+logging.level.com.teradata.tmc.sa.ms.orchestrator=DEBUG
+logging.level.org.hibernate=ERROR
+logging.level.root=WARN
+
+
+MDC data 
+logging.pattern.level=%X{mdcData}%5p
+
+
+logging.level.org.springframework.web.filter.CommonsRequestLoggingFilter=DEBUG
+
+	@Bean
+	public CommonsRequestLoggingFilter requestLoggingFilter() {
+	    CommonsRequestLoggingFilter loggingFilter = new CommonsRequestLoggingFilter();
+	    loggingFilter.setIncludeClientInfo(true);
+	    loggingFilter.setIncludeQueryString(true);
+	    loggingFilter.setIncludePayload(true);
+	    return loggingFilter;
+	}
+
+-----------------------------------------------------------------------
+Get exceptions as a String:
+String stacktrace = ExceptionUtils.getStacktrace(e);
+
+OR 
+
+StringWriter sw = new StringWriter();
+PrintWriter pw = new PrintWriter(sw);
+e.printStackTrace(pw);
+
+
+
+-----------------------------------------------------------------------
+REST API standards
+
+https://github.td.teradata.com/arb/standards/blob/master/apis/REST.md
+
+
+Create pagination guidelines
+Define rules for filter/query type parameters
+1 Overview
+This document defines the design and implementation standards that all Teradata product REST APIs should adopt. This document is not meant to be a beginners guide to REST, readers of this document are expected to be fluent in REST concepts.
+
+2 Design Standards
+The resource is the fundamental unit in RESTful API design. A resource is an object with a type, associated data, and relationships to other resources. A resource is identified by a URI and can be accessed or manipulated using HTTP methods such as GET, POST, PUT, DELETE, and PATCH.
+
+Resources can be grouped into collections. Each collection is homogeneous so that it contains only one type of resource. Resources can also exist outside any collection. In this case, we refer to these resources as singleton resources. Collections are themselves resources as well.
+
+Collection and singleton resources can exist globally, at the top level of an API, but can also be contained inside another resource. Collections or singleton resources contained within another resource are referred to as sub-collections or sub-resources.
+
+2.1 Resource URIs
+2.1.1 Use nouns, not verbs.
+Resources should be identified by nouns, not verbs. URIs should represent entities, not methods or remote procedure calls. Resources are manipulated using HTTP Methods (GET, POST, PUT, DELETE, and PATCH) and these methods act as the verbs that can be applied to resources. For example, if providing an API to start or abort a job, you should not have RPC style start and abort resources.
+
+POST /jobs/{job_id}/start
+POST /jobs/{job_id}/abort
+Instead, you should have a collection that represents the jobs and either add or delete the job from that collection.
+
+POST /jobs/{job_id}
+DELETE /jobs/{job_id}
+2.1.2 Resource names should be lower case and hyphen delimited.
+Resource names are URI paths, and as such the syntactical conventions for URI paths should be used. While URIs are case-insensitive, it is widely considered good practice from a simplicity standpoint to use lower case characters. Generally, these nouns should be a single word. If they are multiple words, they should be separated with a hyphen. They should not be underscore delimited, written in camel case, written in studly caps, nor should they ignore word separation.
+
+GET /car_dealers/123
+GET /carDealers/123
+GET /cardealers/123
+Instead, they should be all lower-case and multi-word names should be hyphen delimited. If the resource could be shortened to a single noun, the adjective can become a filter.
+
+GET /car-dealers/123
+2.1.3 Resource names should not be stateful.
+Resource names should be purely nouns, and should avoid including any additional qualifiers that are really stateful descriptions of the resource.
+
+GET /running-jobs/123
+Instead, they should use query properties to designate state as a filter instead of as part of the resource path.
+
+GET /jobs/123?type=running
+2.1.4 Collection resources should be plural nouns.
+A collection is plural by nature, and thus the name for a collection resource should be plural. For example, if providing an API to retrieve customers, you should not name the collection resource customer.
+
+GET /customer/123
+Instead, you should use the plural customers. The following segment of the URI path can identify the specific customer by name or ID (in our example 123).
+
+GET /customers/123
+2.1.5 Resource URI path heirarchy.
+URIs representing resource names should be heirarchical from least to most specificity. Each URI path segment should itself be a resource. The URI path segment succeeding a collection should be a unique name or ID associated with a resource contained in the collection. For example, a customers resource would contain the customer 123.
+
+GET /customers
+GET /customers/123
+A resource should only be contained within another resource to express some kind of contained in or scoped relationship. When a resource cannot exist or be uniquely identified without depending on another resource, it must be a sub-resource of that other resource. Going back to our previous example, it would be inappropriate to attach 123 to the americas collection because 123 is not an america, it is a customer. Additionally it is inappropriate to attach americas to the customers collection because americas is not a customer, it is a region.
+
+Inappropriate designation of americas as a customer and 123 as an america.
+
+GET /customers/americas/123
+Appropriate designation of 123 as a customer.
+
+GET /customers/123
+Appropriate designation of americas as a region.
+
+GET /regions/americas
+Appropriate heirarchical designation of 123 as a customer in the americas which is a region.
+
+GET /regions/americas/customers/123
+2.1.6 Request parameters are optional and not a replacement for HTTP methods.
+Request parameters should not be used in place of verbs in resource names.
+
+POST /jobs/{job_id}?action=start
+Request parameters may be used for searching, filtering, and sorting resources. Additionally request parameters may be used to adjust the projection of properties returned for resources. While most relevant for GET requests, it is not forbidden to leverage request parameters for other HTTP methods.
+
+TODO: Expand recommendations for request parameter usage in searching, filtering, sorting and projection.
+
+2.2 Resource Representations
+2.2.1 Resources should be represented using JSON.
+All Teradata REST API's should return JSON data by default.
+
+A GET request on a singleton resource should return a JSON Object
+
+{
+  "name": "job1"
+}
+While a GET request on a collection resource should return a JSON Array, usually of objects.
+
+[
+  {
+    "name": "job1"
+  },
+  {
+    "name": "job2"
+  }
+]
+2.2.2 Optionally joining linked resources into a response.
+A response may join other linked resources into the response body by passing a query parameter.
+
+GET /job/{job_id}?join=system
+The linked resource should be embedded into the object, as a property by the same name (system_id is the linked ID and should be embedded as system). This can be helpful to avoid multiple HTTP requests for resources.
+
+For example, a job may run on a system with a known ID. A separate request could be made to get the system resource, but if the API may choose to implement a joining feature.
+
+{
+  "name": "job1",
+  "system_id": 123,
+  "system": {
+    "name": "system1"
+  }
+}
+2.2.3 Dates and Times should be represented using ISO 8601
+Javascript uses the ISO 8601 standard when encoding and decoding dates and times in JSON. It is a human readable format so it makes it easy to understand date and time values when looking at resource representations. The exact ISO 8601 format to use is:
+
+Date & Time: YYYY-MM-DDTHH:mm:ss[.sss]Z
+Date Only: YYYY-MM-DD
+Time Only: HH:mm:ss[.sss]Z
+Note that the sub-second portion of the time string is optional; and if provided, can be of any precision (although three digits is preferred).
+
+Dates and times should be represented in UTC (denoted by the trailing "Z" in the format).
+
+One implementation of this is specified by the Javascript toISOString function: YYYY-MM-DDTHH:mm:ss.sssZ
+
+2.2.4 Response schemas should follow these guidelines
+The response body should follow these basic guidelines:
+
+Always name the id property with the name. Don't use id as the key, use a format like job_id.
+Use underscores not camelCase for multiword properties. Use system_type, not systemType or SystemType.
+Use arrays when you have a list of items, and use objects for single items. Don't use an object to describe a list of things.
+Unless explicitly requested, keep objects shallow. Don't have unnecessary object structures that nest deeper levels of properties if you can avoid it.
+There may always be reasons or tradeoffs for changing it, but stay along these guidelines as much as possible.
+2.3 HTTP Method Usage
+The standard REST HTTP methods are GET, PUT, POST, and DELETE. In addition, PATCH can be used instead of PUT to update only a fraction of the fields on a resource.
+
+2.3.1 Safe and idempotent methods.
+Method usage must conform to the safe and idempotent requirements of the HTTP spec. Safe methods are methods that do not modify resources. Idempotent methods are methods that can be called many times without different outcomes. The table below lists the expected properties of each of the standard HTTP methods.
+
+Method	Safe	Idempotent
+GET	✅	✅
+POST	❌	❌
+PUT	❌	✅
+PATCH	❌	❌
+DELETE	❌	✅
+2.3.2 Methods should be used in appropriate manner
+GET may not be used to modify a resource.
+
+DELETE should be reserved for removing resources.
+
+PUT and POST should be used to create new resources.
+
+POST must be used when the resource identifier is system generated. For example, to create /systems/123 where 123 is a system generated {system_id}.
+
+POST /systems/
+PUT may be used when the resource identifier is known upfront.
+
+PUT /systems/{system_id}
+PUT and PATCH should be used to update resources.
+
+PATCH may be used to allow clients to update only a subset of a resource's fields if PUT requires the entire resource to be submitted.
+
+2.3.3 Responses when creating or updating a resource.
+Responses to PUT, POST, or PATCH should be similar to a GET on the resource after it is created or updated.
+
+2.3.4 Location header in POST responses
+When a POST succeeds (HTTP 201 response), the response should include a Location header. The value of the Location header should be an URL to the created resource, suitable for a subsequent GET request.
+
+Location: https://api.teradata.com/api/v1/users/2e78eee7-40d2-4cb4-982c-dff464def6b9
+2.3.5 Resource ID in POST responses
+When a POST succeeds (HTTP 201 response), if the resource has a unique id that represents the resource then the POST response should include a X-Resource-Id header containing that id. Providing this header makes it easier for clients to acquire this id rather than requiring them to parse the “Location” header or having to return it in the payload.
+
+X-Resource-Id: 2e78eee7-40d2-4cb4-982c-dff464def6b9
+2.4 Error Handling
+2.4.1 Respond with semantically accurate HTTP status codes.
+Your REST API should always return sensible, semantically accurate HTTP status codes. In general the 4xx range is used to indicate a client error and the 5xx range to indicate server errors.
+
+2.4.2 Return a JSON object with error details.
+Any HTTP response with status code 4xx or 5xx should include a JSON object in the response body including a user readable message and an optional error code if the HTTP status code is not granular enough. If possible, a URL to documentation about this error should also be included.
+
+{
+  "message": "A user, database or role with the specified name already exists.",
+  "documentation": "https://example.com/errors/5612-user-database-role-name-already-exists",
+  "error": "5612"
+}
+2.5 API Versioning
+API versioning is accomplished by including an optional version number in the URL.
+
+GET /api/v8/example-resource
+While REST applications built on the first version of the Java-based Teradata REST Framework which leveraged HTTP content negotiation is supported, future APIs and frameworks should favor URL based versioning.
+
+2.5.1 Version numbers.
+Version numbers must start with a v followed by an integer and be specified immediately after the API root URL. For example, if the root of the API is found at /api then GET on the root of version 8 of the API would be as follows:
+
+GET /api/v8
+If you were wanting to GET the /customers/123 resource for version 8 of an API rooted at / you may not reference that resource as:
+
+GET /version8/customers/123
+GET /v8.0/customers/123
+GET /customers/123/v8
+You should reference the resource as:
+
+GET /v8/customers/123
+2.5.2 If no version is specified, the latest API version should be assumed.
+Specifying a API version should be optional. If v8 is the latest version, then the following API requests are equivalent.
+
+GET /v8/customers/123
+GET /customers/123
+2.5.3 API version requested should be included in hypermedia links.
+Should any hypermedia links to other API endpoints be returned in a resource, they should use the same API version requested by the client. For example, the following requests and responses ensure that subsequent API calls based on linked resources leverage the same API version.
+
+GET /example-resource
+{
+  "resource": "https://example.com/example-resource"
+}
+When an explicit version is requested then all resource links in the response should include that same version.
+
+GET /v1/example-resource
+{
+  "resource": "https://example.com/v1/example-resource"
+}
+2.5.4 Root API resource responses.
+A GET request on the API root resource should minimally return the API version and top level collection endpoints. For example, if the root of the API is /, then a GET on / should return something like:
+
+{
+  "version": "v8",
+  "jobs": "https://example.com/jobs",
+  "systems": "https://example.com/systems",
+  "users": "https://example.com/users"
+}
+Using the above example, if a client sends a GET request to /v7, it should return something like:
+
+{
+  "version": "v7",
+  "jobs": "https://example.com/v7/jobs",
+  "systems": "https://example.com/v7/systems"
+}
+Making the latest API version supported discoverable allows clients to determine what functionality may or not be available if a later version of particular client is pointed towards an older REST API implementation.
+
+3 Implementation Standards
+3.1 General
+3.1.1 Provide support for HTTPS.
+All REST implementations must provide support enabling HTTPS using a customer provided SSL certificate.
+
+3.1.2 Enable cross-origin resource sharing (CORS).
+To enable REST APIs to be accessed by client code in a browser, the REST service must support CORS. OPTION requests should include appropriate CORS headers, though the specific values may vary.
+
+The following is an example of a CORS header that allows all requests:
+
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Methods: HEAD, GET, PUT, POST, PATCH, DELETE
+Access-Control-Allow-Headers: Authorization
+Access-Control-Expose-Headers: Links
+3.1.3 Pagination
+Any REST APIs that return an array of objects must accept URL query parameters to paginate the data, along with returning headers that express the total number of elements in the array, the size of the page, the current page, and the total number of pages. Pagination is essential for reducing network latency when pulling large amounts of data.
+
+The following example shows querying an array of 1000 user objects:
+
+GET https://api.teradata.com/users?perPage=50&page=2
+In this example, the API is requesting that page 2 where each page has 50 elements (array indices 50-99) is returned.
+
+The following headers should be included with the response:
+
+X-Length: 50
+X-Page: 2
+X-Total: 1000
+X-Total-Pages: 20
+In the return example, note that the headers are indicating that the body has returned page 2 of 50 objects, there are 1000 total user objects, and 20 total pages. X-Length should define the total number of records returned by the API. In the event there are only 25 records returned on a page size of 50, X-Length should be 25.
+
+Note: X- prefixed headers are non-standard, and need to be added to the allowed headers in CORS.
+
+3.1.4 Timestamps
+Timestamps from the API should be formatted to the ISO8601 RFC3339 standard. The following timestamp format is RFC3339 compliant:
+
+1985-04-12T23:20:50.52Z
+This represents 20 minutes and 50.52 seconds after the 23rd hour of April 12th, 1985 in UTC. It is preferrable that all timestamps are standardized to UTC (often referred to as Zulu, or Z time.)
+
+-----------------------------------------------------------------------
+-----------------------------------------------------------------------
+Messages integration
+
+Robust messaging system(distributed system):
+Scenarios where messaging can fail:
+-Networks are unreliable.
+-Networks are slow.
+-Any two applications are different.
+-Change is inevitable.	(one system changes, all other systems may be affected. An integration solution needs 
+						to minimize the dependencies from one system to another by using loose 
+						coupling between applications)
+
+Throttling. A problem with remote procedure calls is that too many of them on a single
+receiver at the same time can overload the receiver.						
+						
+The reason messaging is more reliable than RPC is that messaging uses a store and forward approach to transmitting messages	
+
+-Mediator pattern
+-Request-Reply Pattern
+					
+
+RFC 5322
+					
+Amazon SES constructs an email message compliant
+with the Internet Message Format specification (RFC 5322). An email consists of a header, a body, and an
+envelope, as described below.
+
+					
+					

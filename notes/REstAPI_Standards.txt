@@ -1,0 +1,272 @@
+REST API Standards
+
+
+Create pagination guidelines
+Define rules for filter/query type parameters
+1 Overview
+This document defines the design and implementation standards that all Teradata product REST APIs should adopt. This document is not meant to be a beginners guide to REST, readers of this document are expected to be fluent in REST concepts.
+
+2 Design Standards
+The resource is the fundamental unit in RESTful API design. A resource is an object with a type, associated data, and relationships to other resources. A resource is identified by a URI and can be accessed or manipulated using HTTP methods such as GET, POST, PUT, DELETE, and PATCH.
+
+Resources can be grouped into collections. Each collection is homogeneous so that it contains only one type of resource. Resources can also exist outside any collection. In this case, we refer to these resources as singleton resources. Collections are themselves resources as well.
+
+Collection and singleton resources can exist globally, at the top level of an API, but can also be contained inside another resource. Collections or singleton resources contained within another resource are referred to as sub-collections or sub-resources.
+
+2.1 Resource URIs
+2.1.1 Use nouns, not verbs.
+Resources should be identified by nouns, not verbs. URIs should represent entities, not methods or remote procedure calls. Resources are manipulated using HTTP Methods (GET, POST, PUT, DELETE, and PATCH) and these methods act as the verbs that can be applied to resources. For example, if providing an API to start or abort a job, you should not have RPC style start and abort resources.
+
+POST /jobs/{job_id}/start
+POST /jobs/{job_id}/abort
+Instead, you should have a collection that represents the jobs and either add or delete the job from that collection.
+
+POST /jobs/{job_id}
+DELETE /jobs/{job_id}
+2.1.2 Resource names should be lower case and hyphen delimited.
+Resource names are URI paths, and as such the syntactical conventions for URI paths should be used. While URIs are case-insensitive, it is widely considered good practice from a simplicity standpoint to use lower case characters. Generally, these nouns should be a single word. If they are multiple words, they should be separated with a hyphen. They should not be underscore delimited, written in camel case, written in studly caps, nor should they ignore word separation.
+
+GET /car_dealers/123
+GET /carDealers/123
+GET /cardealers/123
+Instead, they should be all lower-case and multi-word names should be hyphen delimited. If the resource could be shortened to a single noun, the adjective can become a filter.
+
+GET /car-dealers/123
+2.1.3 Resource names should not be stateful.
+Resource names should be purely nouns, and should avoid including any additional qualifiers that are really stateful descriptions of the resource.
+
+GET /running-jobs/123
+Instead, they should use query properties to designate state as a filter instead of as part of the resource path.
+
+GET /jobs/123?type=running
+2.1.4 Collection resources should be plural nouns.
+A collection is plural by nature, and thus the name for a collection resource should be plural. For example, if providing an API to retrieve customers, you should not name the collection resource customer.
+
+GET /customer/123
+Instead, you should use the plural customers. The following segment of the URI path can identify the specific customer by name or ID (in our example 123).
+
+GET /customers/123
+2.1.5 Resource URI path heirarchy.
+URIs representing resource names should be heirarchical from least to most specificity. Each URI path segment should itself be a resource. The URI path segment succeeding a collection should be a unique name or ID associated with a resource contained in the collection. For example, a customers resource would contain the customer 123.
+
+GET /customers
+GET /customers/123
+A resource should only be contained within another resource to express some kind of contained in or scoped relationship. When a resource cannot exist or be uniquely identified without depending on another resource, it must be a sub-resource of that other resource. Going back to our previous example, it would be inappropriate to attach 123 to the americas collection because 123 is not an america, it is a customer. Additionally it is inappropriate to attach americas to the customers collection because americas is not a customer, it is a region.
+
+Inappropriate designation of americas as a customer and 123 as an america.
+
+GET /customers/americas/123
+Appropriate designation of 123 as a customer.
+
+GET /customers/123
+Appropriate designation of americas as a region.
+
+GET /regions/americas
+Appropriate heirarchical designation of 123 as a customer in the americas which is a region.
+
+GET /regions/americas/customers/123
+2.1.6 Request parameters are optional and not a replacement for HTTP methods.
+Request parameters should not be used in place of verbs in resource names.
+
+POST /jobs/{job_id}?action=start
+Request parameters may be used for searching, filtering, and sorting resources. Additionally request parameters may be used to adjust the projection of properties returned for resources. While most relevant for GET requests, it is not forbidden to leverage request parameters for other HTTP methods.
+
+TODO: Expand recommendations for request parameter usage in searching, filtering, sorting and projection.
+
+2.2 Resource Representations
+2.2.1 Resources should be represented using JSON.
+All Teradata REST API's should return JSON data by default.
+
+A GET request on a singleton resource should return a JSON Object
+
+{
+  "name": "job1"
+}
+While a GET request on a collection resource should return a JSON Array, usually of objects.
+
+[
+  {
+    "name": "job1"
+  },
+  {
+    "name": "job2"
+  }
+]
+2.2.2 Optionally joining linked resources into a response.
+A response may join other linked resources into the response body by passing a query parameter.
+
+GET /job/{job_id}?join=system
+The linked resource should be embedded into the object, as a property by the same name (system_id is the linked ID and should be embedded as system). This can be helpful to avoid multiple HTTP requests for resources.
+
+For example, a job may run on a system with a known ID. A separate request could be made to get the system resource, but if the API may choose to implement a joining feature.
+
+{
+  "name": "job1",
+  "system_id": 123,
+  "system": {
+    "name": "system1"
+  }
+}
+2.2.3 Dates and Times should be represented using ISO 8601
+Javascript uses the ISO 8601 standard when encoding and decoding dates and times in JSON. It is a human readable format so it makes it easy to understand date and time values when looking at resource representations. The exact ISO 8601 format to use is:
+
+Date & Time: YYYY-MM-DDTHH:mm:ss[.sss]Z
+Date Only: YYYY-MM-DD
+Time Only: HH:mm:ss[.sss]Z
+Note that the sub-second portion of the time string is optional; and if provided, can be of any precision (although three digits is preferred).
+
+Dates and times should be represented in UTC (denoted by the trailing "Z" in the format).
+
+One implementation of this is specified by the Javascript toISOString function: YYYY-MM-DDTHH:mm:ss.sssZ
+
+2.2.4 Response schemas should follow these guidelines
+The response body should follow these basic guidelines:
+
+Always name the id property with the name. Don't use id as the key, use a format like job_id.
+Use underscores not camelCase for multiword properties. Use system_type, not systemType or SystemType.
+Use arrays when you have a list of items, and use objects for single items. Don't use an object to describe a list of things.
+Unless explicitly requested, keep objects shallow. Don't have unnecessary object structures that nest deeper levels of properties if you can avoid it.
+There may always be reasons or tradeoffs for changing it, but stay along these guidelines as much as possible.
+2.3 HTTP Method Usage
+The standard REST HTTP methods are GET, PUT, POST, and DELETE. In addition, PATCH can be used instead of PUT to update only a fraction of the fields on a resource.
+
+2.3.1 Safe and idempotent methods.
+Method usage must conform to the safe and idempotent requirements of the HTTP spec. Safe methods are methods that do not modify resources. Idempotent methods are methods that can be called many times without different outcomes. The table below lists the expected properties of each of the standard HTTP methods.
+
+Method	Safe	Idempotent
+GET	✅	✅
+POST	❌	❌
+PUT	❌	✅
+PATCH	❌	❌
+DELETE	❌	✅
+2.3.2 Methods should be used in appropriate manner
+GET may not be used to modify a resource.
+
+DELETE should be reserved for removing resources.
+
+PUT and POST should be used to create new resources.
+
+POST must be used when the resource identifier is system generated. For example, to create /systems/123 where 123 is a system generated {system_id}.
+
+POST /systems/
+PUT may be used when the resource identifier is known upfront.
+
+PUT /systems/{system_id}
+PUT and PATCH should be used to update resources.
+
+PATCH may be used to allow clients to update only a subset of a resource's fields if PUT requires the entire resource to be submitted.
+
+2.3.3 Responses when creating or updating a resource.
+Responses to PUT, POST, or PATCH should be similar to a GET on the resource after it is created or updated.
+
+2.3.4 Location header in POST responses
+When a POST succeeds (HTTP 201 response), the response should include a Location header. The value of the Location header should be an URL to the created resource, suitable for a subsequent GET request.
+
+Location: https://api.teradata.com/api/v1/users/2e78eee7-40d2-4cb4-982c-dff464def6b9
+2.3.5 Resource ID in POST responses
+When a POST succeeds (HTTP 201 response), if the resource has a unique id that represents the resource then the POST response should include a X-Resource-Id header containing that id. Providing this header makes it easier for clients to acquire this id rather than requiring them to parse the “Location” header or having to return it in the payload.
+
+X-Resource-Id: 2e78eee7-40d2-4cb4-982c-dff464def6b9
+2.4 Error Handling
+2.4.1 Respond with semantically accurate HTTP status codes.
+Your REST API should always return sensible, semantically accurate HTTP status codes. In general the 4xx range is used to indicate a client error and the 5xx range to indicate server errors.
+
+2.4.2 Return a JSON object with error details.
+Any HTTP response with status code 4xx or 5xx should include a JSON object in the response body including a user readable message and an optional error code if the HTTP status code is not granular enough. If possible, a URL to documentation about this error should also be included.
+
+{
+  "message": "A user, database or role with the specified name already exists.",
+  "documentation": "https://example.com/errors/5612-user-database-role-name-already-exists",
+  "error": "5612"
+}
+2.5 API Versioning
+API versioning is accomplished by including an optional version number in the URL.
+
+GET /api/v8/example-resource
+While REST applications built on the first version of the Java-based Teradata REST Framework which leveraged HTTP content negotiation is supported, future APIs and frameworks should favor URL based versioning.
+
+2.5.1 Version numbers.
+Version numbers must start with a v followed by an integer and be specified immediately after the API root URL. For example, if the root of the API is found at /api then GET on the root of version 8 of the API would be as follows:
+
+GET /api/v8
+If you were wanting to GET the /customers/123 resource for version 8 of an API rooted at / you may not reference that resource as:
+
+GET /version8/customers/123
+GET /v8.0/customers/123
+GET /customers/123/v8
+You should reference the resource as:
+
+GET /v8/customers/123
+2.5.2 If no version is specified, the latest API version should be assumed.
+Specifying a API version should be optional. If v8 is the latest version, then the following API requests are equivalent.
+
+GET /v8/customers/123
+GET /customers/123
+2.5.3 API version requested should be included in hypermedia links.
+Should any hypermedia links to other API endpoints be returned in a resource, they should use the same API version requested by the client. For example, the following requests and responses ensure that subsequent API calls based on linked resources leverage the same API version.
+
+GET /example-resource
+{
+  "resource": "https://example.com/example-resource"
+}
+When an explicit version is requested then all resource links in the response should include that same version.
+
+GET /v1/example-resource
+{
+  "resource": "https://example.com/v1/example-resource"
+}
+2.5.4 Root API resource responses.
+A GET request on the API root resource should minimally return the API version and top level collection endpoints. For example, if the root of the API is /, then a GET on / should return something like:
+
+{
+  "version": "v8",
+  "jobs": "https://example.com/jobs",
+  "systems": "https://example.com/systems",
+  "users": "https://example.com/users"
+}
+Using the above example, if a client sends a GET request to /v7, it should return something like:
+
+{
+  "version": "v7",
+  "jobs": "https://example.com/v7/jobs",
+  "systems": "https://example.com/v7/systems"
+}
+Making the latest API version supported discoverable allows clients to determine what functionality may or not be available if a later version of particular client is pointed towards an older REST API implementation.
+
+3 Implementation Standards
+3.1 General
+3.1.1 Provide support for HTTPS.
+All REST implementations must provide support enabling HTTPS using a customer provided SSL certificate.
+
+3.1.2 Enable cross-origin resource sharing (CORS).
+To enable REST APIs to be accessed by client code in a browser, the REST service must support CORS. OPTION requests should include appropriate CORS headers, though the specific values may vary.
+
+The following is an example of a CORS header that allows all requests:
+
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Methods: HEAD, GET, PUT, POST, PATCH, DELETE
+Access-Control-Allow-Headers: Authorization
+Access-Control-Expose-Headers: Links
+3.1.3 Pagination
+Any REST APIs that return an array of objects must accept URL query parameters to paginate the data, along with returning headers that express the total number of elements in the array, the size of the page, the current page, and the total number of pages. Pagination is essential for reducing network latency when pulling large amounts of data.
+
+The following example shows querying an array of 1000 user objects:
+
+GET https://api.teradata.com/users?perPage=50&page=2
+In this example, the API is requesting that page 2 where each page has 50 elements (array indices 50-99) is returned.
+
+The following headers should be included with the response:
+
+X-Length: 50
+X-Page: 2
+X-Total: 1000
+X-Total-Pages: 20
+In the return example, note that the headers are indicating that the body has returned page 2 of 50 objects, there are 1000 total user objects, and 20 total pages. X-Length should define the total number of records returned by the API. In the event there are only 25 records returned on a page size of 50, X-Length should be 25.
+
+Note: X- prefixed headers are non-standard, and need to be added to the allowed headers in CORS.
+
+3.1.4 Timestamps
+Timestamps from the API should be formatted to the ISO8601 RFC3339 standard. The following timestamp format is RFC3339 compliant:
+
+1985-04-12T23:20:50.52Z
+This represents 20 minutes and 50.52 seconds after the 23rd hour of April 12th, 1985 in UTC. It is preferrable that all timestamps are standardized to UTC (often referred to as Zulu, or Z time.)

@@ -1,0 +1,615 @@
+get the files
+hadoop-2.5.0.tar.gz
+hbase-0.98.6-hadoop2-bin.tar.gz
+
+cd /home/eip
+vi .bashrc
+# Hadoop
+export HADOOP_HOME=/home/eip/hadoop
+export HADOOP_MAPRED_HOME=$HADOOP_HOME
+export HADOOP_COMMON_HOME=$HADOOP_HOME
+export HADOOP_HDFS_HOME=$HADOOP_HOME
+export YARN_HOME=$HADOOP_HOME
+export HADOOP_COMMON_LIB_NATIVE_DIR=$HADOOP_HOME/lib/native
+export PATH=$PATH:$HADOOP_HOME/sbin:$HADOOP_HOME/bin
+export HADOOP_INSTALL=$HADOOP_HOME
+
+
+Now apply all the changes into the current running system.
+. .bashrc
+
+
+Unzip the Hadoop file:
+tar xzf hadoop-2.5.0.tar.gz
+
+[eip@localhost ~]$ tar xzf hadoop-2.5.0.tar.gz
+tar: Ignoring unknown extended header keyword `SCHILY.dev'
+tar: Ignoring unknown extended header keyword `SCHILY.ino'
+tar: Ignoring unknown extended header keyword `SCHILY.nlink'
+tar: Ignoring unknown extended header keyword `SCHILY.dev'
+tar: Ignoring unknown extended header keyword `SCHILY.ino'
+tar: Ignoring unknown extended header keyword `SCHILY.nlink'
+tar: Ignoring unknown extended header keyword `SCHILY.dev'
+tar: Ignoring unknown extended header keyword `SCHILY.ino'
+tar: Ignoring unknown extended header keyword `SCHILY.nlink'
+tar: Ignoring unknown extended header keyword `SCHILY.dev'
+tar: Ignoring unknown extended header keyword `SCHILY.ino'
+tar: Ignoring unknown extended header keyword `SCHILY.nlink'
+tar: Ignoring unknown extended header keyword `SCHILY.dev'
+tar: Ignoring unknown extended header keyword `SCHILY.ino'
+tar: Ignoring unknown extended header keyword `SCHILY.nlink'
+tar: Ignoring unknown extended header keyword `SCHILY.dev'
+tar: Ignoring unknown extended header keyword `SCHILY.ino'
+tar: Ignoring unknown extended header keyword `SCHILY.nlink'
+
+
+mv hadoop-2.5.0 hadoop
+
+cd $HADOOP_HOME/etc/hadoop
+
+export JAVA_HOME=/home/java
+
+Change the value for variable JAVA_HOME in script: hadoop-env.sh
+export JAVA_HOME=/home/java
+
+
+vi core-site.xml
+Add following configuration:
+<configuration>
+   <property>
+      <name>fs.default.name</name>
+      <value>hdfs://192.168.80.161:9000</value>
+   </property>
+</configuration>
+
+
+vi hdfs-site.xml
+<configuration>
+   <property>
+      <name>dfs.replication</name >
+      <value>1</value>
+   </property>
+
+   <property>
+      <name>dfs.name.dir</name>
+      <value>file:///home/eip/hadoop/hadoopinfra/hdfs/namenode</value>
+   </property>
+
+   <property>
+      <name>dfs.data.dir</name>
+      <value>file:///home/eip/hadoop/hadoopinfra/hdfs/datanode</value>
+   </property>
+</configuration>
+
+
+
+vi yarn-site.xml
+<configuration>
+<!-- Site specific YARN configuration properties -->
+   <property>
+      <name>yarn.nodemanager.aux-services</name>
+      <value>mapreduce_shuffle</value>
+   </property>
+</configuration>
+
+
+cp mapred-site.xml.template mapred-site.xml
+<configuration>
+   <property>
+      <name>mapreduce.framework.name</name>
+      <value>yarn</value>
+   </property>
+</configuration>
+
+
+
+Verify Hadoop Installation:
+============================
+
+Name Node Setup
+cd ~
+hdfs namenode -format
+15/06/18 12:13:47 INFO namenode.NameNode: STARTUP_MSG:
+/************************************************************
+STARTUP_MSG: Starting NameNode
+STARTUP_MSG:   host = localhost/127.0.0.1
+STARTUP_MSG:   args = [-format]
+STARTUP_MSG:   version = 2.5.0
+STARTUP_MSG:   classpath = /home/eip/hadoop/etc/hadoop:/home/eip/hadoop/share/hadoop/common/lib/activation-1.1.jar:/home/eip/hadoop/share/hadoop/common/lib/apacheds-i18n-2.0.0-M15.jar:/home/eip/hadoop/share/hadoop/common/lib/apacheds-kerberos-codec-2.0.0-M15.jar:/home/eip/hadoop/share/hadoop/common/lib/api-asn1-api-1.0.0-M20.jar:/home/eip/hadoop/share/hadoop/common/lib/api-util-1.0.0-M20.jar:/home/eip/hadoop/share/hadoop/common/lib/asm-3.2.jar:/home/eip/hadoop/share/hadoop/common/lib/avro-1.7.4.jar:/home/eip/hadoop/share/hadoop/common/lib/commons-beanutils-1.7.0.jar:/home/eip/hadoop/share/hadoop/common/lib/commons-beanutils-core-1.8.0.jar:/home/eip/hadoop/share/hadoop/common/lib/commons-cli-1.2.jar:/home/eip/hadoop/share/hadoop/common/lib/commons-codec-1.4.jar:/home/eip/hadoop/share/hadoop/common/lib/commons-collections-3.2.1.jar:/home/eip/hadoop/share/hadoop/common/lib/commons-compress-1.4.1.jar:/home/eip/hadoop/share/hadoop/common/lib/commons-configuration-1.6.jar:/home/eip/hadoop/share/hadoop/common/lib/commons-digester-1.8.jar:/home/eip/hadoop/share/hadoop/common/lib/commons-el-1.0.jar:/home/eip/hadoop/share/hadoop/common/lib/commons-httpclient-3.1.jar:/home/eip/hadoop/share/hadoop/common/lib/commons-io-2.4.jar:/home/eip/hadoop/share/hadoop/common/lib/commons-lang-2.6.jar:/home/eip/hadoop/share/hadoop/common/lib/commons-logging-1.1.3.jar:/home/eip/hadoop/share/hadoop/common/lib/commons-math3-3.1.1.jar:/home/eip/hadoop/share/hadoop/common/lib/commons-net-3.1.jar:/home/eip/hadoop/share/hadoop/common/lib/guava-11.0.2.jar:/home/eip/hadoop/share/hadoop/common/lib/hadoop-annotations-2.5.0.jar:/home/eip/hadoop/share/hadoop/common/lib/hadoop-auth-2.5.0.jar:/home/eip/hadoop/share/hadoop/common/lib/hamcrest-core-1.3.jar:/home/eip/hadoop/share/hadoop/common/lib/httpclient-4.2.5.jar:/home/eip/hadoop/share/hadoop/common/lib/httpcore-4.2.5.jar:/home/eip/hadoop/share/hadoop/common/lib/jackson-core-asl-1.9.13.jar:/home/eip/hadoop/share/hadoop/common/lib/jackson-jaxrs-1.9.13.jar:/home/eip/hadoop/share/hadoop/common/lib/jackson-mapper-asl-1.9.13.jar:/home/eip/hadoop/share/hadoop/common/lib/jackson-xc-1.9.13.jar:/home/eip/hadoop/share/hadoop/common/lib/jasper-compiler-5.5.23.jar:/home/eip/hadoop/share/hadoop/common/lib/jasper-runtime-5.5.23.jar:/home/eip/hadoop/share/hadoop/common/lib/java-xmlbuilder-0.4.jar:/home/eip/hadoop/share/hadoop/common/lib/jaxb-api-2.2.2.jar:/home/eip/hadoop/share/hadoop/common/lib/jaxb-impl-2.2.3-1.jar:/home/eip/hadoop/share/hadoop/common/lib/jersey-core-1.9.jar:/home/eip/hadoop/share/hadoop/common/lib/jersey-json-1.9.jar:/home/eip/hadoop/share/hadoop/common/lib/jersey-server-1.9.jar:/home/eip/hadoop/share/hadoop/common/lib/jets3t-0.9.0.jar:/home/eip/hadoop/share/hadoop/common/lib/jettison-1.1.jar:/home/eip/hadoop/share/hadoop/common/lib/jetty-6.1.26.jar:/home/eip/hadoop/share/hadoop/common/lib/jetty-util-6.1.26.jar:/home/eip/hadoop/share/hadoop/common/lib/jsch-0.1.42.jar:/home/eip/hadoop/share/hadoop/common/lib/jsp-api-2.1.jar:/home/eip/hadoop/share/hadoop/common/lib/jsr305-1.3.9.jar:/home/eip/hadoop/share/hadoop/common/lib/junit-4.11.jar:/home/eip/hadoop/share/hadoop/common/lib/log4j-1.2.17.jar:/home/eip/hadoop/share/hadoop/common/lib/mockito-all-1.8.5.jar:/home/eip/hadoop/share/hadoop/common/lib/netty-3.6.2.Final.jar:/home/eip/hadoop/share/hadoop/common/lib/paranamer-2.3.jar:/home/eip/hadoop/share/hadoop/common/lib/protobuf-java-2.5.0.jar:/home/eip/hadoop/share/hadoop/common/lib/servlet-api-2.5.jar:/home/eip/hadoop/share/hadoop/common/lib/slf4j-api-1.7.5.jar:/home/eip/hadoop/share/hadoop/common/lib/slf4j-log4j12-1.7.5.jar:/home/eip/hadoop/share/hadoop/common/lib/snappy-java-1.0.4.1.jar:/home/eip/hadoop/share/hadoop/common/lib/stax-api-1.0-2.jar:/home/eip/hadoop/share/hadoop/common/lib/xmlenc-0.52.jar:/home/eip/hadoop/share/hadoop/common/lib/xz-1.0.jar:/home/eip/hadoop/share/hadoop/common/lib/zookeeper-3.4.6.jar:/home/eip/hadoop/share/hadoop/common/hadoop-common-2.5.0-tests.jar:/home/eip/hadoop/share/hadoop/common/hadoop-common-2.5.0.jar:/home/eip/hadoop/share/hadoop/common/hadoop-nfs-2.5.0.jar:/home/eip/hadoop/share/hadoop/hdfs:/home/eip/hadoop/share/hadoop/hdfs/lib/asm-3.2.jar:/home/eip/hadoop/share/hadoop/hdfs/lib/commons-cli-1.2.jar:/home/eip/hadoop/share/hadoop/hdfs/lib/commons-codec-1.4.jar:/home/eip/hadoop/share/hadoop/hdfs/lib/commons-daemon-1.0.13.jar:/home/eip/hadoop/share/hadoop/hdfs/lib/commons-el-1.0.jar:/home/eip/hadoop/share/hadoop/hdfs/lib/commons-io-2.4.jar:/home/eip/hadoop/share/hadoop/hdfs/lib/commons-lang-2.6.jar:/home/eip/hadoop/share/hadoop/hdfs/lib/commons-logging-1.1.3.jar:/home/eip/hadoop/share/hadoop/hdfs/lib/guava-11.0.2.jar:/home/eip/hadoop/share/hadoop/hdfs/lib/jackson-core-asl-1.9.13.jar:/home/eip/hadoop/share/hadoop/hdfs/lib/jackson-mapper-asl-1.9.13.jar:/home/eip/hadoop/share/hadoop/hdfs/lib/jasper-runtime-5.5.23.jar:/home/eip/hadoop/share/hadoop/hdfs/lib/jersey-core-1.9.jar:/home/eip/hadoop/share/hadoop/hdfs/lib/jersey-server-1.9.jar:/home/eip/hadoop/share/hadoop/hdfs/lib/jetty-6.1.26.jar:/home/eip/hadoop/share/hadoop/hdfs/lib/jetty-util-6.1.26.jar:/home/eip/hadoop/share/hadoop/hdfs/lib/jsp-api-2.1.jar:/home/eip/hadoop/share/hadoop/hdfs/lib/jsr305-1.3.9.jar:/home/eip/hadoop/share/hadoop/hdfs/lib/log4j-1.2.17.jar:/home/eip/hadoop/share/hadoop/hdfs/lib/netty-3.6.2.Final.jar:/home/eip/hadoop/share/hadoop/hdfs/lib/protobuf-java-2.5.0.jar:/home/eip/hadoop/share/hadoop/hdfs/lib/servlet-api-2.5.jar:/home/eip/hadoop/share/hadoop/hdfs/lib/xmlenc-0.52.jar:/home/eip/hadoop/share/hadoop/hdfs/hadoop-hdfs-2.5.0-tests.jar:/home/eip/hadoop/share/hadoop/hdfs/hadoop-hdfs-2.5.0.jar:/home/eip/hadoop/share/hadoop/hdfs/hadoop-hdfs-nfs-2.5.0.jar:/home/eip/hadoop/share/hadoop/yarn/lib/activation-1.1.jar:/home/eip/hadoop/share/hadoop/yarn/lib/aopalliance-1.0.jar:/home/eip/hadoop/share/hadoop/yarn/lib/asm-3.2.jar:/home/eip/hadoop/share/hadoop/yarn/lib/commons-cli-1.2.jar:/home/eip/hadoop/share/hadoop/yarn/lib/commons-codec-1.4.jar:/home/eip/hadoop/share/hadoop/yarn/lib/commons-collections-3.2.1.jar:/home/eip/hadoop/share/hadoop/yarn/lib/commons-compress-1.4.1.jar:/home/eip/hadoop/share/hadoop/yarn/lib/commons-httpclient-3.1.jar:/home/eip/hadoop/share/hadoop/yarn/lib/commons-io-2.4.jar:/home/eip/hadoop/share/hadoop/yarn/lib/commons-lang-2.6.jar:/home/eip/hadoop/share/hadoop/yarn/lib/commons-logging-1.1.3.jar:/home/eip/hadoop/share/hadoop/yarn/lib/guava-11.0.2.jar:/home/eip/hadoop/share/hadoop/yarn/lib/guice-3.0.jar:/home/eip/hadoop/share/hadoop/yarn/lib/guice-servlet-3.0.jar:/home/eip/hadoop/share/hadoop/yarn/lib/jackson-core-asl-1.9.13.jar:/home/eip/hadoop/share/hadoop/yarn/lib/jackson-jaxrs-1.9.13.jar:/home/eip/hadoop/share/hadoop/yarn/lib/jackson-mapper-asl-1.9.13.jar:/home/eip/hadoop/share/hadoop/yarn/lib/jackson-xc-1.9.13.jar:/home/eip/hadoop/share/hadoop/yarn/lib/javax.inject-1.jar:/home/eip/hadoop/share/hadoop/yarn/lib/jaxb-api-2.2.2.jar:/home/eip/hadoop/share/hadoop/yarn/lib/jaxb-impl-2.2.3-1.jar:/home/eip/hadoop/share/hadoop/yarn/lib/jersey-client-1.9.jar:/home/eip/hadoop/share/hadoop/yarn/lib/jersey-core-1.9.jar:/home/eip/hadoop/share/hadoop/yarn/lib/jersey-guice-1.9.jar:/home/eip/hadoop/share/hadoop/yarn/lib/jersey-json-1.9.jar:/home/eip/hadoop/share/hadoop/yarn/lib/jersey-server-1.9.jar:/home/eip/hadoop/share/hadoop/yarn/lib/jettison-1.1.jar:/home/eip/hadoop/share/hadoop/yarn/lib/jetty-6.1.26.jar:/home/eip/hadoop/share/hadoop/yarn/lib/jetty-util-6.1.26.jar:/home/eip/hadoop/share/hadoop/yarn/lib/jline-0.9.94.jar:/home/eip/hadoop/share/hadoop/yarn/lib/jsr305-1.3.9.jar:/home/eip/hadoop/share/hadoop/yarn/lib/leveldbjni-all-1.8.jar:/home/eip/hadoop/share/hadoop/yarn/lib/log4j-1.2.17.jar:/home/eip/hadoop/share/hadoop/yarn/lib/netty-3.6.2.Final.jar:/home/eip/hadoop/share/hadoop/yarn/lib/protobuf-java-2.5.0.jar:/home/eip/hadoop/share/hadoop/yarn/lib/servlet-api-2.5.jar:/home/eip/hadoop/share/hadoop/yarn/lib/stax-api-1.0-2.jar:/home/eip/hadoop/share/hadoop/yarn/lib/xz-1.0.jar:/home/eip/hadoop/share/hadoop/yarn/lib/zookeeper-3.4.6.jar:/home/eip/hadoop/share/hadoop/yarn/hadoop-yarn-api-2.5.0.jar:/home/eip/hadoop/share/hadoop/yarn/hadoop-yarn-applications-distributedshell-2.5.0.jar:/home/eip/hadoop/share/hadoop/yarn/hadoop-yarn-applications-unmanaged-am-launcher-2.5.0.jar:/home/eip/hadoop/share/hadoop/yarn/hadoop-yarn-client-2.5.0.jar:/home/eip/hadoop/share/hadoop/yarn/hadoop-yarn-common-2.5.0.jar:/home/eip/hadoop/share/hadoop/yarn/hadoop-yarn-server-applicationhistoryservice-2.5.0.jar:/home/eip/hadoop/share/hadoop/yarn/hadoop-yarn-server-common-2.5.0.jar:/home/eip/hadoop/share/hadoop/yarn/hadoop-yarn-server-nodemanager-2.5.0.jar:/home/eip/hadoop/share/hadoop/yarn/hadoop-yarn-server-resourcemanager-2.5.0.jar:/home/eip/hadoop/share/hadoop/yarn/hadoop-yarn-server-tests-2.5.0.jar:/home/eip/hadoop/share/hadoop/yarn/hadoop-yarn-server-web-proxy-2.5.0.jar:/home/eip/hadoop/share/hadoop/mapreduce/lib/aopalliance-1.0.jar:/home/eip/hadoop/share/hadoop/mapreduce/lib/asm-3.2.jar:/home/eip/hadoop/share/hadoop/mapreduce/lib/avro-1.7.4.jar:/home/eip/hadoop/share/hadoop/mapreduce/lib/commons-compress-1.4.1.jar:/home/eip/hadoop/share/hadoop/mapreduce/lib/commons-io-2.4.jar:/home/eip/hadoop/share/hadoop/mapreduce/lib/guice-3.0.jar:/home/eip/hadoop/share/hadoop/mapreduce/lib/guice-servlet-3.0.jar:/home/eip/hadoop/share/hadoop/mapreduce/lib/hadoop-annotations-2.5.0.jar:/home/eip/hadoop/share/hadoop/mapreduce/lib/hamcrest-core-1.3.jar:/home/eip/hadoop/share/hadoop/mapreduce/lib/jackson-core-asl-1.9.13.jar:/home/eip/hadoop/share/hadoop/mapreduce/lib/jackson-mapper-asl-1.9.13.jar:/home/eip/hadoop/share/hadoop/mapreduce/lib/javax.inject-1.jar:/home/eip/hadoop/share/hadoop/mapreduce/lib/jersey-core-1.9.jar:/home/eip/hadoop/share/hadoop/mapreduce/lib/jersey-guice-1.9.jar:/home/eip/hadoop/share/hadoop/mapreduce/lib/jersey-server-1.9.jar:/home/eip/hadoop/share/hadoop/mapreduce/lib/junit-4.11.jar:/home/eip/hadoop/share/hadoop/mapreduce/lib/leveldbjni-all-1.8.jar:/home/eip/hadoop/share/hadoop/mapreduce/lib/log4j-1.2.17.jar:/home/eip/hadoop/share/hadoop/mapreduce/lib/netty-3.6.2.Final.jar:/home/eip/hadoop/share/hadoop/mapreduce/lib/paranamer-2.3.jar:/home/eip/hadoop/share/hadoop/mapreduce/lib/protobuf-java-2.5.0.jar:/home/eip/hadoop/share/hadoop/mapreduce/lib/snappy-java-1.0.4.1.jar:/home/eip/hadoop/share/hadoop/mapreduce/lib/xz-1.0.jar:/home/eip/hadoop/share/hadoop/mapreduce/hadoop-mapreduce-client-app-2.5.0.jar:/home/eip/hadoop/share/hadoop/mapreduce/hadoop-mapreduce-client-common-2.5.0.jar:/home/eip/hadoop/share/hadoop/mapreduce/hadoop-mapreduce-client-core-2.5.0.jar:/home/eip/hadoop/share/hadoop/mapreduce/hadoop-mapreduce-client-hs-2.5.0.jar:/home/eip/hadoop/share/hadoop/mapreduce/hadoop-mapreduce-client-hs-plugins-2.5.0.jar:/home/eip/hadoop/share/hadoop/mapreduce/hadoop-mapreduce-client-jobclient-2.5.0-tests.jar:/home/eip/hadoop/share/hadoop/mapreduce/hadoop-mapreduce-client-jobclient-2.5.0.jar:/home/eip/hadoop/share/hadoop/mapreduce/hadoop-mapreduce-client-shuffle-2.5.0.jar:/home/eip/hadoop/share/hadoop/mapreduce/hadoop-mapreduce-examples-2.5.0.jar:/home/eip/hadoop/contrib/capacity-scheduler/*.jar
+STARTUP_MSG:   build = http://svn.apache.org/repos/asf/hadoop/common -r 1616291; compiled by 'jenkins' on 2014-08-06T17:31Z
+STARTUP_MSG:   java = 1.8.0_45
+************************************************************/
+15/06/18 12:13:47 INFO namenode.NameNode: registered UNIX signal handlers for [TERM, HUP, INT]
+15/06/18 12:13:47 INFO namenode.NameNode: createNameNode [-format]
+15/06/18 12:13:48 WARN util.NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+Formatting using clusterid: CID-b40c2f43-d474-40bc-bc2a-be176f6d35ce
+15/06/18 12:13:49 INFO namenode.FSNamesystem: fsLock is fair:true
+15/06/18 12:13:49 INFO blockmanagement.DatanodeManager: dfs.block.invalidate.limit=1000
+15/06/18 12:13:49 INFO blockmanagement.DatanodeManager: dfs.namenode.datanode.registration.ip-hostname-check=true
+15/06/18 12:13:49 INFO blockmanagement.BlockManager: dfs.namenode.startup.delay.block.deletion.sec is set to 000:00:00:00.000
+15/06/18 12:13:49 INFO blockmanagement.BlockManager: The block deletion will start around 2015 Jun 18 12:13:49
+15/06/18 12:13:49 INFO util.GSet: Computing capacity for map BlocksMap
+15/06/18 12:13:49 INFO util.GSet: VM type       = 64-bit
+15/06/18 12:13:49 INFO util.GSet: 2.0% max memory 966.7 MB = 19.3 MB
+15/06/18 12:13:49 INFO util.GSet: capacity      = 2^21 = 2097152 entries
+15/06/18 12:13:49 INFO blockmanagement.BlockManager: dfs.block.access.token.enable=false
+15/06/18 12:13:49 INFO blockmanagement.BlockManager: defaultReplication         = 1
+15/06/18 12:13:49 INFO blockmanagement.BlockManager: maxReplication             = 512
+15/06/18 12:13:49 INFO blockmanagement.BlockManager: minReplication             = 1
+15/06/18 12:13:49 INFO blockmanagement.BlockManager: maxReplicationStreams      = 2
+15/06/18 12:13:49 INFO blockmanagement.BlockManager: shouldCheckForEnoughRacks  = false
+15/06/18 12:13:49 INFO blockmanagement.BlockManager: replicationRecheckInterval = 3000
+15/06/18 12:13:49 INFO blockmanagement.BlockManager: encryptDataTransfer        = false
+15/06/18 12:13:49 INFO blockmanagement.BlockManager: maxNumBlocksToLog          = 1000
+15/06/18 12:13:49 INFO namenode.FSNamesystem: fsOwner             = eip (auth:SIMPLE)
+15/06/18 12:13:49 INFO namenode.FSNamesystem: supergroup          = supergroup
+15/06/18 12:13:49 INFO namenode.FSNamesystem: isPermissionEnabled = true
+15/06/18 12:13:49 INFO namenode.FSNamesystem: HA Enabled: false
+15/06/18 12:13:49 INFO namenode.FSNamesystem: Append Enabled: true
+15/06/18 12:13:50 INFO util.GSet: Computing capacity for map INodeMap
+15/06/18 12:13:50 INFO util.GSet: VM type       = 64-bit
+15/06/18 12:13:50 INFO util.GSet: 1.0% max memory 966.7 MB = 9.7 MB
+15/06/18 12:13:50 INFO util.GSet: capacity      = 2^20 = 1048576 entries
+15/06/18 12:13:50 INFO namenode.NameNode: Caching file names occuring more than 10 times
+15/06/18 12:13:50 INFO util.GSet: Computing capacity for map cachedBlocks
+15/06/18 12:13:50 INFO util.GSet: VM type       = 64-bit
+15/06/18 12:13:50 INFO util.GSet: 0.25% max memory 966.7 MB = 2.4 MB
+15/06/18 12:13:50 INFO util.GSet: capacity      = 2^18 = 262144 entries
+15/06/18 12:13:50 INFO namenode.FSNamesystem: dfs.namenode.safemode.threshold-pct = 0.9990000128746033
+15/06/18 12:13:50 INFO namenode.FSNamesystem: dfs.namenode.safemode.min.datanodes = 0
+15/06/18 12:13:50 INFO namenode.FSNamesystem: dfs.namenode.safemode.extension     = 30000
+15/06/18 12:13:50 INFO namenode.FSNamesystem: Retry cache on namenode is enabled
+15/06/18 12:13:50 INFO namenode.FSNamesystem: Retry cache will use 0.03 of total heap and retry cache entry expiry time is 600000 millis
+15/06/18 12:13:50 INFO util.GSet: Computing capacity for map NameNodeRetryCache
+15/06/18 12:13:50 INFO util.GSet: VM type       = 64-bit
+15/06/18 12:13:50 INFO util.GSet: 0.029999999329447746% max memory 966.7 MB = 297.0 KB
+15/06/18 12:13:50 INFO util.GSet: capacity      = 2^15 = 32768 entries
+15/06/18 12:13:50 INFO namenode.NNConf: ACLs enabled? false
+15/06/18 12:13:50 INFO namenode.NNConf: XAttrs enabled? true
+15/06/18 12:13:50 INFO namenode.NNConf: Maximum size of an xattr: 16384
+15/06/18 12:13:50 INFO namenode.FSImage: Allocated new BlockPoolId: BP-1797594662-127.0.0.1-1434609830192
+15/06/18 12:13:50 INFO common.Storage: Storage directory /home/eip/hadoop/hadoopinfra/hdfs/namenode has been successfully formatted.
+15/06/18 12:13:50 INFO namenode.NNStorageRetentionManager: Going to retain 1 images with txid >= 0
+15/06/18 12:13:50 INFO util.ExitUtil: Exiting with status 0
+15/06/18 12:13:50 INFO namenode.NameNode: SHUTDOWN_MSG:
+/************************************************************
+SHUTDOWN_MSG: Shutting down NameNode at localhost/127.0.0.1
+************************************************************/
+
+
+
+
+
+Verifying Hadoop dfs
+start-dfs.sh
+15/06/18 12:14:51 WARN util.NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+Starting namenodes on [192.168.80.161]
+The authenticity of host '192.168.80.161 (192.168.80.161)' can't be established.
+ECDSA key fingerprint is cf:a7:d3:29:de:09:b5:bb:82:27:91:b6:87:69:66:aa.
+Are you sure you want to continue connecting (yes/no)? yes
+192.168.80.161: Warning: Permanently added '192.168.80.161' (ECDSA) to the list of known hosts.
+eip@192.168.80.161's password:
+192.168.80.161: starting namenode, logging to /home/eip/hadoop/logs/hadoop-eip-namenode-localhost.localdomain.out
+The authenticity of host 'localhost (::1)' can't be established.
+ECDSA key fingerprint is cf:a7:d3:29:de:09:b5:bb:82:27:91:b6:87:69:66:aa.
+Are you sure you want to continue connecting (yes/no)? yes
+localhost: Warning: Permanently added 'localhost' (ECDSA) to the list of known hosts.
+eip@localhost's password:
+localhost: starting datanode, logging to /home/eip/hadoop/logs/hadoop-eip-datanode-localhost.localdomain.out
+Starting secondary namenodes [0.0.0.0]
+The authenticity of host '0.0.0.0 (0.0.0.0)' can't be established.
+ECDSA key fingerprint is cf:a7:d3:29:de:09:b5:bb:82:27:91:b6:87:69:66:aa.
+Are you sure you want to continue connecting (yes/no)? yes
+0.0.0.0: Warning: Permanently added '0.0.0.0' (ECDSA) to the list of known hosts.
+eip@0.0.0.0's password:
+0.0.0.0: starting secondarynamenode, logging to /home/eip/hadoop/logs/hadoop-eip-secondarynamenode-localhost.localdomain.out
+15/06/18 12:15:56 WARN util.NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+
+
+
+
+Verifying Yarn Script
+[eip@localhost ~]$ start-yarn.sh
+starting yarn daemons
+starting resourcemanager, logging to /home/eip/hadoop/logs/yarn-eip-resourcemanager-localhost.localdomain.out
+eip@localhost's password:
+localhost: starting nodemanager, logging to /home/eip/hadoop/logs/yarn-eip-nodemanager-localhost.localdomain.out
+
+
+
+
+Accessing Hadoop on Browser
+http://192.168.80.161:50070
+
+
+
+
+Verify all Applications of Cluster
+http://192.168.80.161:8088
+
+
+
+
+
+Installing HBASE:
+=================
+tar xzf hbase-0.98.6-hadoop2-bin.tar.gz
+mv hbase-0.98.6-hadoop2 Hbase
+
+
+
+Configuring HBase in Standalone Mode
+cd ~/Hbase/conf
+vi hbase-env.sh
+export JAVA_HOME=/home/java
+
+
+vi hbase-site.xml
+<configuration>
+   //Here you have to set the path where you want HBase to store its files.
+   <property>
+      <name>hbase.rootdir</name>
+      <value>file:/home/eip/hadoop/HBase/HFiles</value>
+   </property>
+
+   //Here you have to set the path where you want HBase to store its built in zookeeper  files.
+   <property>
+      <name>hbase.zookeeper.property.dataDir</name>
+      <value>/home/eip/hadoop/zookeeper</value>
+   </property>
+</configuration>
+
+
+
+cd ~/Hbase/bin
+./start-hbase.sh
+starting master, logging to /home/eip/Hbase/bin/../logs/hbase-eip-master-localhost.localdomain.out
+
+
+Start HBase Shell
+=================
+cd ~/Hbase/bin
+./hbase shell
+starting master, logging to /home/eip/Hbase/bin/../logs/hbase-eip-master-localhost.localdomain.out
+[eip@localhost bin]$ ./hbase shell
+2015-06-18 12:39:57,987 INFO  [main] Configuration.deprecation: hadoop.native.lib is deprecated. Instead, use io.native.lib.available
+HBase Shell; enter 'help<RETURN>' for list of supported commands.
+Type "exit<RETURN>" to leave the HBase Shell
+Version 0.98.6-hadoop2, r3645223d354a81af8d3d1cdfca9b3d45426f9959, Wed Sep  3 20:06:33 PDT 2014
+
+
+hbase(main):001:0>
+
+
+cd /home/eip/hadoop
+chmod -R 777 zookeeper HBase
+
+
+-- This is to avoid conflict between the slf4j jars available in Hadoop as well as Hbase
+mv /home/eip/hadoop/share/hadoop/common/lib/slf4j-log4j12-1.7.5.jar /home/eip/hadoop/share/hadoop/common/lib/slf4j-log4j12-1.7.5.jar.bkp
+
+
+
+Installation of Phoenix:
+=======================
+Get the Phoenix tar on local machine:
+phoenix-4.4.0-HBase-0.98-bin.tar
+
+
+Unzip the tar file on local machine
+
+ftp all the jar files under directory: phoenix-4.4.0-HBase-0.98-bin to /home/eip/Hbase/lib
+
+
+
+Installation of Squirrel:
+=========================
+Get the jar squirrel-sql-3.6-standard.jar
+
+Double click on the jar and start installation
+Copy the jar "phoenix-4.4.0-HBase-0.98-client.jar" to D:\Program Files\squirrel-sql-3.6\lib
+
+
+
+
+
+
+
+
+
+
+
+
+#######################################################################################
+#######################################################################################
+
+SPARK INSTALLATION AND CONFIGURATION ON STANDALONE SYSTEM
+=======================================================================================
+
+1. download the spark from the spark site
+	http://spark.apache.org/downloads.html
+	
+	The prebuild spark 1.3.0 version for hadoop 2.4 is downloaded for installation.
+	
+2. extract the downloaded tgz file
+	[eip@ind-phoenix spark]$ tar zxvf spark-1.3.0-bin-hadoop2.4.tgz
+	
+3. download the scala for unix from scala download site
+	http://www.scala-lang.org/files/archive/scala-2.10.4.tgz
+	
+	The scala version 2.10.4 is download and installed in further instructions
+	
+4. extract the downloaded tgz file
+	[eip@ind-phoenix spark]$ tar zxvf scala-2.10.4.tgz
+	
+5. Edit the .bash_profile and add the following
+
+	SPARK_HOME=/home/eip/spark/spark-1.3.0-bin-hadoop2.4 (use appropriate path)
+	export SPARK_HOME
+
+	SCALA_HOME=/home/eip/scala/scala-2.10.4  (use appropriate path)
+	export SCALA_HOME
+	
+6. Update the PATH in the .bash_profile by appending following
+	:$SPARK_HOME/bin:$SCALA_HOME/bin
+
+
+7. Go to SPARK_HOME/conf and create/edit the file names 'slaves' to have a single entry of machine's host name. On ind-phoenix.emeter.com it is following
+
+		ind-phoenix.emeter.com
+		
+8. create a copy of file 'spark-env.sh.template' with name 'spark-env.sh'
+9. Add following lines to the file 'spark-env.sh'
+		export SCALA_HOME=/home/eip/scala/scala-2.10.4
+		export SPARK_WORKER_MEMORY=1g
+		export SPARK_WORKER_INSTANCES=2
+		export SPARK_WORKER_DIR=/home/eip/sparkdata
+	
+	First line specifies the scala home directory.
+	Second line specifies the memory allocated to each worker
+	Third line specifies the number of workers
+	last line specifies the data dir for spark. 
+	
+10. Go to SPARK_HOME/sbin and run the start-master.sh (logs are created in SPARK_HOME/logs folder)
+	If command is successful then the url hostName:8080 should be accessible from browser.
+11. run the start-slaves.sh (logs are created in SPARK_HOME/logs folder)
+	If command is successful then the url hostName:8081 should be accessible from browser.
+	
+	
+	
+
+http://pulasthisupun.blogspot.in/2013/11/how-to-set-up-apache-spark-cluster-in.html
+https://spark.apache.org/docs/latest/spark-standalone.html
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+OOZIE Installation steps
+
+#Prerequisites:
+	Hadoop
+	Maven
+	Java 1.6+
+	Unix/Mac machine
+	
+#Installing Maven
+
+1. Download the maven. Run the below command from the dir you want to extract maven to (e.g. /home/eip/maven)
+	wget http://mirror.olnevhost.net/pub/apache/maven/binaries/apache-maven-3.2.1-bin.tar.gz 
+	And then proceed to install it.
+
+2. run the following to extract the tar:
+	tar xvf apache-maven-3.2.1-bin.tar.gz
+3. Next add the env varibles such as
+	export M2_HOME=/usr/local/apache-maven/apache-maven-3.2.1
+	export M2=$M2_HOME/bin
+	export PATH=$M2:$PATH
+
+4. Verify
+	mvn -version
+	
+# Installing oozie
+
+1. Download and extract oozie
+	mkdir oozie
+	cd oozie
+	wget http://apache.hippo.nl/oozie/4.0.1/oozie-4.0.1.tar.gz
+	tar xzvf oozie-4.0.1.tar.gz
+	cd oozie-4.0.1
+	
+2. Do the following changes to build oozie against hadoop 2.5.0
+	(i)In the downloaded Oozie source code (pom.xml), the hadoop-2 maven profile specifies hadoop.version & hadoop.auth.version to be 2.3.0. So we 	change them to use 2.5.0
+	
+		hadoop-2 maven Profile
+		
+		<profile>
+			<id>hadoop-2</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+			</activation>
+			<properties>
+			   <hadoop.version>2.5.0</hadoop.version>
+			   <hadoop.auth.version>2.5.0</hadoop.auth.version>
+			   <pig.classifier>h2</pig.classifier>
+			   <sqoop.classifier>hadoop200</sqoop.classifier>
+			</properties>
+		</profile>
+		
+		
+	(ii) CHANGE HADOOPLIBS MAVEN MODULE
+	
+		cd hadooplibs
+		File hadoop-2/pom.xml : change hadoop-client & hadoop-auth dependency version to 2.5.0
+		File hadoop-distcp-2/pom.xml: change hadoop-distcp version to 2.5.0
+		File hadoop-test-2/pom.xml: change hadoop-minicluster version to 2.5.0
+		
+3. BUILD OOZIE DISTRO
+	cd ..
+	bin/mkdistro.sh -P hadoop-2 -DskipTests (This step is used during installation on 192.168.80.161 machine)
+	or 
+	mvn clean package assembly:single -P hadoop-2 -DskipTests 
+	
+	
+4. SETUP OOZIE SERVER
+
+	cd ..
+	mkdir Oozie
+	cp -R oozie-4.0.1/distro/target/oozie-4.0.1-distro/oozie-4.0.1/ Oozie
+	cd Oozie/oozie-4.1.0
+	mkdir libext
+	cp -R ../../oozie-4.0.1/hadooplibs/hadoop-2/target/hadooplibs/hadooplib-2.4.1.oozie-4.0.1/* libext
+	wget -P libext http://dev.sencha.com/deploy/ext-2.2.zip
+	
+	Make sure that ext-2.2.zip is properly downloaded. If the zip is unavailable on the given location then download it from following location: http://archive.cloudera.com/gplextras/misc/ext-2.2.zip
+	
+5. PREPARE THE OOZIE WAR
+	./bin/oozie-setup.sh prepare-war
+	
+6. CONFIGURE HADOOP
+
+	Edit the hadoop core-site.xml to add the following properties
+	
+	<property>
+		<name>hadoop.proxyuser.eip.hosts</name>
+		<value>*</value>
+	</property>
+	<property>
+		<name>hadoop.proxyuser.eip.groups</name>
+		<value>*</value>
+	</property>
+	
+	The name string here is of following format: hadoop.proxyuser.[userName].hosts
+	We have replaced the [userName] with eip.
+	
+	Restart the hadoop to enable the changes.
+	
+7. 	CREATE SHARELIB DIRECTORY ON HDFS
+
+	Run following command from within oozie/Oozie/oozie-4.1.0 directory
+	./bin/oozie-setup.sh sharelib create -fs hdfs://localhost:9000
+	
+8. OOZIE DATABASE
+	./bin/ooziedb.sh create -sqlfile oozie.sql -run
+	
+9. Start Oozie
+	./bin/oozied.sh start
+		
+	Oozie should now be accessible at http://localhost:11000/oozie
+
+
+
+Running an example oozie workflow
+bin/oozie job -oozie http://localhost:11000/oozie/ -config examples/src/main/apps/map-reduce/job.properties  -run
+	
+	
+http://gauravkohli.com/2014/08/26/apache-oozie-installation-on-hadoop-2-4-1/
+https://oozie.apache.org/docs/4.1.0/AG_Install.html
+
+
+*************************************************************
+troubleshooting
+************************************************************
+1. In case of 
+	org.apache.oozie.action.ActionExecutorException: File /user/eip/share/lib does not exist
+http://stackoverflow.com/questions/28702100/apache-oozie-failed-loading-sharelib
+
+
+
+
+###########################################################################
+opening ports
+###########################################################################
+sudo su - root
+sudo /sbin/iptables -I INPUT -p tcp -m tcp --dport 2181 -j ACCEPT
+sudo /sbin/iptables -I INPUT -p tcp -m tcp --dport 60000 -j ACCEPT
+sudo /sbin/iptables -I INPUT -p tcp -m tcp --dport 60010 -j ACCEPT
+sudo /sbin/iptables -I INPUT -p tcp -m tcp --dport 60020 -j ACCEPT
+sudo /sbin/iptables -I INPUT -p tcp -m tcp --dport 60030 -j ACCEPT
+sudo /sbin/iptables -I INPUT -p tcp -m tcp --dport 9000 -j ACCEPT
+sudo /sbin/iptables -I INPUT -p tcp -m tcp --dport 570 -j ACCEPT
+sudo /sbin/iptables -I INPUT -p tcp -m tcp --dport 50070 -j ACCEPT
+sudo /sbin/iptables -I INPUT -p tcp -m tcp --dport 8088 -j ACCEPT
+sudo /sbin/iptables -I INPUT -p tcp -m tcp --dport 8080 -j ACCEPT
+sudo /sbin/iptables -I INPUT -p tcp -m tcp --dport 8081 -j ACCEPT
+sudo /sbin/iptables -I INPUT -p tcp -m tcp --dport 11000 -j ACCEPT
+sudo /sbin/iptables -I INPUT -p tcp -m tcp --dport 8020 -j ACCEPT
+sudo /sbin/iptables -I INPUT -p tcp -m tcp --dport 8021 -j ACCEPT
+sudo /sbin/iptables -I INPUT -p tcp -m tcp --dport 8042 -j ACCEPT
+sudo /sbin/iptables -I INPUT -p tcp -m tcp --dport 8032 -j ACCEPT
+sudo /sbin/iptables -I INPUT -p tcp -m tcp --dport 10020 -j ACCEPT
+
+
+
+ps -ef | grep hadoop | grep -P  'namenode|datanode|tasktracker|jobtracker'
+
+###########################################################################
+STARTING applications
+###########################################################################
+
+sudo su - root
+hostname ind-phoenix.emeter.com
+
+
+cd to ~
+
+start:
+./hadoop/sbin/start-dfs.sh
+./hadoop/sbin/start-yarn.sh
+./hadoop/sbin/mr-jobhistory-daemon.sh start historyserver
+./Hbase/bin/start-hbase.sh
+./spark/spark-1.3.0-bin-hadoop2.4/sbin/start-master.sh
+./spark/spark-1.3.0-bin-hadoop2.4/sbin/start-slaves.sh
+./oozie/Oozie/oozie-4.1.0/bin/oozied.sh start
+
+
+[eip@ind-phoenix ~]$ jps
+1568 SecondaryNameNode
+3427 Master
+4454 Worker
+1066 NameNode
+4938 Bootstrap
+4715 Worker
+5037 Jps
+2735 HMaster
+1296 DataNode
+1811 ResourceManager
+2134 NodeManagereippass
+2587 HQuorumPeer
+3036 HRegionServer
+
+
+ps -ef | grep hadoop | grep -P  'namenode|datanode|tasktracker|jobtracker'
+
+###########################################################################
+stopping applications
+###########################################################################
+cd to ~
+
+stop:
+./oozie/Oozie/oozie-4.1.0/bin/oozied.sh stop
+./spark/spark-1.3.0-bin-hadoop2.4/sbin/stop-slaves.sh
+./spark/spark-1.3.0-bin-hadoop2.4/sbin/stop-master.sh
+./Hbase/bin/stop-hbase.sh
+./hadoop/sbin/mr-jobhistory-daemon.sh stop historyserver
+./hadoop/sbin/stop-yarn.sh
+./hadoop/sbin/stop-dfs.sh
