@@ -1,13 +1,13 @@
-Two types of message delivery: *persistent* and *non-persistent*
-Persistent: Messages to always be available to a message consumer after they’ve been delivered to the broker, even if that con- sumer isn’t running when the message was sent.
-Non-Persistent: -Typically used for sending notifications or real-time data.
+# Two types of message delivery: Persistent and Non-persistent
+* Persistent: Messages to always be available to a message consumer after they’ve been delivered to the broker, even if that con-sumer isn’t running when the message was sent.
+* Non-Persistent: -Typically used for sending notifications or real-time data.
                 -Use nonpersistent messages when performance is critical and guar- anteed delivery of the message isn’t required.
 
--ActiveMQ can be configured to temporarily cache messages for retrieval by message consumers at a later point in time.
--Messages sent to queues and topics are stored differently
--Durable subscription: Using a durable subscription, when a subscriber discon- nects from the JMS provider, it’s the responsibility of the JMS provider to store mes- sages for the subscriber.
--Queue: Only when that message has been consumed and acknowl- edged can it be deleted from the broker’s message store.
--Topic: 
+* ActiveMQ can be configured to temporarily cache messages for retrieval by message consumers at a later point in time.
+* Messages sent to queues and topics are stored differently
+* Durable subscription: Using a durable subscription, when a subscriber discon- nects from the JMS provider, it’s the responsibility of the JMS provider to store mes- sages for the subscriber.
+* Queue: Only when that message has been consumed and acknowl- edged can it be deleted from the broker’s message store.
+* Topic: 
 
   
 
