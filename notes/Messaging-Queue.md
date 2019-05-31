@@ -75,8 +75,8 @@ Summary of protocols:
 * Preventing automatic broker discovery
   * two or more ActiveMQ instances will automatically connect to one another and begin con- suming one another’s messages.
   * Remove the discoveryUri portion of the openwire transport connector
-  * Change <transportConnector name="openwire" uri="tcp://localhost:61616" discoveryUri="multicast://default"/>
-  * To <transportConnector name="openwire" uri="tcp://localhost:61616" />
+  * Change `<transportConnector name="openwire" uri="tcp://localhost:61616" discoveryUri="multicast://default"/>`
+  * To `<transportConnector name="openwire" uri="tcp://localhost:61616" />`
 
 
 
