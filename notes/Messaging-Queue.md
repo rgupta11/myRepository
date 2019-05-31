@@ -1,4 +1,4 @@
-Two types of message delivery: persistent and non-persistent
+Two types of message delivery: *persistent* and *non-persistent*
 Persistent: Messages to always be available to a message consumer after they’ve been delivered to the broker, even if that con- sumer isn’t running when the message was sent.
 Non-Persistent: -Typically used for sending notifications or real-time data.
                 -Use nonpersistent messages when performance is critical and guar- anteed delivery of the message isn’t required.
