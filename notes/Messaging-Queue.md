@@ -6,10 +6,35 @@
 * ActiveMQ can be configured to temporarily cache messages for retrieval by message consumers at a later point in time.
 * Messages sent to queues and topics are stored differently
 * Durable subscription: Using a durable subscription, when a subscriber discon- nects from the JMS provider, it’s the responsibility of the JMS provider to store mes- sages for the subscriber.
+  * Upon reconnecting, the durable subscriber will receive all **unexpired messages** from the JMS provider
 * Queue: Only when that message has been consumed and acknowl- edged can it be deleted from the broker’s message store.
-* Topic: 
+* Topic:
+## URI
+* Basically, every URI has the following string format:
+<scheme>:<scheme-specific-part>
+* tcp://localhost:61616?trace=true
+  * translates to “create a TCP connection to the localhost on port 61616.
+* ssl://localhost:61617
+##  Message Durability vs Message Persistences
+* Durability:
+  * Message durability can only be achieved with the pub/sub domain.
+  * When clients connect to a topic, they can do so using a durable or a nondurable subscription
+  * Can be durable and non-durable consumers
+* Persistence: 
+  * Message persistence is independent of the message domain
+  * Specified on the message producer’s setDeliveryMode method using one of the JMSDeliveryMode class’s PERSISTENT or NON-PERSISTENT properties as an argument.
+  * 
 
-  
+## Dead letter Q
+
+## Failover transport
+* Supports automatic 
+
+## Tips:
+* Create durable subscribers
+* Handle mesage expiry period
+* Use ?trace=true in connection URI to log all commands send over to connector
+* Failover transport in activeMQ
 
 
 -ActiveMQ certificates-
