@@ -3,3 +3,9 @@ AMI creation: Ref EC2 guide
 - To disable password-based remote logins for root
 - Disable Local Root Access
 - Remove SSH Host Key Pairs
+- Only key that exist on the EC2 is the one used to provision it
+- Disabling sshd DNS Checks  (disables reverse DNS lookup)
+- Always delete the shell history before bundling
+
+Protect Yourself
+Users who launch a shared AMI might be able to rebundle it and register it as their own
