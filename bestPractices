@@ -9,3 +9,20 @@ AMI creation: Ref EC2 guide -- The Golden copy
 
 Protect Yourself
 Users who launch a shared AMI might be able to rebundle it and register it as their own
+
+AMI copy
+- AWS does not copy launch permissions, user-defined tags, or Amazon S3 bucket permissions from the source AMI to the new AMI. 
+After the copy operation is complete, you can apply launch permissions, user-defined tags, and Amazon S3 bucket permissions 
+to the new AMI.
+- S3 bucket name: amis-for-account-in-region-hash. For example: amis-for-123456789012-in-us-east-2-yhjmxvp6.
+
+  Prerequisites
+    - Prior to copying an AMI, you must ensure that the contents of the source AMI are updated to support running in a 
+    different Region.
+  Limits
+    - DestinationRegionsarelimitedto50concurrentAMIcopies.
+    - You cannot copy a paravirtual(PV) AMI to a Region that does not support PVAMIs
+    - There is no limit to the number of AWS accounts with which an AMI can be shared.
+  
+  Cross account copy
+    - 
