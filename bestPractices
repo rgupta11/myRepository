@@ -1,0 +1,5 @@
+AMI creation: Ref EC2 guide
+- Disable Password-Based Remote Logins for Root
+- To disable password-based remote logins for root
+- Disable Local Root Access
+- Remove SSH Host Key Pairs
