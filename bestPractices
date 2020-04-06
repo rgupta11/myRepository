@@ -1,4 +1,4 @@
-AMI creation: Ref EC2 guide
+AMI creation: Ref EC2 guide -- The Golden copy
 - Disable Password-Based Remote Logins for Root
 - To disable password-based remote logins for root
 - Disable Local Root Access
