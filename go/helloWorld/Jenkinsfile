@@ -1,0 +1,22 @@
+pipeline{
+    agent any
+    tools{
+        go 'go-1.14.6'
+    }
+    environment {
+        GO111MODULE = 'on'
+    }
+    stages {
+        stage('Compile') {
+            steps {
+                sh 'go build'
+            }
+        }
+    }
+//Compile
+//Tests
+//Code quality
+//Release
+
+
+}
