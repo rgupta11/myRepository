@@ -1,4 +1,6 @@
-1
+
+
+	1
 -Unix
 -Java/Python
 -DS/Algo
@@ -407,6 +409,9 @@ TechnicalSupport:
 		customerincident, Escalations, RCA, KB articles, Runbooks
 		
 -----------------------------------------Microservices------------------------------------------------------
+Q: LRU cache implementation
+	- Design a cache solution
+		- 
 Q: What are Microservices ?
 	A: Microservices is a variant of the service-oriented architecture (SOA) architectural style that structures 
 	an application as a collection of loosely coupled services. In a microservices architecture, services should be 
@@ -1065,4 +1070,473 @@ Serverless:
 https://www.youtube.com/watch?v=EnnwyIrlN7Y&index=4&list=PLTgRMOcmRb3P_pTRDY_w4tJkatqBAmSc7
 https://www.youtube.com/watch?v=Sao5EbBemzw&t=164s
 
+
+
+REST
+
+?Pagination
+?Versioning 
+?circuit breaker
+?Service discovery
+ -How does the client of an RPI-based service discover the network location of a service instance?
+ -Client-side discovery - client queries a service registry to discover the locations of service instances
+ -Server-side discovery - router queries a service registry to discover the locations of service instances
+ -Service registry - a database of service instance locations
+ -Self registration - service instance registers itself with the service registry
+ -3rd party registration - a 3rd party registers a service instance with the service registry
+
+
+?social networking service which enables its users to upload and share their photos
+-components
+-Search a photo (title/description)
+
+?How to understand the behavior of an application and troubleshoot problems?
+-Log entries for a request are scattered across numerous logs
+-Assigns each external request a unique external request id
+-Passes the external request id to all services that are involved in handling the request
+-Includes the external request id in all log messages
+-Records information (e.g. start time, end time) about the requests and operations performed when handling a external request in a centralized service
+
+
+?Mutual authentication SSL certificates
+
+?Eventual vs Strong Consistency in Distributed Databases
+
+
+
+
+DevOps:
+- which prog languages
+	- yaml, 
+- what the experience over the design 
+	- administrative team 
+
+IP problem,
+on-prem to public cloud
+UPaaS
+data Migration
+
+- Why kubernetes
+
+
+- AMI for an application but need updates how to automate it
+	- Hardening the AMIs for security standards
+- Sharing of AMIs for every Customer a/c in Azure and automate it
+- Need automation design:
+	- In Azure/AWS customer account
+		- deploy a custom application x + update already deployed VMs configuration
+		- what tools u'll use and why 
+		- If deployment needs ssh/key based access, how will you take care of storing keys in secure way
+	- Success/failure event back to deployment application 
+	- Design a deployment strategy which takes care of all public cloud platform (Azure, GCP, AWS)
+	- Desing Mutual authentication SSL certificates
+	- Deployment is done, now we need to collect stats/info from the applications
+	  Design a log collector that collects log from all nodes 
+		-Agentless vs Agent architecture
+			-Agent.....
+			- Agent could be 1000s of nodes should be install agent on all
+			- Patch, upgrades etc
+			- Stop/start monitor process etc
+			- May need root permission to run/execute scripts
+		-Agentless.... 
+		-The connection is established by the centralized server to the target endpoints across the network using standard 
+technologies and protocols that are available on those devices (e.g. servers, phones, etc.) 
+		- How to manage SSH keys
+		- Automation to resize a VM from X to Y
+
+- Calculating the cost of an deployment
+- Secure networking to communicate between on-premise and Azure/aws
+	-Setting up a express route 
+- Securing APIs by adding role based authentication in Azure
+- Jenkins CI/CD pipeline for dev 
+	- build
+	- code coverage
+	- Fail on quality test cases
+	- Which quality tools have you used and integrated
+- We provide managed services to customer for our product, Let say we have UpaaS service and MIg other services.
+	How will you design a communication platform where these services have access to customer nodes.
+	-What is a control plane:
+ 
+- Ansible vs Teraform
+	- Ansible is a simple way to do that. An open-source software provisioning, configuration management, and application-	deployment tool comes with its own declarative language.
+	- Teraform:  Terraform acts like an orchestrator, using Packer for automation. Terraform is more of an infrastructure provisioning tool. Terraform talks to VMWare, AWS, GCP, and deploys infrastructure 
+	- Write teraform syntax to deploy a VM from AMI in default Vnet
+- What is Azure active directory
+- Service principal concept
+- AWS Certificate Manager
+- AWS private link
+- How do you Authorize Inbound Traffic for Your Instances 
+	- SG and NACL
+	- SSL certs for 
+- How to Obtain a CA-signed Certificate
+
+MS: 
+-circuit breaker
+-reactor pattern
+-Gateway pattern
+-What is a microservice architecture and why
+	- Advantages
+	- Disadvantages
+		- Explosion of services
+- Desing microservices for distributed transaction
+
+-Design a REST API
+	- Customer API
+		- Create 
+		- Delete
+		- UPdate custome Phone number
+		- Difference between Put and Post, Patch
+		- Pagination	
+		- Filtering
+		- Sorting
+
+
+
+-Service discovery
+- Implement Service health check
+
+- Serverless deployment automation 
+	- 4 lambdas but need to automation for independent deployment from same / diff Jenkins deployment
+- Need to deploy an application on https how to get CA certificates and domain registration
+
+
+Product:
+- Back up solution
+	- Customers on onprem, public cloud
+	- MVP
+	- Communicate to eng
+	- RTO, RPO  make it bring it to 15 mins
+	- change strategy to Cloud
+- PRFAQ 
+- DRaaS
+	- RTO, RPO  make it bring it to 15 mins
+
+Product leadership
+Product thinking
+Understanding priorities
+Product dna
+What is the right thing to build
+Research 
+Communicate to eng
+Eg direction in product communicates to eng, pushback etc
+Follow ups 
+Domain knowledge
+Technical - block level, snapshots - Data protection compliance issues
+Agent based architecture
+RTO, RPO  make it bring it to 15 mins ..
+Experience user ex, work with ui
+Communication with customers
+Fit Teradata where people not pleasing to listen
+Goto market and pricing for team
+
+
+Performs consultation
+
+
+Q: Lanuages known: shell, python(beginer),  
+Q: LRU cache implementation
+	- Implement a caching solution
+		- API to accept a object
+		- API to give an object
+		- Expire object (oldest object)
+Q: Dis msg based design: Q vs SNS
+Q: MS architecture/REST? Any known patterns
+	- work order service
+	- scalability, managability
+	- 
+Q: UPaaS: can u help in identifying MS for the solution
+	- Authentication b/w MS or components
+
+Q: Jenkins CI/CD pipeline for dev: has worked on
+Q: Git: has exposure 
+Q: Database designs for MS: separate DB for each MS 
+
+Q: DRaaS snapshot based solution:
+	- identify steps needed for taking a snapshot of SQLE
+	- Automate DBS settings restore from src to target
+	- Automate the restoration of SQLE
+	- Identify steps and design as a service
+Q: DRaaS 
+	- Cloning a site/VPC in AWS
+Q: Design a REST service which performs SSH based activities
+
+---------Sagar Maske-Devesh---------------------------------------
+Conclusion: No Hire. Mostly involved in writing CI/CD pipelines. Does not have much hands on AWS services
+Q: Total experience: 3 yrs
+Q: Technologies/Lanuages known: Ansible, Teraform, shell scripting
+Q: Current role: DevOps
+Q: Understading of cloud: Basic understanding of AWS services and that too not in depth
+Q: IAM: Has high level understanidng of IAM and does not undersatnd Policies and security in depth
+Q: CI/CD: has written CI/CD pipelines but does not have in depth understanding
+Q: Terraform: Has written some terraform but not able to help with the clean up.
+Q: Design: Not involved in design.
+Q: Serverless: Not worked.
+
+---------Rahul Ghotekar-Devesh---------------------------------------
+Hire: with 3.5 years, good in devops and cloud concepts
+Q: Lanuages known: Python (beginner), shell script. 
+Q: Current role: Involved in writing pipelines automation etc
+Q: Understading of cloud: Good for 3.5 years experience
+Q: IAM: good understanding
+Q: CI/CD: Good in setting up Jenkins pipeline
+Q: Hands on on AWS services
+Q: Need to brush up on CFT writing
+
+---------Riyazuddin Mansuri-Devesh---------------------------------------
+Weak hire
+Q: 3.8 yrs
+Q: Lanuages known: yaml, json
+Q: Current role: managing the day to today devops work
+Q: Understading of cloud: has average+ cloud understanding but dodges and avoid and indepth questions
+Q: Lambda: basis understanding of lambdas.
+Q: devOps automation: Understands and with hints able to think on approach but does not coenvert them to code.
+Q: CI/CD: has not written any pipeline
+Q: CFT: Understands it but never written it
+Q: Teraform: no idea
+
+Conclusion: has a tendency of saying no to things not done and even with hints sometime does not want to try.
+
+
+
+ 
+ 
+
+
+
+Q: LRU cache implementation
+	- Implement a caching solution
+		- API to accept a object
+		- API to give an object
+		- Expire object (oldest object)
+Q: Design msg based design: Q vs SNS
+Q: MS architecture/REST? Any known patterns
+	- work order service
+	- scalability, managability
+	- 
+Q: UPaaS: can u help in identifying MS for the solution
+	- Authentication b/w MS or components
+
+Q: Jenkins CI/CD pipeline for dev: has worked on
+Q: Git: has exposure 
+Q: Database designs for MS: separate DB for each MS 
+
+Q: DRaaS snapshot based solution:
+	- identify steps needed for taking a snapshot of SQLE
+	- Automate DBS settings restore from src to target
+	- Automate the restoration of SQLE
+	- Identify steps and design as a service
+Q: DRaaS 
+	- Cloning a site/VPC in AWS
+Q: Design a REST service which performs SSH based activities
+
+--------------Dharmesh-------------------------------------------------
+- No hire
+- Prog Language: Java, python 
+- Average comm skill
+- Average with cloud concepts.
+- Understands Microservices concept but could not design a problem into MS
+- REST API: poor concept
+- Not very hands on writing CFT, terforms
+
+
+
+Q: Lanuages known: shell, python(beginer),  
+Q: LRU cache implementation
+	- Implement a caching solution
+		- API to accept a object
+		- API to give an object
+		- Expire object (oldest object)
+Q: Dis msg based design: Q vs SNS
+Q: MS architecture/REST? Any known patterns
+	- work order service
+	- scalability, managability
+	- 
+Q: UPaaS: can u help in identifying MS for the solution
+	- Authentication b/w MS or components
+
+Q: Jenkins CI/CD pipeline for dev: has worked on
+Q: Git: has exposure 
+Q: Database designs for MS: separate DB for each MS 
+
+Q: DRaaS snapshot based solution:
+	- identify steps needed for taking a snapshot of SQLE
+	- Automate DBS settings restore from src to target
+	- Automate the restoration of SQLE
+	- Identify steps and design as a service
+Q: DRaaS 
+	- Cloning a site/VPC in AWS
+Q: Design a REST service which performs SSH based activities
+
+
+
+
+
+---------Kumar Ashwani--3July20----------------------------------------
+Q: Lanuages known: Java, 
+Q: Current role: Web based application, hosted on
+Q: Understading of cloud
+Q: What is service: 
+Q: CI/CD how to deploy on cloud
+Q: 
+
+No Hire
+-Cloud concepts are poor 
+-MS based architecture: Poor 
+-Authenticating End Point: Not satisfied
+-Jenkins CI/CD: Confused
+-Poor in analytical reasoning
+-Azure: creating a Image in 
+
+
+
+Q: LRU cache implementation
+	- Implement a caching solution
+		- API to accept a object
+		- API to give an object
+		- Expire object (oldest object)
+Q: Design msg based design: Q vs SNS
+Q: MS architecture/REST? Any known patterns
+	- work order service
+	- scalability, managability
+	- 
+Q: UPaaS: can u help in identifying MS for the solution
+	- Authentication b/w MS or components
+
+Q: Jenkins CI/CD pipeline for dev: has worked on
+Q: Git: has exposure 
+Q: Database designs for MS: separate DB for each MS 
+
+Q: DRaaS snapshot based solution:
+	- identify steps needed for taking a snapshot of SQLE
+	- Automate DBS settings restore from src to target
+	- Automate the restoration of SQLE
+	- Identify steps and design as a service
+Q: DRaaS 
+	- Cloning a site/VPC in AWS
+Q: Design a REST service which performs SSH based activities
+
+-----------------------Yogesh---------------------------------
+Languages known: shell, aws cli, Python (learning)
+Problem LRU cache implementation (Not very good in programming)
+Discuss msg/asynchronous based design : Q vs SNS (ok)
+Billing solution from multi cloud (good)
+MS architecture/REST? Any known patterns: Not worked
+Jenkins CI/CD pipeline for dev: not worked on
+Git: no exposure 
+Database designs for MS: Not worked much
+Solution based on Agent server architecture: With help he can think of it
+
+Conclusion: No Hire
+Programming: Weak and almost very less experience. The learning curve would be high
+Aptitude reasoning: Not very sharp in proposing solutions
+Cloud concepts: Average
+AWS: Understands AWS services well
+Design: Not much involved in designing a solution
+TD system: Very good
+Could be helpful for customer support activities 
+
+
+---------Nitesh-------------------------------------------------
+Languages known: shell, aws cli, Python
+Problem LRU cache implementation: Not good in programming but can learn in shorter duration
+Discuss msg/asynchronous based design : Average
+MS architecture/REST? Any known patterns: Has high level understanding of MS and REST
+Jenkins CI/CD pipeline for dev: not worked on
+Git: Has worked on
+Database designs for MS: Has understanding 
+UPaaS: can u help in identifying MS for the solution: Understands it and was able to think on multiCloud usecases
+
+
+Conclusion: Hire
+Programming: Weak but can learn in shorter duration
+Aptitude reasoning: Good in proposing solutions
+Cloud concepts: Good
+AWS: Understands AWS services well
+Design: Not much involved in designing a solution
+TD system: Very good
+Could be helpful for customer support activities 
+
+-----------Tushar Deokar----------------------------------------
+Checked: Problem solving approach, Cloud concepts, automation problems, MSvc architecture and REST endpoints
+Recommendation for next round: Write code. Ansible code  
+
+Lanuages known: TypeScript and NodeJs
+Problem solving: 
+ 1) Implement a caching solution
+	- Discussed on put and get API in cache 
+	- Eviction logic
+	- Less hands on but was able to discuss the end to end solution
+ 2) Distributed asynchronous communication solution among MS
+	- Needed some guidance as more comfortable with Step functions
+	- Good understanding of cloude native solutions
+	- Has ideas but need more hands on
+ 3) Automate AWS snapshot based restore process and develop as a service
+	- Understands TD DB systems and know the steps 
+	- Discussed the approach and steps that need to be automated
+	- Confortable with Ansible
+MS and REST:
+	- Understands MS on high level.
+	- Monolythic vs MS
+	- Understand backend design for a MS
+	- DIstributes transactions in MS: Not worked on
+	- REST: Understands REST but on high level. Do not have hands on REST implementation. 
+
+Jenkins: Understands it, though not written from scratch but given the task can write it.
+Git: has worked on
+TD systems: Good understandings on TD systems. 
+
+Conclusion:
+- Needs hands on code writing
+- As part of current role not involved in designing a solution
+- Good communication skills
+----------------
+
+--------IAM-----
+
+Resources
+The user, group, role, policy, and identity provider objects that are stored in IAM. As with other AWS
+services, you can add, edit, and remove resources from IAM.
+
+Identities
+The IAM resource objects that are used to identify and group. You can attach a policy to an IAM
+identity. These include users, groups, and roles.
+
+Entities
+The IAM resource objects that AWS uses for authentication. These include IAM users, federated users,
+and assumed IAM roles.
+
+Principals
+A person or application that uses the AWS account root user, an IAM user, or an IAM role to sign in
+and make requests to AWS.
+
+
+Security Best Practices in IAM
+
+----------------
+
+
+******************CI/CD***********************************************************
+Continuous Integration can also help you keep tabs on the health of your code base, automatically monitoring code quality and code coverage metrics,and helping keep technical debt down and maintenance costs low.
+
+The code quality build also automatically generates API documentation for the application
+
+
+**********************************************************************************
+Story business acceptance criteria
+
+Story Engineering acceptance criteria
+
+-Design document(Y/N):
+-Test cases(Y/N):
+-Integration/functional test(Y/N):
+-Qualify for multi cloud deployment(Y/N):
+-Autmated generates API documentation(Y/N):
+-Part of CI and CD(Y/N):
+-Passes all quality gateway(Y/N):
+	-codecoverage
+	-coverity
+	-lint
+	-blackduck
+-Release notes(Y/N):
+-
 

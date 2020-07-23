@@ -1,10 +1,6 @@
 0.0.0.0/0 -> every other IP
 
 
-fplace
-1) Parag Jain: 11 am 
-2) Sujata Indalkar: Between 11:30 to 12 pm
-3) Sandeep Shivaji: Between 12:30 to 1 pm
 
 EC2
 EC2
@@ -322,6 +318,7 @@ Q: What is VPC and its benefit
 			-Virtual gateway is used to create a VPN connection b/w your coorporate n/w and VPC
 			
 	Q: What is CIDR
+
 	Q: What is direct connect
 		-Its as VPN. it connects bypassing the internet. dedicated connection to the AWS.
 		-VPN is just a protocol for encrypting the internet connection b/w network and AWS.
@@ -423,7 +420,27 @@ Subnet
 				No of n/w= 2^24 - 2 = 16,777,214
 				No of host= 2^8 = 256
 	
-	
+--------------VPN----------------------
+-a secure VPN tunnel
+	-For VPN-based customers, AWS recommends creating a separate VPN connection for each customer VPC
+	-When connecting multiple VPCs to on-premises networks, AWS recommends leveraging AWS Direct Connect 
+	-
+-VPN IPSEC
+	-Provide secure VPN tunnel 
+	-All data transferred through VPN is encrypted using different kind of encryption algorithms
+-Direct connect
+-VPC peering
+-Transit VPC
+	-AWS resources in spoke VPCs need access to a wide variety of on-premises infrastructure
+	-This approach creates a transitive network using host-based VPN appliances on Amazon Elastic Compute Cloud (Amazon EC2) instances in a dedicated 	 VPC to route traffic between multiple VPCs and on-premises resources.
+	-This design uses VPN connections, rather than VPC peering, to connect to the transit VPC because VPC peering does not support transitive routing
+	-
+
+POC Proxy-Agent
+
+Migration from AWS to AWS 
+
+Migration from CCU to AWS
 --------------Ingress and egress traffic--------------
 --------------Elastic Bean stalk service--------------
 --------------AWS logging and monitoring--------------

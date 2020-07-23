@@ -1,3 +1,21 @@
+--design Q----
+AWS
+-Design DMZ infra in AWS
+-4 tier design:
+	-External subnets
+	-DMZ
+	-Internal (Application)
+	-DB 
+
+
+
+
+------IP-----------
+10.0.0.0 - 10.255.255.255 (10/8 prefix)
+172.16.0.0 - 172.31.255.255 (172.16/12 prefix)
+192.168.0.0 - 192.168.255.255 (192.168/16 prefix)
+
+
 
 ---------aws boot script
 #!/bin/bash
@@ -30,18 +48,13 @@ security
 security in rest
 RFC-7231
 JSR-339
-
-
 -----------------------------------------------------------------------------------------------------
 JSRs RFCs
 
 RFC 3986:Tim Berners-Lee, et. al. in RFC 3986: Uniform Resource Identifier (URI): Generic Syntax:
-
-
 -----------------------------------------------------------------------------------------------------
 
 URI URL URN
-
 https://danielmiessler.com/study/url-uri/#gs.LA_zcW0
 
 	URI
@@ -113,10 +126,7 @@ mvn eclipse:clean
 mvn eclipse:eclipse
 mvn dependency:tree
 mvn spring-boot:run
---------------------------------------------------Kubernetes------------------------------------------------------------------------------------------------------------------------------------------------------
-
---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-Docker
+--------------------------------------------------Docker----------------------
 -A registry is a collection of repositories, and a repository is a collection of images
 
 Container vs VM
@@ -350,7 +360,7 @@ VPCs
 Subnet
 	A subnet is a segment of a VPC's IP address range that you can launch instances into. Subnets enable
 	you to group instances based on your security and operational needs. To enable instances in a subnet
-	to reach the Internet and AWS services, you must add an Internet gateway to the VPC and a route table
+		to reach the Internet and AWS services, you must add an Internet gateway to the VPC and a route table
 	with a route to the Internet to the subnet.
 
 Security Groups
@@ -491,7 +501,35 @@ mvn spring-boot:run
 @ComponentScan
 
 https://spring.io/guides/gs/routing-and-filtering/
-http://microservices.io/patterns/apigateway.html
+http://microservices.io/patterns/apigateway.htmlTo: 
+ashish.kadam@teradata.com;Sathish.ragula@teradata.com
+CC: 
+vijay.mummulla@teradata.com; Hareesh.boinepelli@teradata.com; Parthasarathi.Pani@Teradata.com
+
+
+Candidate Name:
+Pros:
+Cons:
+
+Recommendation (STRONG HIRE,HIRE,WEAK HIRE,NO HIRE)
+ 
+OVERALL (score 1/10) across all questions
+ 
+To: 
+ashish.kadam@teradata.com;Sathish.ragula@teradata.com
+CC: 
+vijay.mummulla@teradata.com; Hareesh.boinepelli@teradata.com; Parthasarathi.Pani@Teradata.com
+
+
+Candidate Name:
+Pros:
+Cons:
+
+Recommendation (STRONG HIRE,HIRE,WEAK HIRE,NO HIRE)
+ 
+OVERALL (score 1/10) across all questions
+ 
+
 
 Netflix (a major adopter of microservices) created and open-sourced its Zuul proxy server. 
 Zuul is an edge service that proxies requests to multiple backing services.
@@ -583,6 +621,20 @@ However, Kubernetes also allows developers to ‘cut the cord’ to physical and
 host-centric infrastructure to a container-centric infrastructure, which provides the full advantages and benefits 
 inherent to containers. Kubernetes provides the infrastructure to build a truly container-centric development environment.
 
+--- Reserved 5 IPs in subnet of VPC - CIDR by AWS
+10.0.64.0/20
+-10.0.64.0 -> N/W address
+-10.0.79.0 -> Broadcast address
+-10.0.64.1 -> Gateway address
+-10.0.64.2 -> Gateway plus 1 (Used VPC as DNS service)
+-10.0.64.3 -> Future use
+
+
+------VPC router-------
+-Connects VPC and its subnets
+-DHCP service associated with the VPC to allocate the IPs
+-
+
 
 ingress and egress traffic
 --------------------------
@@ -594,7 +646,19 @@ Network traffic that begins inside of a network and proceeds through its routers
 outside of the network. For example, an e-mail message that is considered egress traffic will travel from a 
 user��s workstation and pass through the enterprise��s LANrouters before it is delivered to the Internet to 
 travel to its final destination. 
+------------------Direct connect--------- 
+- Request DX from AWS a/c to DX location
+- When its complete a conn is set b/w aws and dx location
+- We get a port on single DX router in AWS cage in dx location
+- AWS provide the port info in LOA, download it and using this LOA you can connect to DX router (aws cage) to cust/partner colo router (cust cage)
+- AWS a/c -> DX connection b/w -> DX location -> (get a port and then connect DX port and Customer colo partner) -> Cust/Partner COLO -> Cust lan / CCU
+- DX location has aws cage & cust/Partner cage
+- DX can have public and private interfaces VIF (virtual interface)
+- THe LOA can take 3 days
+- DX, X connect (cross connect)
+- 
 
+Q) 
 
 ------------------------------------------------------------------------------------------------
 TeraData:
@@ -874,6 +938,9 @@ Output
 -rw------- 1 demo demo 1679 Sep  9 23:13 id_rsa
 -rw-r--r-- 1 demo demo  396 Sep  9 23:13 id_rsa.pub
 
+
+
+
 As you can see, the id_rsa file is readable and writable only to the owner. This is how it should be to keep it secret.
 The id_rsa.pub file, however, can be shared and has permissions appropriate for this activity.
 
@@ -1134,6 +1201,8 @@ http://www.tldp.org/LDP/Linux-Filesystem-Hierarchy/html/c23.html
        /tmp       Temporary files
        /usr       Secondary hierarchy
        /var       Variable data
+
+
 		
 ------------------------------------------------------------------
 Git:
@@ -1341,6 +1410,22 @@ shft+alt+up/down arrow move file in code
 ctrl + q -> documentation
 
 
-	
+-----------------------------CLOUD security-------------------------------------------------------------
+
+---------------------------------DDOS-------------------------------------------------
+-Distributed Denial of Service DDOS
+-3 & 4: Infrasturucture layer attacks
+-UDP reflection attacks and SYN floods, are infrastructure layer attacks
+ -UDP Reflection Attacks:
+ -Syn flood attacks
+-6 & 7: Apllication layer attack
+ -HTTP floods, cache-busting attacks, and WordPress XML-RPC floods.
+-
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+----------------------------------------------------------------------------------
+
 	
 	
