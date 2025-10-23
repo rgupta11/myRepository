@@ -1,0 +1,30 @@
+logs:
+  # PostgreSQL logs
+  - type: docker
+    name: postgres
+    source: postgresql
+    service: library-db
+    log_processing_rules:
+      - type: multi_line
+        name: postgresql_multiline
+        pattern: \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}
+
+  # Spring Boot application logs  
+  - type: docker
+    name: spring-boot
+    source: java
+    service: book-search
+    log_processing_rules:
+      - type: multi_line
+        name: java_multiline
+        pattern: \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}
+      # Parse JSON logs if using JSON logging format
+      - type: include_at_match
+        name: include_json_logs
+        pattern: ^\{.*\}$
+
+  # PgAdmin logs
+  - type: docker
+    name: pgadmin
+    source: python
+    service: pgadmin

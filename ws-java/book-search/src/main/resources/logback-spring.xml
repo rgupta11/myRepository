@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+    
+    <!-- Console Appender with JSON format for Datadog -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+            <providers>
+                <timestamp/>
+                <logLevel/>
+                <loggerName/>
+                <message/>
+                <mdc/>
+                <arguments/>
+                <stackTrace/>
+                <!-- Add Datadog trace correlation -->
+                <pattern>
+                    <pattern>
+                        {
+                        "dd.trace_id": "%X{dd.trace_id:-0}",
+                        "dd.span_id": "%X{dd.span_id:-0}",
+                        "dd.service": "${DD_SERVICE:-book-search}",
+                        "dd.env": "${DD_ENV:-development}",
+                        "dd.version": "${DD_VERSION:-1.0.0}"
+                        }
+                    </pattern>
+                </pattern>
+            </providers>
+        </encoder>
+    </appender>
+    
+    <!-- File Appender with JSON format for log persistence -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/book-search.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>logs/book-search.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <maxFileSize>10MB</maxFileSize>
+            <maxHistory>30</maxHistory>
+            <totalSizeCap>1GB</totalSizeCap>
+        </rollingPolicy>
+        <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+            <providers>
+                <timestamp/>
+                <logLevel/>
+                <loggerName/>
+                <message/>
+                <mdc/>
+                <arguments/>
+                <stackTrace/>
+                <!-- Add Datadog trace correlation -->
+                <pattern>
+                    <pattern>
+                        {
+                        "dd.trace_id": "%X{dd.trace_id:-0}",
+                        "dd.span_id": "%X{dd.span_id:-0}",
+                        "dd.service": "${DD_SERVICE:-book-search}",
+                        "dd.env": "${DD_ENV:-development}",
+                        "dd.version": "${DD_VERSION:-1.0.0}"
+                        }
+                    </pattern>
+                </pattern>
+            </providers>
+        </encoder>
+    </appender>
+
+    <!-- Spring Profile specific configurations -->
+    <springProfile name="dev,local">
+        <root level="DEBUG">
+            <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="FILE"/>
+        </root>
+        
+        <!-- Application specific loggers -->
+        <logger name="com.h2" level="DEBUG"/>
+        
+        <!-- Reduce Spring Boot framework logging in development -->
+        <logger name="org.springframework" level="INFO"/>
+        <logger name="org.hibernate" level="INFO"/>
+        <logger name="com.zaxxer.hikari" level="INFO"/>
+    </springProfile>
+    
+    <springProfile name="prod,production">
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="FILE"/>
+        </root>
+        
+        <!-- Application specific loggers -->
+        <logger name="com.h2" level="INFO"/>
+        
+        <!-- Reduce framework noise in production -->
+        <logger name="org.springframework" level="WARN"/>
+        <logger name="org.hibernate" level="WARN"/>
+        <logger name="com.zaxxer.hikari" level="WARN"/>
+    </springProfile>
+    
+    <springProfile name="test">
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+        </root>
+        
+        <!-- Test specific configuration -->
+        <logger name="com.h2" level="DEBUG"/>
+        <logger name="org.springframework.test" level="INFO"/>
+    </springProfile>
+    
+    <!-- Default configuration (if no profile is active) -->
+    <springProfile name="!dev &amp; !prod &amp; !production &amp; !test &amp; !local">
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="FILE"/>
+        </root>
+        
+        <!-- Application specific loggers -->
+        <logger name="com.h2" level="INFO"/>
+    </springProfile>
+</configuration>

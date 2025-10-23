@@ -28,8 +28,6 @@ public class BookControllerTest {
         assertTrue(HttpStatus.OK.equals(response.getStatusCode()));
         assertTrue(response.getBody() != null && response.getBody().length > 0);
     }
-        
-    } 
 
     // @Test
     // void testGetBooksBySearchTerm() {
@@ -37,4 +35,4 @@ public class BookControllerTest {
     //     List<Book> books = bookController.getBooksBySearchTerm(searchTerm);
     //     assertTrue(books.size() > 0);
     // }
-//}
+}

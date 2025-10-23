@@ -22,3 +22,12 @@ tmp/
 *.ear
 *.jar
 hs_err_pid*.log 
+
+# Environment files (contains sensitive API keys)
+.env
+
+# Datadog agent data (if running locally)
+/datadog-data/
+
+# Docker volumes
+/postgres-data/
