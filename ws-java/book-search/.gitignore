@@ -25,7 +25,7 @@ hs_err_pid*.log
 
 # Environment files (contains sensitive API keys)
 .env
-
+.env.example
 # Datadog agent data (if running locally)
 /datadog-data/
 
