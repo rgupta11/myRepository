@@ -11,7 +11,12 @@ import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
 import com.opencsv.exceptions.CsvValidationException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class DBImporter {
+
+    private static final Logger logger = LoggerFactory.getLogger(DBImporter.class);
 
         //private static final String CSV_URL = "https://gist.github.com/hhimanshu/d55d17b51e0a46a37b739d0f3d3e3c74/raw/5b9027cf7b1641546c1948caffeaa44129b7db63/books.csv";
     private static final String CSV_URL = System.getenv().getOrDefault("CSV_PATH", "/Users/ravi.gupta/work/codebase/repo/ws-java/book-search/src/main/resources/books.csv");
@@ -21,28 +26,28 @@ public class DBImporter {
 
     public static void main(String[] args) {
         try {
-            System.out.println("Starting data ingestion...");
+            logger.info("Starting data ingestion...");
 
             // Step 1: Download CSV Data
-            System.out.println("Downloading CSV data...");
+            logger.info("Downloading CSV data...");
             InputStream csvStream = downloadCSV(CSV_URL);
 
             // Step 2: Parse CSV Data
-            System.out.println("Parsing CSV data...");
+            logger.info("Parsing CSV data...");
             List<String[]> records = parseCSV(csvStream);
 
             // Step 3: Insert Data into Database
-            System.out.println("Inserting data into database...");
+            logger.info("Inserting data into database...");
             insertData(records);
 
             // Step 4: Update search vectors for all books
-            System.out.println("Updating search vectors...");
+            logger.info("Updating search vectors...");
             updateSearchVectors();
 
-            System.out.println("Data ingestion completed successfully.");
+            logger.info("Data ingestion completed successfully.");
 
         } catch (Exception e) {
-            System.err.println("An error occurred during data ingestion:");
+            logger.error("An error occurred during data ingestion:", e);
             e.printStackTrace();
         }
     }
@@ -221,7 +226,7 @@ public class DBImporter {
         
         try (PreparedStatement stmt = conn.prepareStatement(updateSearchVectorSQL)) {
             int rowsUpdated = stmt.executeUpdate();
-            System.out.println("Updated search vectors for " + rowsUpdated + " books.");
+            logger.info("Updated search vectors for {} books.", rowsUpdated);
         } finally {
             conn.close();
         }

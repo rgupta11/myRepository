@@ -4,7 +4,12 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class BookSearcher {
+    
+    private static final Logger logger = LoggerFactory.getLogger(BookSearcher.class);
     
     private static final String DB_URL = System.getenv().getOrDefault("DB_URL", "jdbc:postgresql://localhost:5432/library");
     private static final String DB_USER = System.getenv().getOrDefault("DB_USER", "admin");
@@ -71,30 +76,29 @@ public class BookSearcher {
 
     public static void main(String[] args) {
         if (args.length == 0) {
-            System.out.println("Usage: java BookSearcher <search_query>");
-            System.out.println("Example: java BookSearcher \"Java programming\"");
+            logger.info("Usage: java BookSearcher <search_query>");
+            logger.info("Example: java BookSearcher \"Java programming\"");
             return;
         }
         
         String query = String.join(" ", args);
         
         try {
-            System.out.println("Searching for: " + query);
+            logger.info("Searching for: {}", query);
             List<SearchResult> results = searchBooks(query);
             
             if (results.isEmpty()) {
-                System.out.println("No books found matching your search.");
+                logger.info("No books found matching your search.");
             } else {
-                System.out.println("Found " + results.size() + " books:");
-                System.out.println();
+                logger.info("Found {} books:", results.size());
+                logger.info(""); // Empty line for formatting
                 for (SearchResult result : results) {
-                    System.out.println(result);
+                    logger.info("{}", result);
                 }
             }
             
         } catch (SQLException e) {
-            System.err.println("Error searching books: " + e.getMessage());
-            e.printStackTrace();
+            logger.error("Error searching books: {}", e.getMessage(), e);
         }
     }
 }
