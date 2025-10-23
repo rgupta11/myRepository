@@ -1,0 +1,19 @@
+# Use OpenJDK 17 as base image
+FROM openjdk:17-jdk-slim
+
+# Install PostgreSQL client for pg_isready
+RUN apt-get update && apt-get install -y postgresql-client && rm -rf /var/lib/apt/lists/*
+
+# Set working directory
+WORKDIR /app
+
+# Copy the compiled JAR and resources
+COPY target/book-search-1.0-SNAPSHOT.jar /app/app.jar
+COPY src/main/resources/ /app/resources/
+COPY scripts/init-data.sh /app/init-data.sh
+
+# Make the script executable
+RUN chmod +x /app/init-data.sh
+
+# Run the initialization script
+CMD ["/app/init-data.sh"]
