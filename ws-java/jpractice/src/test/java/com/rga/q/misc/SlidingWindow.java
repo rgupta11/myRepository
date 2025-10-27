@@ -29,9 +29,7 @@ public class SlidingWindow {
             //profitable
             if (prices[leftBuyP] < prices[rightSellP]) {
                 double profit = prices[rightSellP] - prices[leftBuyP];
-                if (profit > maxProfit) {
-                    maxProfit = profit;
-                }
+                maxProfit = profit > maxProfit ? profit : maxProfit;
             } else {
                 //not profitable, move left pointer to right pointer
                 leftBuyP =  rightSellP;
@@ -44,7 +42,7 @@ public class SlidingWindow {
 
     public static void main (String[] args){
 
-        double[] prices = {7.0,1.0,5.0,3.0,6.0,4.0};
+        double[] prices = {7.0,1.0,5.0,3.0,6.0,8.0};
         double result = maxProfit(prices);
         System.out.println("Max profit: " + result);
 
