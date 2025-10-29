@@ -41,3 +41,9 @@ CREATE TABLE books_authors (
 
 -- Create GIN index on search_vector for full-text search performance
 CREATE INDEX idx_books_search_vector ON books USING GIN (search_vector);
+
+
+--UPDATE books SET search_vector =
+    --setweight(to_tsvector('english', coalesce(title,'')), 'A') ||
+    --setweight(to_tsvector('english', coalesce(description,'')), 'B') ||
+    --setweight(to_tsvector('english', coalesce(isbn,'')), 'C');
