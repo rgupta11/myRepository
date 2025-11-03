@@ -2,9 +2,9 @@ package com.rga.q.ds.bst;
 
 public class BST {
 
-    private Node root;
+    private BSTNode root;
     //getter and setter
-    public Node getRoot() { 
+    public BSTNode getRoot() { 
         return root; 
     }
 
@@ -17,9 +17,9 @@ public class BST {
         root = insertRec(root, element);
     }
 
-    private Node insertRec(Node root, int element) {
+    private BSTNode insertRec(BSTNode root, int element) {
         if (root == null) {
-            root = new Node(element);
+            root = new BSTNode(element);
             return root;
         }
         if (element < root.getElement()) {
@@ -35,7 +35,7 @@ public class BST {
         return searchRec(root, element);
     }
 
-    private boolean searchRec(Node root, int element) {
+    private boolean searchRec(BSTNode root, int element) {
         if (root == null) {
             return false;
         }
@@ -54,7 +54,7 @@ public class BST {
         inorderRec(root);
     }
 
-    private void inorderRec(Node root) {
+    private void inorderRec(BSTNode root) {
         if (root != null) {
             inorderRec(root.getLeft());
             System.out.print(root.getElement() + " ");
@@ -67,7 +67,7 @@ public class BST {
         preorderRec(root);
     }
 
-    private void preorderRec(Node root) {
+    private void preorderRec(BSTNode root) {
         if (root != null) {
             System.out.print(root.getElement() + " ");
             preorderRec(root.getLeft());
@@ -80,7 +80,7 @@ public class BST {
         postorderRec(root);
     }
 
-    private void postorderRec(Node root) {
+    private void postorderRec(BSTNode root) {
         if (root != null) {
             postorderRec(root.getLeft());
             postorderRec(root.getRight());

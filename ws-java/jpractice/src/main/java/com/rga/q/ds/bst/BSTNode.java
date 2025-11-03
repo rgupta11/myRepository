@@ -1,10 +1,10 @@
 package com.rga.q.ds.bst;
 
-public class Node {
+public class BSTNode {
     private int element;
-    private Node left;
-    private Node right;
-    public Node(int element) {
+    private BSTNode left;
+    private BSTNode right;
+    public BSTNode(int element) {
         this.element = element;
         this.left = null;
         this.right = null;
@@ -19,19 +19,19 @@ public class Node {
         this.element = element;
     }
 
-    public Node getLeft() {
+    public BSTNode getLeft() {
         return left;
     }
 
-    public void setLeft(Node left) {
+    public void setLeft(BSTNode left) {
         this.left = left;
     }
 
-    public Node getRight() {
+    public BSTNode getRight() {
         return right;
     }
 
-    public void setRight(Node right) {
+    public void setRight(BSTNode right) {
         this.right = right;
     }
 }

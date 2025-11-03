@@ -1,4 +1,4 @@
-package com.rga.q.misc;
+package com.rga.q.misc.features.twopointers;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
