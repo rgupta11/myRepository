@@ -1,4 +1,4 @@
-package com.rga.q.misc.features.twopointers;
+package com.rga.q.twoPointer;
 
 /*
  * For example, to identify whether a string is a palindrome, 

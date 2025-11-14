@@ -1,4 +1,4 @@
-package com.rga.q.misc.features.twopointers;
+package com.rga.q.twoPointer;
 
 
 /**
