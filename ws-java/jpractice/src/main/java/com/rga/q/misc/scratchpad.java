@@ -18,6 +18,9 @@ public class scratchpad {
         high = list.get(list.size() - 1);
         mid = low + high / 2;
         System.out.println("low: " + low + " mid: " + mid + " high: " + high);
+
+        //if(list.get(mid) == Boolean.TRUE)
+
     }
 
 
