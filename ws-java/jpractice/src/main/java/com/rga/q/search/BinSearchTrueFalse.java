@@ -14,7 +14,7 @@ class BinSearchTrueFalse {
         high = list.size() - 1;
 
         while (low <= high){
-            mid = low + (high - low) / 2; // Fix: Avoid potential overflow and use proper integer division
+            mid = low + (high - low) / 2; // Proper integer division to avoid overflow
             if(list.get(mid) == target){
                 boundary = mid;
                 high = mid - 1; // Continue searching left to find the first occurrence
@@ -23,13 +23,8 @@ class BinSearchTrueFalse {
             }else if(!target && list.get(mid)){ // If target is false and current is true  
                 high = mid - 1; // Search left half
             }else{
-                // This case handles when target is false and current is false, or target is true and current is true
-                // but we need to find the first occurrence, so continue searching left
-                if(target){
-                    high = mid - 1;
-                }else{
-                    high = mid - 1;
-                }
+                // This shouldn't happen in a well-formed boolean array, but handle gracefully
+                high = mid - 1;
             }
         }
         return boundary;
@@ -46,4 +41,23 @@ class BinSearchTrueFalse {
         int res = findBoundary(arr, target);
         System.out.println(res);
     }
+
+    /*
+     if(list == null || list.size() == 0)    
+            return -1;
+
+        int high, low=0;
+        int mid, boundry=-1;
+        high = list.size() - 1;
+
+        while (low <= high){
+            mid = (int) Math.ceil((low+high)/2);
+            if(list.get(mid) == Boolean.TRUE ){
+                boundry = mid;
+                high = mid-1;
+            }else
+                low = mid+1;           
+        }
+        return boundry;
+     */
 }
