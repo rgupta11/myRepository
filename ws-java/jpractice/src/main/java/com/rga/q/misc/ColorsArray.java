@@ -4,33 +4,51 @@ public class ColorsArray {
     
     
     public static int[] sortColors (int[] colors) {
-
-        int low=0, mid=0, high=colors.length-1;
-        while (mid <= high) {
-            switch(colors[mid]){
-                case 0:
-                    swap(colors, low, mid);
-                    low++;
-                    mid++;
-                    break;
-                case 1:
-                    mid++;
-                    break;
-                case 2:
-                    swap(colors, mid, high);
-                    high--;
-                    break;
-                case 3:
-                    swap(colors, mid, high);
-                    high--;
-                    break;
-                default:
-                    //swap(colors, mid, high);
-                    //high--;
-                    mid++;
-                    break;
+        // Create a copy to avoid modifying during iteration
+        int[] temp = colors.clone();
+        
+        // First pass: collect all valid colors (0, 1, 2) in order they appear
+        int writeIndex = 0;
+        for (int i = 0; i < temp.length; i++) {
+            if (temp[i] == 0 || temp[i] == 1 || temp[i] == 2) {
+                colors[writeIndex++] = temp[i];
             }
         }
+        
+        // Second pass: collect all invalid colors and place them at the end
+        for (int i = 0; i < temp.length; i++) {
+            if (temp[i] != 0 && temp[i] != 1 && temp[i] != 2) {
+                colors[writeIndex++] = temp[i];
+            }
+        }
+        
+        // Third pass: sort the valid colors portion using Dutch National Flag
+        int validLength = 0;
+        for (int i = 0; i < temp.length; i++) {
+            if (temp[i] == 0 || temp[i] == 1 || temp[i] == 2) {
+                validLength++;
+            }
+        }
+        
+        int low = 0, mid = 0, high = validLength - 1;
+        
+        while (mid <= high) {
+            if (colors[mid] == 0) {
+                swap(colors, low, mid);
+                low++;
+                mid++;
+            } else if (colors[mid] == 1) {
+                mid++;
+            } else if (colors[mid] == 2) {
+                swap(colors, mid, high);
+                high--;
+                // Don't increment mid here as we need to check the swapped element
+            } else {
+                // This shouldn't happen in the valid portion
+                mid++;
+            }
+        }
+        
         return colors;
     }
 
