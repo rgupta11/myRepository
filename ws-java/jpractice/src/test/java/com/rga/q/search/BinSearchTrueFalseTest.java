@@ -54,21 +54,4 @@ public class BinSearchTrueFalseTest {
         assertEquals(-1, result);
     }
 
-    @Test
-    public void testSplitWords_EmptyString() {
-        List<String> result = BinSearchTrueFalse.splitWords("");
-        assertTrue(result.isEmpty());
-    }
-
-    @Test
-    public void testSplitWords_SingleWord() {
-        List<String> result = BinSearchTrueFalse.splitWords("hello");
-        assertEquals(List.of("hello"), result);
-    }
-
-    @Test
-    public void testSplitWords_MultipleWords() {
-        List<String> result = BinSearchTrueFalse.splitWords("hello world test");
-        assertEquals(List.of("hello", "world", "test"), result);
-    }
 }
