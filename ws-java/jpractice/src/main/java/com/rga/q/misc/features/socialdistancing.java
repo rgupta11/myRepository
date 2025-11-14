@@ -55,16 +55,18 @@ public class socialdistancing {
             int diffSpace = rightFreeChair - leftFreeChair;
             if (diffSpace >= 0) {
                 result += diffSpace / minSeats + 1;
+            }
         }
 
         int lastChair = s[m - 1];
-        int lastAvailableIndex = (lastChair - 1) + minSeats;
-        if (lastAvailableIndex <= n-1) {
-            result += (n - 1 - lastAvailableIndex)/ minSeats + 1;
+        int lastAvailableIndex = lastChair + k;
+        if (lastAvailableIndex < n) {
+            result += (n - lastAvailableIndex) / minSeats;
+            if ((n - lastAvailableIndex) % minSeats != 0) {
+                result += 1;
+            }
         }
 
         return result;
     }
-
-
 }
