@@ -41,8 +41,8 @@ class BinSearchTrueFalse {
         high = list.size() - 1;
 
         while (low <= high){
-            mid = low + (high - low) / 2; // Proper integer division to avoid overflow
-            if(list.get(mid) == target){
+            mid = (high+low)/2;//low + (high - low) / 2; // Proper integer division to avoid overflow
+            if(target == list.get(mid)){
                 boundary = mid;
                 high = mid - 1; // Continue searching left to find the first occurrence
             }else if(target > list.get(mid)){ // If target is greater than current
@@ -65,7 +65,7 @@ class BinSearchTrueFalse {
         System.out.println(res);
 
 
-        List<Integer> list = List.of(1, 3, 3, 3, 3, 6, 10, 10, 10, 100);
+        List<Integer> list = List.of(1, 3, 3, 3, 3, 4, 4, 6, 10, 10, 10, 100);
         int target2 = 3;
         int res2 = findBoundaryInt(list, target2);
         System.out.println(res2);
@@ -90,4 +90,36 @@ class BinSearchTrueFalse {
         }
         return boundry;
      */
+
+     /* - Find Minimum in Rotated Sorted Array
+     A sorted array of unique integers was rotated at an unknown pivot. For example, [10, 20, 30, 40, 50] becomes [30, 40, 50, 10, 20]. Find the index of the minimum element in this array     
+        Input: [30, 40, 50, 10, 20]
+        Output: 3
+
+      public static int findMinRotated(List<Integer> list) {
+        int l = 0;
+        int h=list.size()-1;
+        int min = list.get(0);
+        int m;
+        int b = 0;
+        while (l<=h){
+            m = l + (h-l) / 2;
+            if(min == list.get(m)){
+                if(m-1<=0)
+                    l=m+1;
+                else
+                    h=m-1;
+            }else if(min < list.get(m)){
+                l = m+1;
+            }else if(min > list.get(m)){
+                //breaking condition 
+                b=m;
+                h=m-1;
+                min=list.get(m);
+                //break;
+            }
+            
+        }
+        return b;
+    }*/
 }
