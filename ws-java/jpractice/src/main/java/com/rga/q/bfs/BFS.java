@@ -1,6 +1,9 @@
 package com.rga.q.bfs;
 
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
 /**
  * Breadth-First Search (BFS) algorithm implementation.
@@ -29,10 +32,10 @@ public class BFS {
 
     public static List<Integer> bfsMatrix(int startNode, int[][] adjMatrix, boolean[] visited){
         int numberOfNodes = adjMatrix.length;
-        java.util.Queue<Integer> queue = new java.util.LinkedList<Integer>();
+        Queue<Integer> queue = new LinkedList<Integer>();
         queue.add(startNode);
         visited[startNode] = true;
-        List<Integer> result = new java.util.ArrayList<Integer>();
+        List<Integer> result = new ArrayList<Integer>();
 
         while(!queue.isEmpty()){
             int currentNode = queue.poll();
@@ -49,12 +52,12 @@ public class BFS {
         return result;
     }
 
-    public static List<Integer> bfsList(int startNode, java.util.List<java.util.List<Integer>> adjList, boolean[] visited){
+    public static List<Integer> bfsList(int startNode, List<List<Integer>> adjList, boolean[] visited){
         
-        java.util.Queue<Integer> queue = new java.util.LinkedList<Integer>();
+        Queue<Integer> queue = new LinkedList<Integer>();
         queue.add(startNode);
         visited[startNode] = true;
-        List<Integer> result = new java.util.ArrayList<Integer>();
+        List<Integer> result = new ArrayList<Integer>();
 
         while(!queue.isEmpty()){
             int currentNode = queue.poll();
