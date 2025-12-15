@@ -1,5 +1,7 @@
 package com.rga.q.concurrency;
 
+import java.util.Arrays;
+
 public class ThreadHelloWorld {
     
     
@@ -146,6 +148,47 @@ class SumUpExample {
         threeThreads();
         fourThreads();
 
+
+        Thread testT = new Thread (new Runnable(){
+
+            @Override
+            public void run() {
+                System.out.println("Hello from test thread");
+            }
+        });
+        //What is differnce b/w new Runnalble() and ()-> ?
+        // The difference is in the syntax and the way the Runnable is implemented.
+        // The new Runnable() syntax is an anonymous inner class implementation,
+        // while ()-> is a lambda expression that provides a more concise way to implement
+        // the Runnable interface.  Both achieve the same result of creating a Runnable
+        // instance, but the lambda expression is often preferred for its brevity and clarity,
+        // Example code for both is shown below:
+
+            /*Thread testT2 = new Thread(() -> {
+                System.out.println("Hello from test thread");
+            });*/
+            
+            /* runnable example 
+            Thread testT2 = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    System.out.println("Hello from test thread");
+                }
+            });*/
+
+        testT.start();
+        testT.join();   // Join main thread with testT thread. It 
+                        // waits for testT to finish before main thread can finish
+                        // If join is not called, main thread may finish before testT prints its message
+                        // and we may not see the message at all.
+                        // If multiple threads are started, main thread will wait for all of them to finish
+                        // before exiting.  Yes, it is a good practice
+                        // to call join in the order of thread starts to maintain a 
+                        // predictable execution flow.
+
+        String str = "abcfghiseqlafps";
+        char[] chars = str.toCharArray();
+        Arrays.sort(chars);
     }
 }
 
