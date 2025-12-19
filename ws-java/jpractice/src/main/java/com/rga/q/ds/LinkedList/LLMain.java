@@ -63,8 +63,6 @@ class LinkedListL {
 
 public class LLMain {
     
- 
-
     public static void main(String[] args) {
         LinkedListL ll = new LinkedListL();
         ll.insertBeginning(10);
