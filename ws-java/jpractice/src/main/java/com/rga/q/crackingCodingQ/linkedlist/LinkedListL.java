@@ -1,20 +1,9 @@
-package com.rga.q.ds.LinkedList;
+package com.rga.q.crackingCodingQ.linkedlist;
 
-class Node {
-        
-    int data; 
-    Node next;
-    
-    Node(int data){
-        this.data = data;
-        this.next = null;
-    } 
-}
+public class LinkedListL {
 
-class LinkedListL {
-
-    Node head;
-    int length;
+    public Node head;
+    public int length;
 
     public LinkedListL(){
         head = null;
@@ -59,22 +48,4 @@ class LinkedListL {
             pointer = pointer.next;
         }
     }
-}
-
-public class LLMain {
-    
-    public static void main(String[] args) {
-        LinkedListL ll = new LinkedListL();
-        ll.insertBeginning(10);
-        ll.insertBeginning(20);
-        ll.insertBeginning(30);
-        ll.insertBeginning(5);
-        ll.display(); // Output: 5 -> 30 -> 20 -> 10 -> null
-
-        ll.deleteNode(20);
-        ll.display(); // Output: 5 -> 30 -> 10 -> null
-
-        System.out.println("Length of LinkedList: " + ll.length); // Output: 3
-    }
-    
 }
