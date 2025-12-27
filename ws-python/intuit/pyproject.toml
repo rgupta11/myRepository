@@ -9,7 +9,11 @@ description = "QuickBooks Commerce System for Top Sales by Category"
 readme = "README.md"
 requires-python = ">=3.9"
 authors = [{ name = "Ravi Gupta" }]
-dependencies = []
+dependencies = [
+    "pandas",
+    "clickhouse-driver",
+    "pyarrow"
+]
 
 [project.optional-dependencies]
 dev = ["pytest"]
