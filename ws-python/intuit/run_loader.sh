@@ -7,4 +7,4 @@ PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
 
 # Run loader.py with correct Python and path
 cd "$SCRIPT_DIR"
-PYTHONPATH=src "$PROJECT_ROOT/.venv39/bin/python" src/business_prediction/loader.py
+PYTHONPATH=src "$PROJECT_ROOT/.venv39/bin/python" src/business_prediction/dataloader/loader.py

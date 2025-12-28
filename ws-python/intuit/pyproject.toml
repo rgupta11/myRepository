@@ -12,7 +12,10 @@ authors = [{ name = "Ravi Gupta" }]
 dependencies = [
     "pandas",
     "clickhouse-driver",
-    "pyarrow"
+    "pyarrow",
+    "clickhouse-connect",
+    "prophet",
+    "joblib"
 ]
 
 [project.optional-dependencies]
