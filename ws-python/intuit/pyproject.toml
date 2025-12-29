@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "business_prediction"
+version = "0.1.0"
+description = "QuickBooks Commerce System for Top Sales by Category"
+readme = "README.md"
+requires-python = ">=3.9"
+authors = [{ name = "Ravi Gupta" }]
+dependencies = [
+    "pandas",
+    "clickhouse-driver",
+    "pyarrow",
+    "clickhouse-connect",
+    "prophet",
+    "joblib"
+]
+
+[project.optional-dependencies]
+dev = ["pytest"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
