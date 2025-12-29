@@ -2,6 +2,7 @@ from prophet import Prophet
 import joblib
 import os
 import pandas as pd
+from datetime import datetime
 from enum import Enum
 from business_prediction.ml.training.loader_business_data import loader_business_data
 
@@ -31,6 +32,7 @@ def train_business_model(df, business_id):
         models[category_id] = model
 
     os.makedirs("models", exist_ok=True)
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     path = f"models/prophet_{business_id}.joblib"
     joblib.dump(models, path)
 
@@ -38,7 +40,7 @@ def train_business_model(df, business_id):
 
 
 if __name__ == "__main__":
-    business_id = "biz_123"
+    business_id = "AMAZON"
     result = train_business_model(None, business_id)
     if result:
         print(f"Models trained and saved to {result}")
