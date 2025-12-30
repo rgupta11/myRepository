@@ -59,6 +59,7 @@
 from prophet.diagnostics import cross_validation, performance_metrics
 import joblib
 import numpy as np
+import matplotlib.pyplot as plt
 
 models = joblib.load("models/prophet_AMAZON.joblib")
 electronics_model = models["ELECTRONICS"]
@@ -73,26 +74,36 @@ df_cv = cross_validation(
        period="30 days",
        initial="730 days"
    )
-#if model.history is not None:
-    #print(df_cv.head())
-df_perf = performance_metrics(df_cv)
-print(df_perf[['horizon', 'mape', 'mae', 'rmse']])
+df_cv["horizon"] = df_cv["ds"] - df_cv["cutoff"]
+df_perf = performance_metrics(df_cv, rolling_window=0)
     
 
+df_cv["abs_error"] = np.abs(df_cv["y"] - df_cv["yhat"])
 
-# df_wape = (
-#     df_cv
-#     .groupby("horizon")
-#     .apply(lambda x: x["abs_error"].sum() / x["y"].sum())
-#     .reset_index(name="wape")
-# )
+df_wape = (
+    df_cv
+    .groupby("horizon")
+    .apply(lambda x: x["abs_error"].sum() / x["y"].sum())
+    .reset_index(name="wape")
+)
 
-#df_cv["abs_error"] = np.abs(df_cv["y"] - df_cv["yhat"])
-#df_perf = df_perf.merge(df_wape, on="horizon", how="left")
-#print(df_perf[['horizon', 'mape', 'wape', 'mae', 'rmse']])
+df_perf = df_perf.merge(df_wape, on="horizon", how="left")
+print(df_perf[['horizon', 'mape', 'wape', 'mae', 'rmse']])
 
 wape = np.abs(df_cv["y"] - df_cv["yhat"]).sum() / df_cv["y"].sum()
-print("WAPE:", wape)
+print("\nGlobal WAPE:", wape)
+
+
+#Graph using matplotlib
+plt.figure(figsize=(10, 6))
+plt.plot(df_perf["horizon"].dt.days, df_perf["mape"], marker='o', label='MAPE')
+plt.plot(df_perf["horizon"].dt.days, df_perf["wape"], marker='o', label='WAPE')
+plt.xlabel("Horizon (days)")
+plt.ylabel("Error")
+plt.title("Forecast Error by Horizon for ELECTRONICS Category")
+plt.legend()
+plt.grid()
+plt.show()
 
 
 ## Metrics that actually matter
