@@ -270,11 +270,12 @@ def predict_category_sales_trend(
 
 
 if __name__ == "__main__":
+
     business_name = "AMAZON"
     category_id = "ELECTRONICS"
     forecast = predict_category_sales_By_month(business_name, category_id, 6)
     monthly_forecast_df = monthly_forecast(forecast)
-    print(f"Forecast for business_name '{business_name}' and category_id '{category_id}':")
+    print(f"Forecast for business_name '{business_name}' and category_id '{category_id}' for months '{6}' :")
     print(monthly_forecast_df.tail())
 
     ## Forecast for business_name 'AMAZON' and category_id 'ELECTRONICS':
@@ -298,18 +299,18 @@ if __name__ == "__main__":
     forecast = predict_future(business_name="AMAZON",category_id="ELECTRONICS", start_date=start_date, end_date=end_date)
 
     print(f"\nFiltered forecast from {start_date} to {end_date}:")
-    march_forecast = forecast  # Already filtered
-    march_total = total_sales_for_range(march_forecast)
+    date_range_forecast = forecast  # Already filtered
+    date_range_total = total_sales_for_range(date_range_forecast)
 
-    print(march_forecast.head())
-    predicted = float(march_total['predicted_revenue'])
-    lower = float(march_total['lower_bound'])
+    print(date_range_forecast)
+    predicted = float(date_range_total['predicted_revenue'])
+    lower = float(date_range_total['lower_bound'])
     business_name = "AMAZON"
     category_id = "ELECTRONICS"
     forecast = predict_category_sales_By_month(business_name, category_id, 6)
     monthly_forecast_df = monthly_forecast(forecast)
-    print(f"Forecast for business_name '{business_name}' and category_id '{category_id}':")
-    print(monthly_forecast_df.tail())
+    #print(f"Forecast for business_name '{business_name}' and category_id '{category_id}':")
+    #print(monthly_forecast_df.tail())
 
     ## Forecast for business_name 'AMAZON' and category_id 'ELECTRONICS':
     #        month   predicted_revenue   lower_bound   upper_bound
@@ -326,17 +327,17 @@ if __name__ == "__main__":
     # or as high as ~$18.6k.”
 
     # Example of filtering date range
-    print('-----------------------------------------------------------------------------------------')
-    start_date = "2026-12-01"
-    end_date = "2026-12-31"
-    forecast = predict_future(business_name="AMAZON",category_id="ELECTRONICS", start_date=start_date, end_date=end_date)
+    # print('-----------------------------------------------------------------------------------------')
+    # start_date = "2026-12-01"
+    # end_date = "2026-12-31"
+    # forecast = predict_future(business_name="AMAZON",category_id="ELECTRONICS", start_date=start_date, end_date=end_date)
 
-    print(f"\nFiltered forecast from {start_date} to {end_date}:")
-    march_forecast = forecast  # Already filtered
-    march_total = total_sales_for_range(march_forecast)
+    # print(f"\nFiltered forecast from {start_date} to {end_date}:")
+    # march_forecast = forecast  # Already filtered
+    # march_total = total_sales_for_range(march_forecast)
     
-    print(march_forecast.head())
-    predicted = float(march_total['predicted_revenue'])
-    lower = float(march_total['lower_bound'])
-    upper = float(march_total['upper_bound'])
-    print(f"\nTotal predicted sales for December 2026: ${predicted:.2f} (Lower bound: ${lower:.2f}, Upper bound: ${upper:.2f})")
+    # print(march_forecast.head())
+    # predicted = float(march_total['predicted_revenue'])
+    # lower = float(march_total['lower_bound'])
+    # upper = float(march_total['upper_bound'])
+    # print(f"\nTotal predicted sales for December 2026: ${predicted:.2f} (Lower bound: ${lower:.2f}, Upper bound: ${upper:.2f})")

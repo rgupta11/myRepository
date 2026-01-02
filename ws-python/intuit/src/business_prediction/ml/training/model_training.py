@@ -25,6 +25,9 @@ def train_business_model(df, business_name):
             continue
 
         model = Prophet(
+            # growth ='linear' - default 
+            # daily_seasonality=False, -- auto
+            # interval_growth By default, this is set to 0.80. need higher confidence set it to 0.95 (95%)
             yearly_seasonality=True,
             weekly_seasonality=True
         )
