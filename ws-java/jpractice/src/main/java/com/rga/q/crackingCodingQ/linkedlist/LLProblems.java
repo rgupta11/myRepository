@@ -173,6 +173,12 @@ public class LLProblems {
             6. Return head of new linked list
         */
         //TODO 
+        //TODO
+        LinkedListL llfirst = createLinkedList(5);
+        LinkedListL llsecond = createLinkedList(9);
+
+        LinkedListL llResult = sumLinkedlist(llfirst, llsecond);
+
 
 
 
@@ -209,10 +215,18 @@ public class LLProblems {
         Is this correct that we check P1 & P2 before incrementing p2?
         */
 
-        //TODO
+        
 
+    }
 
+    private static LinkedListL sumLinkedlist(LinkedListL llfirst, LinkedListL llsecond){
+        LinkedListL result = null;
+        //Loop until both LLs are null and carry is 0
+        //The % will give the unit digit
+        //The / will give the carry over digit
+        
 
+        return result;
     }
 
     private static LinkedListL createLinkedList(int n){

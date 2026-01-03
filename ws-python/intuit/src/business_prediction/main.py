@@ -11,8 +11,8 @@ from business_prediction.ml.training.model_training import train_business_model
 from typing import List, Dict, Optional
 from datetime import datetime, timedelta
 
-def predict_category_sales(business_id, category_id, horizon=30):
-    model_path = os.path.join(os.path.dirname(__file__), '..', '..', 'models', f'prophet_{business_id}.joblib')
+def predict_category_sales(business_name, category_id, horizon=30):
+    model_path = os.path.join(os.path.dirname(__file__), '..', '..', 'models', f'prophet_{business_name}.joblib')
     models = joblib.load(model_path)
     model = models[category_id]
 
@@ -28,13 +28,13 @@ def predict_category_sales(business_id, category_id, horizon=30):
 
 
 def predict_category_sales_By_month(
-    business_id: str,
+    business_name: str,
     category_id: str,
     months: int = 6
 ):
     # Convert months to days (approximate)
     horizon = months * 30
-    return predict_category_sales(business_id, category_id, horizon=horizon)
+    return predict_category_sales(business_name, category_id, horizon=horizon)
 
 def monthly_forecast(forecast_df):
     forecast_df['Month'] = forecast_df['Date'].dt.to_period('M')
@@ -54,13 +54,13 @@ def monthly_forecast(forecast_df):
 
 
 def predict_future(
-    business_id: str,
+    business_name: str,
     category_id: str,
     start_date: str,
     end_date: str
 ):
 
-    model_path = os.path.join(os.path.dirname(__file__), '..', '..', 'models', f'prophet_{business_id}.joblib')
+    model_path = os.path.join(os.path.dirname(__file__), '..', '..', 'models', f'prophet_{business_name}.joblib')
     models = joblib.load(model_path)
     model = models[category_id]
 
@@ -111,7 +111,7 @@ def total_sales_for_range(forecast_df: pd.DataFrame):
 
 
 def predict_top_categories_by_sales(
-    business_id: str,
+    business_name: str,
     time_frame: str = 'month',
     periods: int = 1,
     top_n: int = 5
@@ -120,7 +120,7 @@ def predict_top_categories_by_sales(
     Predict top sales by category over different time frames.
 
     Args:
-        business_id: The business identifier (e.g., 'AMAZON')
+        business_name: The business name (e.g., 'AMAZON')
         time_frame: 'week', 'month', or 'year'
         periods: Number of time frames to forecast
         top_n: Number of top categories to return
@@ -128,7 +128,7 @@ def predict_top_categories_by_sales(
     Returns:
         DataFrame with top categories and their predicted sales
     """
-    model_path = os.path.join(os.path.dirname(__file__), '..', '..', 'models', f'prophet_{business_id}.joblib')
+    model_path = os.path.join(os.path.dirname(__file__), '..', '..', 'models', f'prophet_{business_name}.joblib')
 
     if not os.path.exists(model_path):
         raise FileNotFoundError(f"Model file not found: {model_path}")
@@ -199,7 +199,7 @@ def predict_top_categories_by_sales(
 
 
 def predict_category_sales_trend(
-    business_id: str,
+    business_name: str,
     category_ids: Optional[List[str]] = None,
     time_frame: str = 'month',
     periods: int = 12
@@ -208,7 +208,7 @@ def predict_category_sales_trend(
     Predict sales trends for specified categories over time.
 
     Args:
-        business_id: The business identifier
+        business_name: The business name (e.g., 'AMAZON')
         category_ids: List of category IDs to forecast (None for all)
         time_frame: 'week', 'month', or 'year'
         periods: Number of time frames to forecast
@@ -216,7 +216,7 @@ def predict_category_sales_trend(
     Returns:
         DataFrame with sales trends for each category
     """
-    model_path = os.path.join(os.path.dirname(__file__), '..', '..', 'models', f'prophet_{business_id}.joblib')
+    model_path = os.path.join(os.path.dirname(__file__), '..', '..', 'models', f'prophet_{business_name}.joblib')
 
     if not os.path.exists(model_path):
         raise FileNotFoundError(f"Model file not found: {model_path}")
@@ -270,14 +270,15 @@ def predict_category_sales_trend(
 
 
 if __name__ == "__main__":
-    business_id = "AMAZON"
+
+    business_name = "AMAZON"
     category_id = "ELECTRONICS"
-    forecast = predict_category_sales_By_month(business_id, category_id, 6)
+    forecast = predict_category_sales_By_month(business_name, category_id, 6)
     monthly_forecast_df = monthly_forecast(forecast)
-    print(f"Forecast for business_id '{business_id}' and category_id '{category_id}':")
+    print(f"Forecast for business_name '{business_name}' and category_id '{category_id}' for months '{6}' :")
     print(monthly_forecast_df.tail())
 
-    ## Forecast for business_id 'biz_123' and category_id 'ELECTRONICS':
+    ## Forecast for business_name 'AMAZON' and category_id 'ELECTRONICS':
     #        month   predicted_revenue   lower_bound   upper_bound
     #    5  2023-06        9112.079906   -487.710719  18658.838866
     #    6  2023-07        5731.412243  -4241.616098  15513.223125
@@ -295,23 +296,23 @@ if __name__ == "__main__":
     print('-----------------------------------------------------------------------------------------')
     start_date = "2026-12-01"
     end_date = "2026-12-31"
-    forecast = predict_future(business_id="biz_123",category_id="ELECTRONICS", start_date=start_date, end_date=end_date)
+    forecast = predict_future(business_name="AMAZON",category_id="ELECTRONICS", start_date=start_date, end_date=end_date)
 
     print(f"\nFiltered forecast from {start_date} to {end_date}:")
-    march_forecast = forecast  # Already filtered
-    march_total = total_sales_for_range(march_forecast)
+    date_range_forecast = forecast  # Already filtered
+    date_range_total = total_sales_for_range(date_range_forecast)
 
-    print(march_forecast.head())
-    predicted = float(march_total['predicted_revenue'])
-    lower = float(march_total['lower_bound'])
-    business_id = "AMAZON"
+    print(date_range_forecast)
+    predicted = float(date_range_total['predicted_revenue'])
+    lower = float(date_range_total['lower_bound'])
+    business_name = "AMAZON"
     category_id = "ELECTRONICS"
-    forecast = predict_category_sales_By_month(business_id, category_id, 6)
+    forecast = predict_category_sales_By_month(business_name, category_id, 6)
     monthly_forecast_df = monthly_forecast(forecast)
-    print(f"Forecast for business_id '{business_id}' and category_id '{category_id}':")
-    print(monthly_forecast_df.tail())
+    #print(f"Forecast for business_name '{business_name}' and category_id '{category_id}':")
+    #print(monthly_forecast_df.tail())
 
-    ## Forecast for business_id 'biz_123' and category_id 'ELECTRONICS':
+    ## Forecast for business_name 'AMAZON' and category_id 'ELECTRONICS':
     #        month   predicted_revenue   lower_bound   upper_bound
     #    5  2023-06        9112.079906   -487.710719  18658.838866
     #    6  2023-07        5731.412243  -4241.616098  15513.223125
@@ -326,17 +327,17 @@ if __name__ == "__main__":
     # or as high as ~$18.6k.”
 
     # Example of filtering date range
-    print('-----------------------------------------------------------------------------------------')
-    start_date = "2026-12-01"
-    end_date = "2026-12-31"
-    forecast = predict_future(business_id="biz_123",category_id="ELECTRONICS", start_date=start_date, end_date=end_date)
+    # print('-----------------------------------------------------------------------------------------')
+    # start_date = "2026-12-01"
+    # end_date = "2026-12-31"
+    # forecast = predict_future(business_name="AMAZON",category_id="ELECTRONICS", start_date=start_date, end_date=end_date)
 
-    print(f"\nFiltered forecast from {start_date} to {end_date}:")
-    march_forecast = forecast  # Already filtered
-    march_total = total_sales_for_range(march_forecast)
+    # print(f"\nFiltered forecast from {start_date} to {end_date}:")
+    # march_forecast = forecast  # Already filtered
+    # march_total = total_sales_for_range(march_forecast)
     
-    print(march_forecast.head())
-    predicted = float(march_total['predicted_revenue'])
-    lower = float(march_total['lower_bound'])
-    upper = float(march_total['upper_bound'])
-    print(f"\nTotal predicted sales for December 2026: ${predicted:.2f} (Lower bound: ${lower:.2f}, Upper bound: ${upper:.2f})")
+    # print(march_forecast.head())
+    # predicted = float(march_total['predicted_revenue'])
+    # lower = float(march_total['lower_bound'])
+    # upper = float(march_total['upper_bound'])
+    # print(f"\nTotal predicted sales for December 2026: ${predicted:.2f} (Lower bound: ${lower:.2f}, Upper bound: ${upper:.2f})")

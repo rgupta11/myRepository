@@ -43,7 +43,7 @@ class loader_business_data:
                     return False
         return True
     
-    def load_business_data(self, business_id: str):
+    def load_business_data(self, business_name: str):
         #client = clickhouse_connect.get_client(host='localhost')
         
         query = f"""
@@ -52,7 +52,7 @@ class loader_business_data:
             total_revenue AS y,
             category_id
         FROM category_sales_daily
-        WHERE business_id = '{business_id}'
+        WHERE business_name = '{business_name}'
         ORDER BY category_id, day_start
         """
         # Try to connect and insert
@@ -65,25 +65,25 @@ class loader_business_data:
                 else:
                     # Use clickhouse_connect
                     df = self.client.query_df(query)
-                print(f"✅ Successfully fetched data for business_id '{business_id}' from ClickHouse")
+                print(f"✅ Successfully fetched data for business_name '{business_name}' from ClickHouse")
             except Exception as e:
-                print(f"❌ Failed to fetch data for business_id '{business_id}': {e}")
-                df = self._generate_sample_data(business_id)
+                print(f"❌ Failed to fetch data for business_name '{business_name}': {e}")
+                df = self._generate_sample_data(business_name)
         else:
             print("💡 ClickHouse not available, using sample data")
-            df = self._generate_sample_data(business_id)
+            #df = self._generate_sample_data(business_name)
         return df
-    
-    def _generate_sample_data(self, business_id):
+
+    def _generate_sample_data(self, business_name):
         """Load data from parquet file"""
         parquet_path = os.path.join(os.path.dirname(__file__), '..', '..', '..', '..', 'data', 'amazon_category_' \
         'sales_2023_2025.parquet')
         if os.path.exists(parquet_path):
             df = pd.read_parquet(parquet_path)
             print(f"📊 Loaded real data from {parquet_path} with {len(df)} rows")
-            # Filter for the business_id if needed
-            if 'business_id' in df.columns:
-                df = df[df['business_id'] == business_id]
+            # Filter for the business_name if needed
+            if 'business_name' in df.columns:
+                df = df[df['business_name'] == business_name]
             # Rename columns to match expected: ds, y, category_id
             if 'day_start' in df.columns and 'total_revenue' in df.columns and 'category_id' in df.columns:
                 df = df.rename(columns={'day_start': 'ds', 'total_revenue': 'y'})
@@ -92,12 +92,12 @@ class loader_business_data:
                 return df
             else:
                 print("⚠️  Parquet file missing required columns. Falling back to sample data.")
-                return self._generate_fallback_sample(business_id)
+                return self._generate_fallback_sample(business_name)
         else:
             print("⚠️  Parquet file not found. Generating sample data.")
-            return self._generate_fallback_sample(business_id)
-    
-    def _generate_fallback_sample(self, business_id):
+            return self._generate_fallback_sample(business_name)
+
+    def _generate_fallback_sample(self, business_name):
         """Generate sample data for testing"""
         import numpy as np
         from datetime import datetime, timedelta
@@ -125,5 +125,5 @@ class loader_business_data:
                 })
         
         df = pd.DataFrame(data)
-        print(f"📊 Generated fallback sample data with {len(df)} rows for business_id '{business_id}'")
+        print(f"📊 Generated fallback sample data with {len(df)} rows for business_name '{business_name}'")
         return df

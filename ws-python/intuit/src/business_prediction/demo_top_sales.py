@@ -10,7 +10,7 @@ from business_prediction.main import (
 )
 
 def main():
-    business_id = "AMAZON"
+    business_name = "AMAZON"
 
     print("🚀 Amazon Sales Prediction - Top Categories by Time Frame")
     print("=" * 60)
@@ -19,7 +19,7 @@ def main():
     print("\n📊 Top 5 Categories - Next Month Sales Forecast:")
     try:
         top_monthly = predict_top_categories_by_sales(
-            business_id=business_id,
+            business_name=business_name,
             time_frame='month',
             periods=1,
             top_n=5
@@ -32,7 +32,7 @@ def main():
     print("\n📈 Top 3 Categories - Next Week Sales Forecast:")
     try:
         top_weekly = predict_top_categories_by_sales(
-            business_id=business_id,
+            business_name=business_name,
             time_frame='week',
             periods=1,
             top_n=3
@@ -45,7 +45,7 @@ def main():
     print("\n📉 Sales Trends - Next 6 Months for All Categories:")
     try:
         trends = predict_category_sales_trend(
-            business_id=business_id,
+            business_name=business_name,
             time_frame='month',
             periods=6
         )
@@ -66,7 +66,7 @@ def main():
     try:
         # First get top categories for next month
         top_cats = predict_top_categories_by_sales(
-            business_id=business_id,
+            business_name=business_name,
             time_frame='month',
             periods=1,
             top_n=3
@@ -75,7 +75,7 @@ def main():
         top_category_ids = top_cats['category_id'].tolist()
 
         yearly_trends = predict_category_sales_trend(
-            business_id=business_id,
+            business_name=business_name,
             category_ids=top_category_ids,
             time_frame='month',
             periods=12

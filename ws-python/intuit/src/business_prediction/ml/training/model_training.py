@@ -14,17 +14,20 @@ class Category(Enum):
     SPORTS_OUTDOORS = "SPORTS_OUTDOORS"
 
 
-def train_business_model(df, business_id):
+def train_business_model(df, business_name):
     models = {}
-    df = loader_business_data().load_business_data(business_id)
+    df = loader_business_data().load_business_data(business_name)
     if df.empty:
-        print(f"No data found for business_id '{business_id}'")
+        print(f"No data found for business_name '{business_name}'")
         return None
     for category_id, group_df in df.groupby("category_id"):
         if len(group_df) < 90:
             continue
 
         model = Prophet(
+            # growth ='linear' - default 
+            # daily_seasonality=False, -- auto
+            # interval_growth By default, this is set to 0.80. need higher confidence set it to 0.95 (95%)
             yearly_seasonality=True,
             weekly_seasonality=True
         )
@@ -32,16 +35,16 @@ def train_business_model(df, business_id):
         models[category_id] = model
 
     os.makedirs("models", exist_ok=True)
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    path = f"models/prophet_{business_id}.joblib"
+    #timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    path = f"models/prophet_{business_name}.joblib"
     joblib.dump(models, path)
 
     return path
 
 
 if __name__ == "__main__":
-    business_id = "AMAZON"
-    result = train_business_model(None, business_id)
+    business_name = "AMAZON"
+    result = train_business_model(None, business_name)
     if result:
         print(f"Models trained and saved to {result}")
     else:

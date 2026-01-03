@@ -45,7 +45,7 @@ class ParquetLoader:
 
         # Try to connect and insert
         if self.connect():
-            try:
+            try:        
                 self.client.execute(f"INSERT INTO {table_name} VALUES", df.to_dict('records'))
                 print(f"✅ Successfully inserted {len(df)} rows into table '{table_name}'")
             except Exception as e:
