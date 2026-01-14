@@ -1,5 +1,5 @@
 package com.rga.q.ds.quadtree;
-import com.rga.q.ds.treeutils.Node;
+import com.rga.q.ds.tree.treeutils.Node;
 
 /*  QuadTree in-memory Tree to manage LBS geospatial indexes
  *  Divides business area into four quadrants or regions until
