@@ -12,11 +12,11 @@ from business_prediction.main import (
 def main():
     business_name = "AMAZON"
 
-    print("🚀 Amazon Sales Prediction - Top Categories by Time Frame")
+    print("Amazon Sales Prediction - Top Categories by Time Frame")
     print("=" * 60)
 
     # Example 1: Get top 5 categories by monthly sales for next month
-    print("\n📊 Top 5 Categories - Next Month Sales Forecast:")
+    print("\nTop 5 Categories - Next Month Sales Forecast:")
     try:
         top_monthly = predict_top_categories_by_sales(
             business_name=business_name,
@@ -29,7 +29,7 @@ def main():
         print(f"Error: {e}")
 
     # Example 2: Get top categories by weekly sales for next week
-    print("\n📈 Top 3 Categories - Next Week Sales Forecast:")
+    print("\nTop 3 Categories - Next Week Sales Forecast:")
     try:
         top_weekly = predict_top_categories_by_sales(
             business_name=business_name,
@@ -42,7 +42,7 @@ def main():
         print(f"Error: {e}")
 
     # Example 3: Get sales trends for next 6 months for all categories
-    print("\n📉 Sales Trends - Next 6 Months for All Categories:")
+    print("\nSales Trends - Next 6 Months for All Categories:")
     try:
         trends = predict_category_sales_trend(
             business_name=business_name,
@@ -62,7 +62,7 @@ def main():
         print(f"Error: {e}")
 
     # Example 4: Compare specific categories over next year
-    print("\n🔍 Year-ahead Forecast Comparison for Top Categories:")
+    print("\nYear-ahead Forecast Comparison for Top Categories:")
     try:
         # First get top categories for next month
         top_cats = predict_top_categories_by_sales(
