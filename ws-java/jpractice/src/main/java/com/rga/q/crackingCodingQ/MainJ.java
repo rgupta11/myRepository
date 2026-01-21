@@ -8,6 +8,8 @@ public class MainJ {
      * Unique String
      * Implement an algorithm to determine if a string has all unique characters. 
      * What if you can not use additional data structures?
+     * 
+     * sort it and check adjacent chars if same then it has duplicates
      */
     static boolean checkUnique(String str){
         

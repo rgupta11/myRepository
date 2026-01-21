@@ -59,7 +59,9 @@
 from prophet.diagnostics import cross_validation, performance_metrics
 import joblib
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
+import seaborn as sns
 
 models = joblib.load("models/prophet_AMAZON.joblib")
 electronics_model = models["ELECTRONICS"]
@@ -93,6 +95,19 @@ print(df_perf[['horizon', 'mape', 'wape', 'mae', 'rmse']])
 wape = np.abs(df_cv["y"] - df_cv["yhat"]).sum() / df_cv["y"].sum()
 print("\nGlobal WAPE:", wape)
 
+# Calculate Monthly Aggregated WAPE (Business Metric)
+# As per comments: "Aggregate predictions and actuals over the validation period."
+df_monthly_agg = (
+    df_cv
+    .groupby("cutoff")
+    .apply(lambda x: pd.Series({
+        "actual_total": x["y"].sum(),
+        "pred_total": x["yhat"].sum()
+    }))
+    .reset_index()
+)
+monthly_wape = np.abs(df_monthly_agg["actual_total"] - df_monthly_agg["pred_total"]).sum() / df_monthly_agg["actual_total"].sum()
+print(f"Monthly Aggregated WAPE: {monthly_wape:.4f}")
 
 #Graph using matplotlib
 plt.figure(figsize=(10, 6))
@@ -104,6 +119,28 @@ plt.title("Forecast Error by Horizon for ELECTRONICS Category")
 plt.legend()
 plt.grid()
 plt.show()
+
+# Plot forecast vs actuals for each validation window
+plt.figure(figsize=(12, 6))
+sns.lineplot(x="ds", y="y", data=electronics_model.history, label="Actuals")
+sns.lineplot(x="ds", y="yhat", data=df_cv, label="Forecast")
+plt.xlabel("Date")
+plt.ylabel("Sales")
+plt.title("ELECTRONICS Category: Forecast vs Actuals")
+plt.legend()
+plt.show()
+
+# Plot Monthly Aggregated Forecast vs Actuals (Business View)
+plt.figure(figsize=(12, 6))
+sns.lineplot(x="cutoff", y="actual_total", data=df_monthly_agg, label="Monthly Actuals", marker='o')
+sns.lineplot(x="cutoff", y="pred_total", data=df_monthly_agg, label="Monthly Forecast", marker='o')
+plt.xlabel("Validation Month")
+plt.ylabel("Total Sales")
+plt.title("ELECTRONICS Category: Monthly Aggregated Forecast vs Actuals")
+plt.grid(True)
+plt.show()
+
+##
 
 
 ## Metrics that actually matter

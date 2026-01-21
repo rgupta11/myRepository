@@ -4,22 +4,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Node {
-    private int id;
-    private String data;
+    private int data;
+    private Node left;
+    private Node right;
 
-    public Node(int id, String data) {
-        this.id = id;
+    public Node(int data) {
         this.data = data;
+        this.left = null;
+        this.right = null;
     }
 
-    public int getId() {
-        return id;
-    }
-
-    public String getData() {
+    public int getData() {
         return data;
     }
-
+        
     public void subDivide() {
         // Implementation for subdividing the node into four quadrants
     }
@@ -28,5 +26,21 @@ public class Node {
 
     public List<Node> getChildren() {
         return children;
+    }
+
+    public Node getLeft() {
+        return left;
+    }
+
+    public void setLeft(Node left) {
+        this.left = left;
+    }
+
+    public Node getRight() {
+        return right;
+    }
+
+    public void setRight(Node right) {
+        this.right = right;
     }
 }
