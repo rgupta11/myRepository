@@ -23,10 +23,10 @@ class loader_business_data:
                                    user=self.user, password=self.password, database=self.database)
                 # Test the connection
                 result = self.client.query("SELECT 1")
-                print(f"✅ Connected to ClickHouse at {self.clickhouse_host}:{self.clickhouse_port}")
+                print(f"Connected to ClickHouse at {self.clickhouse_host}:{self.clickhouse_port}")
                 return True
             except Exception as e:
-                print(f"❌ Failed to connect to ClickHouse: {e}")
+                print(f"Failed to connect to ClickHouse: {e}")
                 print("💡 Trying with clickhouse_driver...")
                 try:
                     from clickhouse_driver import Client as CHClient
@@ -37,7 +37,7 @@ class loader_business_data:
                     self.use_driver = True
                     return True
                 except Exception as e2:
-                    print(f"❌ Failed with clickhouse_driver: {e2}")
+                    print(f" Failed with clickhouse_driver: {e2}")
                     print("💡 ClickHouse not available, using parquet data")
                     self.client = None
                     return False
@@ -65,9 +65,9 @@ class loader_business_data:
                 else:
                     # Use clickhouse_connect
                     df = self.client.query_df(query)
-                print(f"✅ Successfully fetched data for business_name '{business_name}' from ClickHouse")
+                print(f" Successfully fetched data for business_name '{business_name}' from ClickHouse")
             except Exception as e:
-                print(f"❌ Failed to fetch data for business_name '{business_name}': {e}")
+                print(f" Failed to fetch data for business_name '{business_name}': {e}")
                 df = self._generate_sample_data(business_name)
         else:
             print("💡 ClickHouse not available, using sample data")
@@ -88,13 +88,13 @@ class loader_business_data:
             if 'day_start' in df.columns and 'total_revenue' in df.columns and 'category_id' in df.columns:
                 df = df.rename(columns={'day_start': 'ds', 'total_revenue': 'y'})
                 df = df[['ds', 'y', 'category_id']]  # Keep only needed columns
-                print(f"✅ Data prepared with {len(df)} rows, date range: {df['ds'].min()} to {df['ds'].max()}")
+                print(f" Data prepared with {len(df)} rows, date range: {df['ds'].min()} to {df['ds'].max()}")
                 return df
             else:
-                print("⚠️  Parquet file missing required columns. Falling back to sample data.")
+                print("  Parquet file missing required columns. Falling back to sample data.")
                 return self._generate_fallback_sample(business_name)
         else:
-            print("⚠️  Parquet file not found. Generating sample data.")
+            print(" Parquet file not found. Generating sample data.")
             return self._generate_fallback_sample(business_name)
 
     def _generate_fallback_sample(self, business_name):
