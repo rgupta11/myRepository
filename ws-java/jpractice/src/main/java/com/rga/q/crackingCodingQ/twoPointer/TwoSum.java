@@ -1,4 +1,8 @@
 package com.rga.q.twoPointer;
+import java.util.HashSet;
+import java.util.Set;
+
+
 
 /**
  * Two sum
@@ -19,9 +23,50 @@ package com.rga.q.twoPointer;
  * Modification - find all pairs that sum to target
  * Approach: Create a lookup for the elements in the array and iterate through the array to 
  * find pairs that sum to target.
+ * Datastructure to store pairs - set of pairs to avoid duplicates
+ * example: [1,2,3,4,5,6,7,8], target = 9
+ * Set of pairs: (1,8), (2,7), (3,6), (4,5)
+ * Java code to find all pairs that sum to target:
  * 
  */
 public class TwoSum {
+
+
+    static class Pair<T, U> {
+        private T first;
+        private U second;
+
+        public Pair(T first, U second) {
+            this.first = first;
+            this.second = second;
+        }
+
+        public T getFirst() {
+            return first;
+        }
+
+        public U getSecond() {
+            return second;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            Pair<?, ?> pair = (Pair<?, ?>) o;
+
+            if (!first.equals(pair.first)) return false;
+            return second.equals(pair.second);
+        }
+
+        @Override
+        public int hashCode() {
+            int result = first.hashCode();
+            result = 31 * result + second.hashCode();
+            return result;
+        }
+    }
 
 
     static boolean checkTwoSum(int[] nums, int target){
@@ -41,13 +86,15 @@ public class TwoSum {
 
     }
 
-    static void findAllPairs(int[] nums, int target){
+    static Set findAllPairs(int[] nums, int target){
         int left = 0;
         int right = nums.length -1;
+        Set<Pair<Integer, Integer>> pairs = new HashSet<>();
         while (left<right) { 
             int sum = nums[left] + nums[right];
             if(sum == target){
                 System.out.println(nums[left] + ", " + nums[right]);
+                pairs.add(new Pair<>(nums[left], nums[right]));
                 left++;
                 right--;
             } else if (sum < target) {
@@ -56,6 +103,7 @@ public class TwoSum {
                 right--;
             }
         }
+        return pairs;
     }
 
     public static void main(String[] args) {
@@ -68,7 +116,10 @@ public class TwoSum {
 
         //Find all pairs that sum to target
         System.out.println("All pairs that sum to target:");
-        findAllPairs(nums, target);
+        Set<Pair<Integer, Integer>> pairs = findAllPairs(nums, target);
+        for (Pair<Integer, Integer> pair : pairs) {
+            System.out.println("(" + pair.getFirst() + ", " + pair.getSecond() + ")");
+        }
 
     }
     
