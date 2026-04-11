@@ -1,6 +1,29 @@
 package com.rga.q.twoPointer;
 import java.util.Arrays;    
 
+
+/**
+ * Write a function to count the number of triplets in an integer array nums that could form the sides of a triangle.
+ * For three sides to form a valid triangle, all three of these conditions must hold:
+ * (a + b > c), (a + c > b), and (b + c > a), where (a), (b), and (c) are the side lengths.
+ * In other words, the sum of every possible pair must exceed the third side.
+ * 
+ * Input - nums = [11,4,9,6,15,18]
+ * Output 10
+ * triplets are (4,6,9), (4,6,11), (4,6,15), (4,6,18), (4,9,11), (4,9,15), (4,9,18), (6,9,11), (6,9,15), (6,9,18)   
+ * 
+ * Approach:
+ * 1. Sort the array in non-decreasing order.
+ * sorted array - [4,6,9,11,15,18]
+ * 2. Use 2 pointers to find the triplets.
+ * 3. Iterate through the array from the end and fix the last element as i. 
+ *  Then use two pointers to find pairs (l, r) such that l+r > i.
+ * 4. If l+r > i, then all elements from l to r-1 will also satisfy the condition because the array is sorted.
+ * 5. Move the pointers accordingly and count the valid triplets.
+ * 
+ * Data structure to store triplets - list of triplets
+ * Example List of triplets: (4,6,9), (4,6,11), (4,6,15), (4,6,18), (4,9,11), (4,9,15), (4,9,18), (6,9,11), (6,9,15), (6,9,18)
+ */
 public class Triangles {
 
 

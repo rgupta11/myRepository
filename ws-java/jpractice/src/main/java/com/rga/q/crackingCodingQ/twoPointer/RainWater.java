@@ -28,6 +28,20 @@ package com.rga.q.twoPointer;
  *       right--;
  *   }
  * 
+ * if height goes to huge number then can int overflow? 
+ * Yes, we can use long to store area and return int after checking for overflow.
+ * 
+ * How to check overflow?
+ * when int cannot go beyonf Integer.maxvalue then how > condition will be true?
+ * if (area >= Integer.MAX_VALUE) {
+ * 
+ * Integer max value is 2^31 - 1, 
+ * Long max value is 2^63 - 1,
+ * 
+ * float max value is 2^128 - 1
+ * double max value is 2^1024 - 1
+ * 
+ * char is 2 bytes, so max char value is 2^16 - 1
  * 
  */
 public class RainWater {

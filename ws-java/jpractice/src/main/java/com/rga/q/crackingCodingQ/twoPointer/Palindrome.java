@@ -1,11 +1,15 @@
 package com.rga.q.twoPointer;
 
-/*
- * For example, to identify whether a string is a palindrome, 
- * we can use one pointer to iterate the string from the beginning and the other
- * pointer to iterate from the end.
- * They move towards each other and stop when they meet in the middle of the string.
- * This algorithm runs in O(n) time and uses O(1) space.
+/**
+ * 
+ * Given a string, determine if it is a palindrome, considering only alphanumeric characters 
+ * and ignoring cases.
+ * Approach: 
+ * Two pointer approach, one at the beginning and one at the end, move towards each other 
+ * and compare characters. If characters are not alphanumeric, skip them. If characters are different, 
+ * return false.
+ * space complexity: O(1) - we are using constant extra space for the pointers and temporary variables.
+ * time complexity: O(n) - we are traversing the string at most once.
  */
 
 public class Palindrome {
