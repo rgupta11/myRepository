@@ -1,4 +1,4 @@
-package com.rga.q.greedy;
+package com.rga.q.crackingCodingQ.greedy;
 
 import java.util.SortedSet;
 import java.util.TreeSet;

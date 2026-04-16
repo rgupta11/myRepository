@@ -1,4 +1,4 @@
-package com.rga.q.greedy;
+package com.rga.q.crackingCodingQ.greedy;
 
 /**
  * This is Knapsack type problem to maximize the Job profit with the wait time constraint

@@ -1,4 +1,4 @@
-package com.rga.q.bfs;
+package com.rga.q.crackingCodingQ.bfs;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
