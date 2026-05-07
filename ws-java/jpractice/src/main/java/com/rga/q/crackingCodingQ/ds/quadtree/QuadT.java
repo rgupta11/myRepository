@@ -8,16 +8,16 @@ import com.rga.q.ds.tree.treeutils.Node;
 public class QuadT {
 
 
-    public void buildQuadTree(Node root) {
+    public void buildQuadTree(Cache root) {
         if (bizCountInCurrentGrid(root) > 100){
             root.subDivide();
-            for (Node child : root.getChildren()) {
+            for (Cache child : root.getChildren()) {
                 buildQuadTree(child);
             }
         }
     }
 
-    public int bizCountInCurrentGrid(Node node) {
+    public int bizCountInCurrentGrid(Cache node) {
         // Implementation for counting business entities in the current grid
         return 0;
     }

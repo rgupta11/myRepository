@@ -1,5 +1,10 @@
-package com.rga.q.twoPointer;
+package com.rga.q.crackingCodingQ.twoPointer;
+
 import java.util.Arrays;    
+import java.util.List;
+import java.util.Set;
+import java.util.HashSet;
+
 
 
 /**
@@ -23,6 +28,13 @@ import java.util.Arrays;
  * 
  * Data structure to store triplets - list of triplets
  * Example List of triplets: (4,6,9), (4,6,11), (4,6,15), (4,6,18), (4,9,11), (4,9,15), (4,9,18), (6,9,11), (6,9,15), (6,9,18)
+ * 
+ * duplicate triplets - if the input array has duplicate elements, we can have duplicate triplets.
+ * For example, if the input array is [4,6,9,11,15,18,4], we can have duplicate triplets like (4,6,9) and (4,6,9) again.
+ * To avoid duplicate triplets, we can use a set to store the triplets and check for duplicates before adding them to the set.
+ * e.g. 
+ * 
+ * Time complexity: O(n^2) due to the nested loop and two pointers.
  */
 public class Triangles {
 
@@ -33,6 +45,7 @@ public class Triangles {
 
         // Step 1: Sort the array
         Arrays.sort(nums);
+        Set<List<Integer>> triplets = new HashSet<>(); // To store unique triplets
 
         // Step 2: Use two pointers to find valid triplets
         for (int i = n - 1; i >= 2; i--) {
@@ -43,13 +56,15 @@ public class Triangles {
                 if (nums[l] + nums[r] > nums[i]) {
                     // If nums[l] + nums[r] > nums[i], then all elements from l to r-1 will also satisfy the condition
                     count += (r - l);
+                    // Add the triplet to the set to avoid duplicates
+                    triplets.add(Arrays.asList(nums[l], nums[r], nums[i]));
                     r--; // Move the right pointer leftwards
                 } else {
                     l++; // Move the left pointer rightwards
                 }
             }
         }
-
+        System.out.println("Unique triplets that can form triangles: " + triplets);
         return count;
     }
 
@@ -83,9 +98,10 @@ public class Triangles {
          */
 
         int[] nums = {11,4,9,6,15,18};
+        //int[] nums = {4,6,9,11,15,18,4};
         int count = countValidTriangles(nums);
         System.out.println("Number of valid triangles: " + count);
-
+        
     }
     
 }

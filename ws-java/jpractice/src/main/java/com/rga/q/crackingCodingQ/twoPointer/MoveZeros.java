@@ -1,5 +1,4 @@
-package com.rga.q.twoPointer;
-
+package com.rga.q.crackingCodingQ.twoPointer;
 /**
  * Given an integer array nums, write a function to rearrange the array by moving all zeros to the end 
  * while keeping the order of non-zero elements unchanged. Perform this operation in-place without 
@@ -10,6 +9,14 @@ nums = [2,0,4,0,9]
 Output:
 
 [2,4,9,0,0]
+Complexity Analysis:
+Time Complexity: O(n), where n is the length of the input array. We traverse the array twice: once to move non-zero elements and once to fill the remaining positions with zeros.
+Space
+
+why cant we sort the array? -- order of non-zero elements would not be maintained
+Sorting the array would not maintain the relative order of the non-zero elements. The problem specifically requires
+that the order of non-zero elements remains unchanged. If we sort the array, all zeros would be grouped together, and the non-zero elements would be rearranged, 
+which violates the requirement of maintaining their original order.
  */
 
 //suggest a better class name for this problem - MoveZerosToEnd

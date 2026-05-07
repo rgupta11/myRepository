@@ -17,23 +17,23 @@ public class TreeQuestionsMain {
 
     private static Tree createUnbalancedTree() {
 
-        Node root = new Node(1);
+        Cache root = new Cache(1);
         Tree tree = new Tree(root);
-        tree.insertNode(new Node(2));
-        tree.insertNode(new Node(5));
-        tree.insertNode(new Node(3));
-        tree.insertNode(new Node(4)); // This insertion might make the tree unbalanced depending on the Tree's insertNode logic
+        tree.insertNode(new Cache(2));
+        tree.insertNode(new Cache(5));
+        tree.insertNode(new Cache(3));
+        tree.insertNode(new Cache(4)); // This insertion might make the tree unbalanced depending on the Tree's insertNode logic
         return tree;
     }
 
     private static Tree createBalancedTree() {
 
-        Node root = new Node(1);
+        Cache root = new Cache(1);
         Tree tree = new Tree(root);
-        tree.insertNode(new Node(2));
-        tree.insertNode(new Node(3));
-        tree.insertNode(new Node(4));
-        tree.insertNode(new Node(5)); // This insertion might make the tree unbalanced depending on the Tree's insertNode logic
+        tree.insertNode(new Cache(2));
+        tree.insertNode(new Cache(3));
+        tree.insertNode(new Cache(4));
+        tree.insertNode(new Cache(5)); // This insertion might make the tree unbalanced depending on the Tree's insertNode logic
         return tree;
     }
 

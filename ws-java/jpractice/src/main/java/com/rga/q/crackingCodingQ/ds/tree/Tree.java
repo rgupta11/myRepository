@@ -5,21 +5,21 @@ import com.rga.q.ds.tree.treeutils.Node;
 //create and manage tree nodes.
 public class Tree {
     
-    private Node root;
-    public Node getRoot() {
+    private Cache root;
+    public Cache getRoot() {
         return root;
     }   
 
-    public Tree(Node root){
+    public Tree(Cache root){
         this.root = root;
     }
 
-    public Node insertNode(Node node) {
+    public Cache insertNode(Cache node) {
         root = insertNode(root, node);
         return root;
     }
 
-    private Node insertNode(Node current, Node node) {  
+    private Cache insertNode(Cache current, Cache node) {  
         if (current == null) {
             return node;
         }
@@ -44,19 +44,19 @@ public class Tree {
         postOrderTraversal(root);
     }   
 
-    private void inOrderTraversal(Node node) {
+    private void inOrderTraversal(Cache node) {
         inOrderTraversal(node.getLeft());
         System.out.println(node.getData());
         inOrderTraversal(node.getRight());
     }
     
-    private void preOrderTraversal(Node node) {
+    private void preOrderTraversal(Cache node) {
         System.out.println(node.getData());
         preOrderTraversal(node.getLeft());
         preOrderTraversal(node.getRight());
     }
 
-    private void postOrderTraversal(Node node) {
+    private void postOrderTraversal(Cache node) {
         postOrderTraversal(node.getLeft());
         postOrderTraversal(node.getRight());
         System.out.println(node.getData());

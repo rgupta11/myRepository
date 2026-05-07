@@ -1,5 +1,6 @@
-package com.rga.q.search;
+package com.rga.q.crackingCodingQ.search;
 
+import java.util.Arrays;
 import java.util.List;
 
 class BinarySearch {
@@ -14,7 +15,7 @@ class BinarySearch {
         high = arr.size() -1;
         
         while(low <= high){
-            mid = (int) Math.ceil((low+high)/2);
+            mid = (int) Math.floor((low+high)/2);
             if(arr.get(mid) == target){
                 return mid;
             }else if(arr.get(mid) < target){
@@ -39,5 +40,7 @@ class BinarySearch {
         int target = 3;
         int res = binarySearch(arr, target);
         System.out.println(res);
+        int[] apples = {1, 2, 3, 4, 5, 10, 15, 3, 1, 99};
+        System.out.println("Apples-" + Arrays.stream(apples).max().getAsInt());
     }
 }
